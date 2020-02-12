@@ -1,0 +1,35 @@
+---
+meta:
+  default:
+    azs: [z1]
+
+instance_groups:
+  - name:      cf-app-autoscaler
+    instances: 1
+    azs:       (( grab params.availability_zones || meta.default.azs ))
+    stemcell:  default
+    networks:  { name: (( grab params.network || "default" )) }
+    vm_type:   (( grab params.vm_type || "default" ))
+
+    properties:
+      debug: false
+
+
+update:
+  serial:            false
+  canaries:          1
+  max_in_flight:     1
+  max_errors:        1
+  canary_watch_time: 5000-600000
+  update_watch_time: 5000-600000
+
+stemcells:
+  - alias:   default
+    os:      (( grab params.stemcell_os      || "ubuntu-trusty" ))
+    version: (( grab params.stemcell_version || "latest" ))
+
+releases:
+  - name: cf-app-autoscaler
+    version: (( param "The Kit Author forgot to fill out manifests/cf-app-autoscaler.yml" ))
+    sha1:    (( param "The Kit Author forgot to fill out manifests/cf-app-autoscaler.yml" ))
+    url:     (( param "The Kit Author forgot to fill out manifests/cf-app-autoscaler.yml" ))
