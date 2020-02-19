@@ -15,6 +15,5 @@ kit:
 
 params:
   env:   $GENESIS_ENVIRONMENT
-  vault: $GENESIS_VAULT_PREFIX
 EOF
 exit 0

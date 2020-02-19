@@ -1,9 +1,10 @@
 cf-app-autoscaler Genesis Kit
 =================
 
-FIXME: The kit author should have filled this in with details about
-what this is, and what it provides. But they have not, and that is sad.
-Perhaps a GitHub issue should be opened to remind them of this?
+Deploys the App Autoscaler release for automatically scaling Cloud Foundry
+applications.  As this release is tightly coupled to Cloud Foundry, this kit
+is by necessity tightly coupled to the use of the cf-genesis-kit version 2.0.0
+or higher.
 
 Quick Start
 -----------

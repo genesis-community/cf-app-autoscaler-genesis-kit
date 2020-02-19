@@ -1,0 +1,13 @@
+---
+meta:
+  cf:
+    bosh: (( grab params.cf-bosh || params.bosh || genesis.env ))
+    env:  (( grab params.cf-env  || genesis.env ))
+
+params:
+  cf_system_domain: (( param "Please specify the CF system domain in params.cf_system_domain" ))
+  bosh-variables:
+    cf_client_id: app_autoscaler_client
+    cf_client_secret: (( concat "((/" meta.cf.bosh "-bosh/" meta.cf.env "-cf/uaa_clients_app_autoscaler_client_secret))" ))
+    system_domain: (( grab params.cf_system_domain ))
+    skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
