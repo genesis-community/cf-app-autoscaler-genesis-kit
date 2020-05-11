@@ -1,0 +1,113 @@
+---
+addons:
+- name: bosh-dns-aliases
+  jobs:
+  - name: bosh-dns-aliases
+    properties:
+      aliases:
+      - (( merge on domain ))
+      - domain: reverse-log-proxy.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: "*"
+          deployment: (( grab meta.cf.deployment_name ))
+          network:    (( grab params.cf_core_network ))
+
+      - domain: autoscalerpostgres.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: apiserver.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: autoscalerscheduler.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: servicebroker.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: eventgenerator.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: scalingengine.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: metricsgateway.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+      - domain: metricsserver.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab name ))
+          network:    (( grab params.network ))
+
+instance_groups:
+- name: postgres_autoscaler
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: asactors
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: asmetrics
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: asnozzle
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: asapi
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+  jobs:
+  - name: loggregator_agent
+    consumes:
+      doppler: 
+        deployment: (( grab meta.cf.deployment_name ))
+  - name: route_registrar
+    consumes:
+      nats: 
+        deployment: (( grab meta.cf.deployment_name ))
+
+variables:
+- name: metricsserver_server
+  options:
+    alternative_names:
+    - (( replace ))
+    - metricsserver.service.cf.internal
+    - (( concat "*.asmetrics." params.network "." name ".bosh" ))

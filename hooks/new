@@ -5,15 +5,51 @@ set -eu
 #
 # Genesis Kit `new' Hook
 #
+declare -a features
+features=()
 
-cat <<EOF >$GENESIS_ROOT/$GENESIS_ENVIRONMENT.yml
-kit:
-  name:    $GENESIS_KIT_NAME
-  version: $GENESIS_KIT_VERSION
-  features:
-    - (( replace ))
+(
+echo "---"
+echo "kit:"
+echo "  name:    $GENESIS_KIT_NAME"
+echo "  version: $GENESIS_KIT_VERSION"
+echo "  features:"
+for feature in "${features[@]}" ; do
+  echo "    - $feature"
+done
 
-params:
-  env:   $GENESIS_ENVIRONMENT
-EOF
-exit 0
+genesis_config_block
+
+echo
+echo "params:"
+echo "  # Cloud Foundry base domain"
+echo "  base_domain: $base_domain"
+
+case $use_db in
+mysql-db)
+  echo
+  echo "  # External MySQL configuration"
+  echo "  external_db_host: $db_host"
+  ;;
+
+postgres-db)
+  echo
+  echo "  # External PostgreSQL configuration"
+  echo "  external_db_host: $db_host"
+  ;;
+
+local-ha-db)
+  echo
+  echo "  # VIP for the HA Postgres DB"
+  echo "  postgres_vip: $postgres_vip"
+esac
+
+if [[ -z $use_provided_cert ]]; then
+  echo "  # Skip SSL validation since we use self-signed certs"
+  echo "  skip_ssl_validation: true"
+fi
+) >$GENESIS_ROOT/$GENESIS_ENVIRONMENT.yml
+
+offer_environment_editor
+
+# vim:foldmethod=marker

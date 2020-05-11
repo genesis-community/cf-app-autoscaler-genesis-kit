@@ -1,0 +1,72 @@
+#!/bin/bash
+set -u
+#Version check
+min_version="2.7.8-rc1"
+genesis_version="$(genesis -v 2>&1 | grep '^Genesis v' | sed -e 's/Genesis v\(.*\) (.*$/\1/')"
+if ! [[ "$genesis_version" =~ -dev$ ]] && ! new_enough "$genesis_version" "$min_version" ; then
+  describe >&2 "" "#R{[ERROR]} This kit needs Genesis $min_version.  Please upgrade before continuing" ""
+  exit 1
+fi
+set -e
+
+list() {
+  describe "" "$(cat <<EOF
+The following addons are defined:
+
+  #G{bind-autoscaler}   Binds the Autoscaler service broker to your
+                    deployed CF.
+
+EOF
+)"
+}
+
+cf_login() {
+  cf_deployment_env="$(exodus cf_deployment_env)"
+  cf_deployment_type="$(exodus cf_deployment_type)"
+  cf_exodus="${GENESIS_EXODUS_MOUNT}${cf_deployment_env}/${cf_deployment_type}"
+  if ! cf plugins | grep -q '^cf-targets'; then
+    describe "#Y{The cf-targets plugin does not seem to be installed}"
+        echo "Install it first, via 'genesis do $GENESIS_ENVIRONMENT -- setup-cli'"
+        echo "from your $cf_deployment_env environment in your CF deployment repo."
+    exit 1
+  fi
+
+  system_domain="$(safe get "${cf_exodus}:system_domain")"
+  api_url=https://api.$system_domain
+  username="$(safe get "${cf_exodus}:admin_username")"
+  password="$(safe get "${cf_exodus}:admin_password")"
+
+  #TODO enfoce ssl validation
+  cf api "$api_url" --skip-ssl-validation
+  cf auth "$username" "$password"
+  cf save-target -f "$cf_deployment_env"
+  echo ; echo
+  cf target
+}
+
+
+bind_autoscaler() {
+  cf_login
+  username="$(exodus service_broker_username)"
+  password="$(exodus service_broker_password)"
+  domain=$(exodus service_broker_domain)
+  url="https://$domain"
+  cf create-service-broker autoscaler "$username" "$password" "$url"
+  cf enable-service-access autoscaler
+  echo "Successfully created the service broker."
+  exit 0
+}
+
+
+case $GENESIS_ADDON_SCRIPT in
+list)
+  list
+  exit 0
+  ;;
+
+bind-autoscaler)
+  bind_autoscaler
+  exit 0
+  ;;
+esac
+

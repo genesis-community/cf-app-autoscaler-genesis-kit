@@ -6,73 +6,35 @@ set -eu
 
 declare -a manifests
 
-validate_features v1 v1-small external-db postgres-ssl
+validate_features external-db
 
-if want_feature external-db && want_feature postgres-ssl ; then
-  bail "Cannot specify both external-db and postgres-ssl features"
-fi
-
-if want_feature v1 ; then
-  want_feature v1-small && bail "Cannot specify both v1 and v1-small features"
-  manifests=( upstream/templates/app-autoscaler-deployment-v1.yml upstream/operations/bosh-dns-v1.yml)
-  for feature in external-db postgres-ssl ; do
-    want_feature $feature && manifests+=( "upstream/operations/$feature-v1.yml" )
-  done
-
-elif want_feature v1-small ; then
-  manifests=( upstream/templates/app-autoscaler-deployment-fewer-v1.yml upstream/operations/bosh-dns-fewer-v1.yml)
-  for feature in external-db postgres-ssl ; do
-    want_feature $feature && manifests+=( "upstream/operations/$feature-fewer-v1.yml" )
-  done
-
-else
-  manifests=( upstream/templates/app-autoscaler-deployment.yml )
-  want_feature external-db &&  manifests+=( "upstream/operations/external-db.yml" )
-
-fi
-
+manifests=( upstream/templates/app-autoscaler-deployment.yml )
+want_feature external-db && manifests+=( \
+  "upstream/operations/external-db.yml" \
+  "overlay/exernal-db.yml" \
+)
 
 # Do features => opsfiles stuff here
-
 for __feature in $GENESIS_REQUESTED_FEATURES; do
   if [[ $__feature =~ operations/.* ]] ; then
-    if [[ -f "$__feature.yml" ]] ; then
-      manifests+=( "$__feature.yml" )
+    if [[ -f "upstream/$__feature.yml" ]] ; then
+      manifests+=( "upstream/$__feature.yml" )
     else
-      __bail "GENESIS_KIT_NAME/$GENESIS_KIT_VERSION does not support the $__feature feature"
+      __bail "$GENSIS_KIT_ID does not support the $__feature feature"
     fi
   elif [[ -f $GENESIS_ROOT/ops/$__feature.yml ]] ; then
     mkdir -p "$(dirname "local_ops/$__feature.yml")"
     cp "$GENESIS_ROOT/ops/$__feature.yml" "local_ops/$__feature.yml"
     manifests+=( "local_ops/$__feature.yml" )
   else
-    __bail "GENESIS_KIT_NAME/$GENESIS_KIT_VERSION does not support the $__feature feature"
+    __bail "$GENESIS_KIT_ID does not support the $__feature feature"
   fi
 done
 
-mkdir -p "generated"
-bosh_dep="$(lookup "params.bosh-deployment")"
-if [[ -z "$bosh_dep" ]] ; then
-  bosh_dep="$(lookup "params.bosh")"
-  [[ -n "$bosh_dep" ]] || bosh_dep="$GENESIS_ENVIRONMENT"
-  bosh_dep="${bosh_dep}-bosh"
-fi
-cf_dep="$(lookup "params.cf-deployment")"
-if [[ -z "$cf_dep" ]] ; then
-  cf_dep="${GENESIS_ENVIRONMENT}-cf"
-fi
-cf_client_secret="$(credhub get -n "/$bosh_dep/$cf_dep/uaa_clients_app_autoscaler_client_secret" -q)"
-
-cat > generated/passwords.yml <<EOF
----
-params:
-  bosh-variables:
-    cf_client_secret: "$cf_client_secret"
-EOF
 manifests+=( \
   overlay/base.yml \
+  overlay/change_deployment_and_network.yml \
   overlay/releases.yml \
-  generated/passwords.yml \
 )
 
 echo "${manifests[@]}"

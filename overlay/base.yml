@@ -1,13 +1,39 @@
 ---
 meta:
   cf:
-    bosh: (( grab params.cf-bosh || params.bosh || genesis.env ))
-    env:  (( grab params.cf-env  || genesis.env ))
+    exodus:  (( concat $GENESIS_EXODUS_MOUNT params.cf_deployment_env "/" params.cf_deployment_type ))
+    deployment_name: (( concat params.cf_deployment_env "-" params.cf_deployment_type ))
 
 params:
-  cf_system_domain: (( param "Please specify the CF system domain in params.cf_system_domain" ))
-  bosh-variables:
-    cf_client_id: app_autoscaler_client
-    cf_client_secret: (( concat "((/" meta.cf.bosh "-bosh/" meta.cf.env "-cf/uaa_clients_app_autoscaler_client_secret))" ))
-    system_domain: (( grab params.cf_system_domain ))
-    skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
+  network:            (( grab params.cf_core_network ))
+  cf_deployment_env:  (( grab genesis.env )) # assumes same name as cf env
+  cf_deployment_type: cf # for crazy people using an "non-cf" cf deployment named something else
+  cf_core_network:    (( vault meta.cf.exodus ":core_network" ))
+  cf_system_domain:   (( vault meta.cf.exodus ":system_domain" ))
+
+bosh-variables:
+  system_domain:    (( grab params.cf_system_domain ))
+  cf_client_id:     (( vault meta.cf.exodus ":app_autoscaler_client" ))
+  cf_client_secret: (( vault meta.cf.exodus ":app_autoscaler_secret" ))
+  loggregator_ca:
+    certificate:    (( vault meta.cf.exodus ":loggregator_ca" ))
+  loggregator_tls_agent:
+    ca:             (( grab bosh-variables.loggregator_ca.certificate ))
+    certificate:    (( vault meta.cf.exodus ":loggregator_tls_rlp_cert" ))
+    private_key:    (( vault meta.cf.exodus ":loggregator_tls_rlp_key" ))
+  loggregator_tls_rlp:
+    certificate:    (( vault meta.cf.exodus ":loggregator_tls_agent_cert" ))
+    private_key:    (( vault meta.cf.exodus ":loggregator_tls_agent_key" ))
+
+  skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
+
+exodus:
+  autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
+  autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
+  service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
+
+  service_broker_username: autoscaler_service_broker_user
+  service_broker_password: ((autoscaler_service_broker_password))
+
+  cf_deployment_env:  (( grab params.cf_deployment_env ))
+  cf_deployment_type: (( grab params.cf_deployment_type ))
