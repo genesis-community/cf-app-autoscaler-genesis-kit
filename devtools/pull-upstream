@@ -1,0 +1,57 @@
+#!/bin/bash
+
+
+error() {
+  echo "[1;31m[ERROR][0m $1"
+  exit 1
+}
+
+# Check if version specified
+version="${1:-}"
+[[ -n "$version" ]] || error "Usage: $0 <version>"
+
+set -ue
+# go to base directory
+basepath="$( cd "$(dirname "$0")/../" >/dev/null 2>&1 ; pwd -P )"
+cd "$basepath"
+[[ -d "upstream" ]] || error "Could not find upstream directory under base path $basepath"
+
+workdir=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
+[[ -n "$workdir" ]] && [[ -d "$workdir" ]] || error "Failed to make work directory"
+
+file="$workdir/app-autoscaler-release-${version}.tar.gz"
+echo "Fetching app_autoscaler-release v${version} release from cloudfoundry Github organization}"
+
+curl -sSL -o "$file"\
+  "https://github.com/cloudfoundry/app-autoscaler-release/archive/v${version}.tar.gz" > /dev/null
+if ! [[ -f "$file" ]] ; then
+  error "Failed to download cf-deployment v$version -- cannot continue"
+fi
+topdir="$(tar -ztf "$file" | awk '{print $NF}' | cut -d'/' -f1 | uniq)"
+if [[ $topdir != "app-autoscaler-release-$version" ]] ; then
+  error "Downloaded cf-deployment v$version doesn't look like a valid release  -- cannot continue"
+fi
+
+pushd "$workdir"
+tar -zxf "$file" || error "Unable to extract repository"
+popd
+
+rm -rf upstream
+mkdir -p upstream/operations
+mkdir -p upstream/templates
+
+src="$workdir/app-autoscaler-release-$version"
+cp "$src"/templates/*.yml upstream/templates/
+cp "$src"/example/operation/*.yml upstream/operations/
+
+# Get rid of v1 cruft
+find upstream -name '*-v1.yml' -exec rm {} \;
+
+ts="$(date -u +"%Y-%b-%d %H:%M:%S %Z")"
+cat > overlay/upstream_version.yml <<EOF
+exodus:
+  app-autoscaler-release-version: $version
+  app-autoscaler-release-date:    $ts
+EOF
+
+rm -rf "$workdir"
