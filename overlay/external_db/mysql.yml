@@ -1,0 +1,6 @@
+bosh-variables:
+  database:
+    port: 3306
+    scheme: mysql
+    sslmode: verify-ca
+

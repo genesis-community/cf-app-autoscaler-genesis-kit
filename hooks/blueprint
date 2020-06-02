@@ -6,13 +6,26 @@ set -eu
 
 declare -a manifests
 
-validate_features external-db
+validate_features external-db postgres mysql
+
+want_feature postgres && want_feature mysql && bail \
+  "#R{[ERROR]} Cannot specify both postgres and mysql features"
 
 manifests=( upstream/templates/app-autoscaler-deployment.yml )
-want_feature external-db && manifests+=( \
-  "upstream/operations/external-db.yml" \
-  "overlay/exernal-db.yml" \
-)
+if want_feature external-db; then
+  manifests+=( \
+    "upstream/operations/external-db.yml" \
+    "overlay/external_db/common.yml" \
+  )
+
+  if want_feature mysql ; then
+    manifests+=( overlay/external_db/mysql.yml )
+  else
+    manifests+=( overlay/external_db/postgres.yml )
+  fi
+elif want_feature mysql ; then
+  manifests+=( upstream/operations/cf-mysql-db.yml )
+fi
 
 # Do features => opsfiles stuff here
 for __feature in $GENESIS_REQUESTED_FEATURES; do
@@ -33,6 +46,7 @@ done
 
 manifests+=( \
   overlay/base.yml \
+  overlay/upstream_version.yml \
   overlay/change_deployment_and_network.yml \
   overlay/releases.yml \
 )

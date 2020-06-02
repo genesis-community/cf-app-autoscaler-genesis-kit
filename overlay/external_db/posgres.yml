@@ -1,0 +1,6 @@
+bosh-variables:
+  database:
+    port: 5432
+    scheme: postgres
+    sslmode: verify-ca
+
