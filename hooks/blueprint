@@ -6,41 +6,48 @@ set -eu
 
 declare -a manifests
 
-validate_features external-db postgres mysql
-
 want_feature postgres && want_feature mysql && bail \
   "#R{[ERROR]} Cannot specify both postgres and mysql features"
 
 manifests=( upstream/templates/app-autoscaler-deployment.yml )
-if want_feature external-db; then
-  manifests+=( \
-    "upstream/operations/external-db.yml" \
-    "overlay/external_db/common.yml" \
-  )
-
-  if want_feature mysql ; then
-    manifests+=( overlay/external_db/mysql.yml )
-  else
-    manifests+=( overlay/external_db/postgres.yml )
-  fi
-elif want_feature mysql ; then
-  manifests+=( upstream/operations/cf-mysql-db.yml )
-fi
 
 # Do features => opsfiles stuff here
-for __feature in $GENESIS_REQUESTED_FEATURES; do
-  if [[ $__feature =~ operations/.* ]] ; then
-    if [[ -f "upstream/$__feature.yml" ]] ; then
-      manifests+=( "upstream/$__feature.yml" )
+for want in $GENESIS_REQUESTED_FEATURES; do
+  if [[ $want =~ operations/.* ]] ; then
+    if [[ -f "upstream/$want.yml" ]] ; then
+      manifests+=( "upstream/$want.yml" )
     else
-      __bail "$GENSIS_KIT_ID does not support the $__feature feature"
+      __bail "$GENSIS_KIT_ID does not support the $want feature"
     fi
-  elif [[ -f $GENESIS_ROOT/ops/$__feature.yml ]] ; then
-    mkdir -p "$(dirname "local_ops/$__feature.yml")"
-    cp "$GENESIS_ROOT/ops/$__feature.yml" "local_ops/$__feature.yml"
-    manifests+=( "local_ops/$__feature.yml" )
+  elif [[ -f $GENESIS_ROOT/ops/$want.yml ]] ; then
+    mkdir -p "$(dirname "local_ops/$want.yml")"
+    cp "$GENESIS_ROOT/ops/$want.yml" "local_ops/$want.yml"
+    manifests+=( "local_ops/$want.yml" )
   else
-    __bail "$GENESIS_KIT_ID does not support the $__feature feature"
+    case "$want" in
+    external-db)
+      manifests+=( \
+        "upstream/operations/external-db.yml" \
+        "overlay/external_db/common.yml" \
+      )
+      if want_feature mysql ; then
+        manifests+=( overlay/external_db/mysql.yml )
+      else
+        manifests+=( overlay/external_db/postgres.yml )
+      fi
+      ;;
+    postgres)
+      : # Default - do nothing (only provided for explicit specification of db type
+      ;;
+    mysql)
+      if ! want_feature external-db ; then
+        manifests+=( upstream/operations/cf-mysql-db.yml )
+      fi
+      ;;
+    *)
+      __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
+      ;;
+    esac
   fi
 done
 
