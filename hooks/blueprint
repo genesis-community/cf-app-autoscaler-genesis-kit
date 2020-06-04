@@ -9,7 +9,13 @@ declare -a manifests
 want_feature postgres && want_feature mysql && bail \
   "#R{[ERROR]} Cannot specify both postgres and mysql features"
 
-manifests=( upstream/templates/app-autoscaler-deployment.yml )
+manifests=( \
+  upstream/templates/app-autoscaler-deployment.yml \
+  overlay/base.yml \
+  overlay/upstream_version.yml \
+  overlay/change_deployment_and_network.yml \
+  overlay/releases.yml \
+)
 
 # Do features => opsfiles stuff here
 for want in $GENESIS_REQUESTED_FEATURES; do
@@ -50,12 +56,5 @@ for want in $GENESIS_REQUESTED_FEATURES; do
     esac
   fi
 done
-
-manifests+=( \
-  overlay/base.yml \
-  overlay/upstream_version.yml \
-  overlay/change_deployment_and_network.yml \
-  overlay/releases.yml \
-)
 
 echo "${manifests[@]}"
