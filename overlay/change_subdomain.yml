@@ -31,3 +31,9 @@ variables:
 - name: servicebroker_public_server
   options:
     common_name: ((subdomain_root))servicebroker.((system_domain))
+
+exodus:
+  autoscaler_api_domain:     (( concat bosh-variables.subdomain_root "." params.cf_system_domain ))
+  autoscaler_metrics_domain: (( concat bosh-variables.subdomain_root "metrics." params.cf_system_domain ))
+  service_broker_domain:     (( concat bosh-variables.subdomain_root "servicebroker." params.cf_system_domain ))
+

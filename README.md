@@ -23,31 +23,9 @@ genesis init --kit cf-app-autoscaler/1.0.0
 genesis init --kit cf-app-autoscaler -d my-cf-app-autoscaler-configs
 ```
 
-Once created, refer to the deployment repository README for information on
-provisioning and deploying new environments.
+Change to the created repository and run `genesis new <env-name>` to create
+your new cf-app-autoscaler deployment environment file, then run `genesis
+deploy <env-name>` to deploy it.
 
-Features
--------
-
-FIXME: The kit author should have filled this in with details
-about what features are defined, and how they affect the deployment. But they
-have not, and that is sad. Perhaps a GitHub issue should be opened to remind
-them of this?
-
-Params
-------
-
-FIXME: The kit author should have filled this in with details about the params
-present in the base kit, as well as each feature defined. These should likely
-be in different sections (one for base, one per feature). Unfortunately,
-the author has not done this, and that is sad. Perhaps a GitHub issue
-should be opened to remind them of this?
-
-Cloud Config
-------------
-
-FIXME: The kit author should have filled in this section with details about
-what cloud config definitions this kit expects to see in play and how to
-override them. Also useful are hints at default values for disk + vm sizing,
-scaling considerations, and other miscellaneous IaaS components that the deployment
-might require, like load balancers.
+See MANUAL.md for more detailed information regarding features and parameters
+to customize your deployment.
