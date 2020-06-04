@@ -1,0 +1,33 @@
+---
+- name: asapi
+  jobs:
+  - name: golangapiserver
+    properties:
+      autoscaler:
+        apiserver:
+          metrics_forwarder: 
+            host: ((subdomain_root))metrics.((system_domain))
+  - name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: api_server
+          uris:
+            - (( replace ))
+            - ((subdomain_root)).((system_domain))
+        - name: autoscaler_service_broker
+          uris:
+            - (( replace ))
+            - ((subdomain_root))servicebroker.((system_domain))
+        - name: autoscaler_metrics_forwarder
+          uris:
+            - (( replace ))
+            - ((subdomain_root))metrics.((system_domain))
+
+variables:
+- name: apiserver_public_server
+  options:
+    common_name: ((subdomain_root)).((system_domain))
+- name: servicebroker_public_server
+  options:
+    common_name: ((subdomain_root))servicebroker.((system_domain))

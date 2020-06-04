@@ -10,12 +10,16 @@ want_feature postgres && want_feature mysql && bail \
   "#R{[ERROR]} Cannot specify both postgres and mysql features"
 
 manifests=( \
-  upstream/templates/app-autoscaler-deployment.yml \
-  overlay/base.yml \
-  overlay/upstream_version.yml \
-  overlay/change_deployment_and_network.yml \
-  overlay/releases.yml \
+  "upstream/templates/app-autoscaler-deployment.yml" \
+  "overlay/base.yml" \
+  "overlay/upstream_version.yml" \
+  "overlay/change_deployment_and_network.yml" \
+  "overlay/releases.yml" \
 )
+
+if genesis -C "$GENESIS_ROOT" lookup --defined "bosh-variables.subdomain_root" ; then
+  manifests+=( "overlay/change_subdomain.yml" )
+fi
 
 # Do features => opsfiles stuff here
 for want in $GENESIS_REQUESTED_FEATURES; do
@@ -31,15 +35,17 @@ for want in $GENESIS_REQUESTED_FEATURES; do
     manifests+=( "local_ops/$want.yml" )
   else
     case "$want" in
+    override-subdomain)
+      ;;
     external-db)
       manifests+=( \
         "upstream/operations/external-db.yml" \
         "overlay/external_db/common.yml" \
       )
       if want_feature mysql ; then
-        manifests+=( overlay/external_db/mysql.yml )
+        manifests+=( "overlay/external_db/mysql.yml" )
       else
-        manifests+=( overlay/external_db/postgres.yml )
+        manifests+=( "overlay/external_db/postgres.yml" )
       fi
       ;;
     postgres)
@@ -47,7 +53,7 @@ for want in $GENESIS_REQUESTED_FEATURES; do
       ;;
     mysql)
       if ! want_feature external-db ; then
-        manifests+=( upstream/operations/cf-mysql-db.yml )
+        manifests+=( "upstream/operations/cf-mysql-db.yml" )
       fi
       ;;
     *)
