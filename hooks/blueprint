@@ -17,7 +17,7 @@ manifests=( \
   "overlay/releases.yml" \
 )
 
-if genesis -C "$GENESIS_ROOT" lookup --defined "bosh-variables.subdomain_root" ; then
+if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "bosh-variables.subdomain_root" 2>/dev/null); then
   manifests+=( "overlay/change_subdomain.yml" )
 fi
 

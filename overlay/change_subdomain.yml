@@ -1,11 +1,12 @@
 ---
+instance_groups:
 - name: asapi
   jobs:
   - name: golangapiserver
     properties:
       autoscaler:
         apiserver:
-          metrics_forwarder: 
+          metrics_forwarder:
             host: ((subdomain_root))metrics.((system_domain))
   - name: route_registrar
     properties:
@@ -23,7 +24,6 @@
           uris:
             - (( replace ))
             - ((subdomain_root))metrics.((system_domain))
-
 variables:
 - name: apiserver_public_server
   options:
