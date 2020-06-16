@@ -13,11 +13,12 @@ list() {
   describe "" "$(cat <<EOF
 The following addons are defined:
 
-  #G{bind-autoscaler}   Binds the Autoscaler service broker to your
-                    deployed CF.
+  #G{bind-autoscaler}   Binds the Autoscaler service broker to your deployed CF.
 
+  #G{setup-cf-plugin}   Adds the 'autoscaler' plugin to the cf cli. Use #y{-f} option
+                    to bypass confirmation prompt.
 EOF
-)"
+)" ""
 }
 
 cf_login() {
@@ -44,6 +45,32 @@ cf_login() {
   cf target
 }
 
+add_plugin() {
+  cf_login
+  describe "" "" "#Wkiu{Attempting to install latest version of the CF-Community/app-autoscaler-plugin...}"
+  existing="$(cf plugins --checksum | grep AutoScaler | tr -s ' ' | cut -d ' ' -f 2)"
+  cf install-plugin -r CF-Community app-autoscaler-plugin "$@"
+  updated="$( cf plugins --checksum | grep AutoScaler | tr -s ' ' | cut -d ' ' -f 2)"
+  if [[ -z "$updated" ]] ; then
+    echo
+    exit 0
+  fi
+  if [[ "$existing" == "$updated" ]] ; then
+    describe "No update - existing app-autoscaler-plugin remains at version $existing" ""
+    exit 0
+  fi
+  [[ -n "$existing" ]] && action="updated" || action="installed"
+  header="$(cf plugins | head -n3 | tail -n1)"
+  echo ""
+  echo "$header"
+  echo "$header" | sed -e 's/[^ ] [^ ]/xxx/g' | sed -e 's/[^ ]/-/g'
+  cf plugins | grep AutoScaler
+  describe "" \
+    "#G{[OK]} Successfully $action CF-Community app-autoscaler-plugin." \
+        "     You can run #c{cf uninstall-plugin AutoScaler} to remove it when no" \
+        "     longer desired."
+  exit 0
+}
 
 bind_autoscaler() {
   cf_login
@@ -53,7 +80,7 @@ bind_autoscaler() {
   url="https://$domain"
   cf create-service-broker autoscaler "$username" "$password" "$url"
   cf enable-service-access autoscaler
-  echo "Successfully created the service broker."
+  describe "" "#G{[OK]} Successfully created the service broker."
   exit 0
 }
 
@@ -61,12 +88,20 @@ bind_autoscaler() {
 case $GENESIS_ADDON_SCRIPT in
 list)
   list
-  exit 0
   ;;
 
-bind-autoscaler)
+setup-cf-plugin)
+  add_plugin "$@"
+  ;;
+
+bind|bind-autoscaler)
   bind_autoscaler
-  exit 0
+  ;;
+
+*)
+  describe >&2 "" "#R{[ERROR]} No such addon: $GENESIS_ADDON_SCRIPT"
+  list
+  exit 1
   ;;
 esac
-
+exit 0
