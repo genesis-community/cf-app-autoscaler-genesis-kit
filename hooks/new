@@ -4,10 +4,106 @@ set -eu
 
 #
 # Genesis Kit `new' Hook
-#
-declare -a features
-features=()
 
+exodus_prompt() {
+  if [[ -z "$exodus_data" ]] ; then
+    echo $'\n'"#g{(Leave blank to use CF metadata for $1 - }#Yi{not currently available}#g{)}"
+  else
+    if value="$(jq -re '.'"$1" <<<"$exodus_data")" ; then
+      echo $'\n'"#g{(Leave blank to use }#m{$1}#g{ cf metadata of '}#G{$value}#g{')}"
+    else
+      echo $'\n'"#g{(Leave blank to use CF metadata for $1 - }#Ri{not set by last deployment}#g{)}"
+    fi
+  fi
+}
+
+declare -a features
+features=( '(( append ))' )
+
+describe "#Cu{Cloud Foundry Host:}"
+cf_deployment=
+prompt_for cf_deployment line \
+  'What is the name of the Cloud Foundry environment?' \
+  --default "${GENESIS_ENVIRONMENT}"
+
+cf_deployment_type=
+prompt_for cf_deployment_type line \
+  'What is deployment type of thi Cloud Foundry enviornment?' \
+  --default 'cf'
+
+describe "" "#Yi{Fetching metadata from CF deployment }#Ci{$cf_deployment-$cf_deployment_type}#Yi{...}"
+exodus_data="$(lookup --exodus-for "$cf_deployment/$cf_deployment_type" . "")"
+
+if [[ "$exodus_data" == "{}" ]] ; then
+  describe \
+    "#Y{[WARNING]} Metadata not available for CF deployment #C{$cf_deployment-$cf_deployment_type}." \
+        "          Cannot show values that will be used if not overwritten for the following" \
+        "          parameters." ""
+
+fi
+
+system_domain=
+prompt_for system_domain line --default '' \
+  "What is the system domain for the host Cloud Foundry?$(exodus_prompt system_domain)"
+
+network=
+prompt_for network line --default '' \
+  "What network do you want use (core network on the host Cloud Foundry recommended)?$(exodus_prompt core_network)"
+
+describe "" "#Cu{Database Configuration:}"
+prompt_for db_type "select" \
+  'What database type will be used for storing App Autoscaler data?' \
+  -o "[postgres] PostgreSQL" \
+  -o "[mysql] MySQL" \
+  --default postgres
+features+=( "$db_type" )
+
+db_location=
+prompt_for db_location "select" \
+  'Where will this database be located?' \
+  -o '[external-db] Existing external database' \
+  -o '[] Create an internal database' \
+  --default 'external-db'
+
+if [[ "$db_location" == 'external-db' ]] ; then
+  features+=( "$db_location" )
+
+  db_host=
+  prompt_for db_host "line" \
+    "What is the host name for the external $db_type database?"
+
+  default_db_port="$( [[ $db_type == 'mysql' ]] && echo 3306 || echo 5432)"
+  db_port=
+  prompt_for db_port line --default "$default_db_port" \
+    'What is the host port?'
+
+  default_db_name='autoscaler'
+  db_name=
+  db_user=
+
+  prompt_for db_name line --default "$default_db_name" \
+    'What is the name of the existing database to be used?'
+  prompt_for db_user line --default "$default_db_name" \
+    "What is the name of the user for accessing the '$db_name' database?"
+
+  echo
+  prompt_for external_db:password secret-line \
+    "What is the password for the '$db_user' user?"
+  prompt_for external_db:tls_ca secret-block \
+    "What is the TLS CA certificate for the external database (Leave blank to ignore)?"
+
+  describe "" "" "#Ci{Storing secrets in Credhub...}" ""
+  move_secrets_to_credhub external_db:password autoscaler_database_password
+  use_tls=
+  if safe exists "${GENESIS_SECRETS_BASE}external_db:tls_ca" ; then
+    use_tls=true
+    move_secrets_to_credhub external_db:tls_ca autoscaler_database_tls_ca
+  fi
+  describe "" "#G{done.}" ""
+fi
+
+
+yaml="$GENESIS_ROOT/$GENESIS_ENVIRONMENT.yml"
 (
 echo "---"
 echo "kit:"
@@ -19,36 +115,39 @@ for feature in "${features[@]}" ; do
 done
 
 genesis_config_block
+) > "$yaml"
 
-echo
-echo "params:"
-echo "  # Cloud Foundry base domain"
-echo "  base_domain: $base_domain"
+params="$(
+  [[ -n "$cf_deployment" ]]      && echo "  cf_deployment_env:  $cf_deployment"
+  [[ -n "$cf_deployment_type" ]] && echo "  cf_deployment_type: $cf_deployment_type"
+  [[ -n "$network" ]]            && echo "  network:            $network"
+  [[ -n "$system_domain" ]]      && echo "  cf_system_domain:   $system_domain"
+  true
+)"
 
-case $use_db in
-mysql-db)
-  echo
-  echo "  # External MySQL configuration"
-  echo "  external_db_host: $db_host"
-  ;;
-
-postgres-db)
-  echo
-  echo "  # External PostgreSQL configuration"
-  echo "  external_db_host: $db_host"
-  ;;
-
-local-ha-db)
-  echo
-  echo "  # VIP for the HA Postgres DB"
-  echo "  postgres_vip: $postgres_vip"
-esac
-
-if [[ -z $use_provided_cert ]]; then
-  echo "  # Skip SSL validation since we use self-signed certs"
-  echo "  skip_ssl_validation: true"
+if [[ -n "$params" ]] ; then
+  echo "params:"$'\n'"$params" >> "$yaml"
 fi
-) >$GENESIS_ROOT/$GENESIS_ENVIRONMENT.yml
+
+boshvars="$(
+  if [[ "$db_location" == 'external-db' ]] ; then
+    echo "  database:"
+    echo "    host:     $db_host"
+    [[ "$db_port" == "$default_db_port" ]] || echo "    port:     $db_port"
+    [[ "$db_name" == "$default_db_name" ]] || echo "    name:     $db_name"
+    [[ "$db_user" == "$default_db_name" ]] || echo "    username: $db_user"
+
+    if [[ -z "$use_tls" ]] ; then
+      echo "    ssl_mode: require"
+      echo '    tls:      {ca: ""}'
+    fi
+  fi
+  true
+)"
+
+if [[ -n "$boshvars" ]] ; then
+  echo $'\n'"bosh-variables:"$'\n'"$boshvars" >> "$yaml"
+fi
 
 offer_environment_editor
 
