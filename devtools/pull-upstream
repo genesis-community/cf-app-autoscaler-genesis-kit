@@ -53,5 +53,23 @@ exodus:
   app-autoscaler-release-version: $version
   app-autoscaler-release-date:    $ts
 EOF
+url="https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=$version"
+sha1="$(curl -sSL "https://bosh.io/releases/github.com/cloudfoundry-incubator/app-autoscaler-release?version=$version" 2>/dev/null | grep 'sha1:' | sed -e 's/.*"\([0-9a-f]*\)".*/\1/')"
+if [[ "$sha1" =~ ^[0-9a-f]+$ ]] ; then
+  cat > "overlay/releases.yml" <<EOF
+---
+releases:
+- name:    "app-autoscaler"
+  version: "$version"
+  url:     "$url"
+  sha1:    "$sha1"
+EOF
+else
+  cat >&2 <<EOF
+Could not programatically determine release details.  Please navigate to
+https://bosh.io/releases/github.com/cloudfoundry-incubator/app-autoscaler-release?version=$version"
+and update overlay/releases.yml to target release $version.
+EOF
+fi
 
 rm -rf "$workdir"
