@@ -1,0 +1,13 @@
+---
+kit:
+  name: dev
+  features:
+    - postgres
+
+genesis:
+  env:                full-setup
+
+params:
+  cf_deployment_env:  full-setup
+  cf_deployment_type: dev
+  network: default
