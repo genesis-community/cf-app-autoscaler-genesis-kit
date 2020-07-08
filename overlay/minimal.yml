@@ -1,0 +1,101 @@
+meta:
+  instance_group_name: app-autoscaler
+  minimal:
+    jobs:
+    - (( grab instance_groups.asactors.jobs.scalingengine ))
+    - (( grab instance_groups.asactors.jobs.scheduler ))
+    - (( grab instance_groups.asactors.jobs.operator ))
+    - .: (( inject instance_groups.asmetrics.jobs.metricsserver ))
+      provides:
+        metricsserver: { as: metricsserver }
+    - .: (( inject instance_groups.asmetrics.jobs.eventgenerator ))
+      provides:
+        eventgenerator: { as: eventgenerator }
+    - (( grab instance_groups.asnozzle.jobs.metricsgateway ))
+    - (( grab instance_groups.asapi.jobs.golangapiserver ))
+    - (( grab instance_groups.asapi.jobs.metricsforwarder ))
+    - (( grab instance_groups.asapi.jobs.route_registrar ))
+    - (( grab instance_groups.asapi.jobs.bpm ))
+    - (( grab instance_groups.asapi.jobs.loggregator_agent ))
+
+instance_groups:
+- name: postgres_autoscaler
+  instances: 1
+- name: asactors
+  instances: 0
+- name: asmetrics
+  instances: 0
+  jobs:
+  - name: metricsserver
+    provides:
+      metricsserver: nil
+  - name: eventgenerator
+    provides:
+      eventgenerator: nil
+- name: asnozzle
+  instances: 0
+- name: asapi
+  instances: 0
+- name: (( grab meta.instance_group_name ))
+  azs:
+  - z1
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: small
+  instances: 1
+  update:
+    serial: true
+    canary_watch_time: 10000-900000
+    update_watch_time: 10000-900000
+  jobs: (( grab meta.minimal.jobs ))
+
+addons:
+- name: bosh-dns-aliases
+  jobs:
+  - name: bosh-dns-aliases
+    properties:
+      aliases:
+      - (( merge on domain ))
+      - domain: apiserver.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+      - domain: autoscalerscheduler.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+      - domain: servicebroker.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+      - domain: eventgenerator.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+      - domain: scalingengine.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+      - domain: metricsgateway.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+      - domain: metricsserver.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          instance_group: (( grab meta.instance_group_name ))
+
+variables:
+- name: metricsserver_server
+  options:
+    alternative_names:
+    - (( append ))
+    - (( concat "*.app-autoscaler." params.network "." name ".bosh" ))

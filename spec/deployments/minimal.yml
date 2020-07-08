@@ -1,0 +1,14 @@
+---
+kit:
+  name: dev
+  features:
+    - postgres
+    - minimal
+
+genesis:
+  env:                minimal
+
+params:
+  cf_deployment_env:  minimal
+  cf_deployment_type: dev
+  network: default
