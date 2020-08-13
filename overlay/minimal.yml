@@ -19,8 +19,6 @@ meta:
     - (( grab instance_groups.asapi.jobs.loggregator_agent ))
 
 instance_groups:
-- name: postgres_autoscaler
-  instances: 1
 - name: asactors
   instances: 0
 - name: asmetrics
