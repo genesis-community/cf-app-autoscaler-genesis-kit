@@ -30,7 +30,7 @@ fi
 runtime_ok=yes
 
 # Check for BOSH DNS
-if [[ $(rcq | spruce json | jq -r '.addons[] | select(.name == "bosh-dns")') == "" ]]; then
+if [[ $(rcq '.addons[] | select(.name == "bosh-dns")') == "" ]]; then
   runtime_ok=no
   describe "  #R{Errors were found} in your runtime-config:"
   describe "    - #R{BOSH DNS is not in the runtime-config, which is required. Refer to}"
