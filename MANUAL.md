@@ -8,7 +8,7 @@ supports external postgres and mysql databases.  It expects to be integrated
 with a Cloud Foundry deployment created by cf-genesis-kit v2.0.0 or later, but
 there are provisions for pairing it with any existing CF deployment.
 
-[cfaar]: https://github.com/coudfoundry/app-autoscaler-release
+[cfaar]: https://github.com/cloudfoundry/app-autoscaler-release
 
 ## Requirements
 
