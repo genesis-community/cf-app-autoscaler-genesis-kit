@@ -56,6 +56,9 @@ for want in $GENESIS_REQUESTED_FEATURES; do
         manifests+=( "upstream/operations/cf-mysql-db.yml" )
       fi
       ;;
+    cf-v1-support)
+      manifests+=( "overlay/cf-v1-support.yml" )
+      ;;
     *)
       __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
       ;;
