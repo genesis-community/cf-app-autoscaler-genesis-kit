@@ -1,0 +1,26 @@
+# Use historic instance group name instead of log-api from
+# canonical cf-deployment
+addons:
+- name: bosh-dns-aliases
+  jobs:
+  - name: bosh-dns-aliases
+    properties:
+      aliases:
+      - (( merge on domain ))
+      - domain: reverse-log-proxy.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: "*"
+          instance_group: loggregator_trafficcontroller
+
+bosh-variables:
+  cf_client_id: (( param "Please specify the CF client ID" ))
+  cf_client_secret: (( param "Please specify the CF client secret" ))
+  loggregator_ca:
+    certificate: (( param "Please specify the Loggregrator CA" ))
+  loggregator_tls_agent:
+    certificate: (( param "Please specify the Loggregrator TLS Certificate" ))
+    private_key: (( param "Please specify the Loggregrator TLS Private Key" ))
+  loggregator_tls_rlp:
+    certificate: (( param "Please specify the Loggregrator TLS RLP Certificate" ))
+    private_key: (( param "Please specify the Loggregrator TLS RLP Private Key" ))
