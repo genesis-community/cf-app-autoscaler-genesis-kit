@@ -10,3 +10,5 @@ bosh-variables:
     tls:
       ca:     ((autoscaler_database_tls_ca))
 
+variables:
+  - (( delete "database_password" ))
