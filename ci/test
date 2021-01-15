@@ -1,0 +1,44 @@
+#!/bin/bash
+set -eu
+
+header() {
+	echo
+	echo "###############################################"
+	echo
+	echo $*
+	echo
+}
+
+cleanup() {
+	for deployment in "$@"; do
+		echo "> deleting ${deployment}"
+		$BOSH -n -d "${deployment}" delete-deployment
+
+		for disk in $($BOSH disks --orphaned | grep "${deployment}" | awk '{print $1}'); do
+			echo "  - removing disk $disk"
+			$BOSH -n delete-disk "$disk"
+		done
+	done
+}
+
+header "Checking previous deployments on ${BOSH_ENVIRONMENT}..."
+$BOSH deployments
+
+header "Cleaning up from any previous deployments (if necessary)..."
+cleanup ci-baseline-cf-app-autoscaler
+safe rm -rf secret/ci/baseline/cf-app-autoscaler
+safe_target_orig="$(safe target --json | jq -r .name)"
+
+header "Deploying BASELINE environment to verify functionality..."
+cd dev
+genesis compile-kit --name cf-app-autoscaler v 9.9.9 --force # make sure hooks are executable before screaming at shipit for failing.
+cd ..
+genesis do ci-baseline -- list
+genesis add-secrets ci-baseline
+genesis deploy -y ci-baseline
+
+header "Testing addons..."
+genesis do ci-baseline -- bind-autoscaler
+genesis do ci-baseline -- setup-cf-plugin -f
+
+cleanup ci-baseline-cf-app-autoscaler

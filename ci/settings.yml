@@ -1,0 +1,35 @@
+---
+meta:
+  kit:     cf-app-autoscaler
+  release: CF App Autoscaler Genesis Kit
+  target:  genesis@pipes
+  url:     https://pipes.starkandwayne.com
+  exposed: yes
+
+  initial_version: 1.0.0
+
+  bosh:
+    uri:      ((bosh.uri))
+    username: ((bosh.username))
+    password: ((bosh.password))
+    cacert:   ((bosh.ca))
+
+  vault:
+    url:       ((vault.url))
+    token:     ((vault.token))
+
+  aws:
+    access_key: ((aws.access_key_id))
+    secret_key: ((aws.secret_access_key))
+
+  github:
+    owner:        genesis-community
+    repo:         cf-app-autoscaler-genesis-kit
+    branch:       master
+    private_key:  ((github.private_key))
+    access_token: ((github.access_token))
+
+  shout:
+    url:      ((shout.url)
+    username: ((shout.username))
+    password: ((shout.password))
