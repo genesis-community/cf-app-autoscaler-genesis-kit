@@ -73,8 +73,11 @@ groups:
       - pre
       - rc
       - shipit
+  - name: versioning
+    jobs:
       - major
       - minor
+      - patch
 
 jobs:
   - name: testflight
@@ -207,6 +210,27 @@ jobs:
         params:
           topic:   (( concat meta.shout.topic "-$BUILD_JOB_NAME" ))
           message: release candidate job 'rc' failed (which is unusual).
+          ok:      no
+          link:    (( grab meta.shout.links.build ))
+
+  - name: patch
+    public: true
+    plan:
+    - do:
+      - { get: version, trigger: false, params: {bump: patch} }
+      - { put: version,                 params: {file: version/number} }
+      on_success:
+        put: notify
+        params:
+          topic:   (( concat meta.shout.topic "-$BUILD_JOB_NAME" ))
+          message: patch version bump job '$BUILD_JOB_NAME' succeeded.
+          ok:      no
+          link:    (( grab meta.shout.links.build ))
+      on_failure:
+        put: notify
+        params:
+          topic:   (( concat meta.shout.topic "-$BUILD_JOB_NAME" ))
+          message: patch version bump job '$BUILD_JOB_NAME' failed (which is unusual).
           ok:      no
           link:    (( grab meta.shout.links.build ))
 
