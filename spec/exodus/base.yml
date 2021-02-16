@@ -1,0 +1,10 @@
+/secret/exodus/base-test/cf:
+  system_domain: sys.test.cf.domain
+  core_network: test-core-network
+  app_autoscaler_client:  app-autoscaler-client
+  app_autoscaler_secret:  app-autoscaler-secret
+  loggregator_ca: test-loggregator-ca
+  loggregator_tls_rlp_key: test-loggregator-rlp-key
+  loggregator_tls_rlp_cert: test-loggregator-rlp-cert
+  loggregator_tls_agent_cert: test-loggregator-agent-cert
+  loggregator_tls_agent_key: test-loggregator-agent-key
