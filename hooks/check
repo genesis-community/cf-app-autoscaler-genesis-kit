@@ -29,13 +29,13 @@ fi
 # Runtime config checks
 runtime_ok=yes
 
-# Check for BOSH DNS
-if [[ $(bosh rc | spruce json | jq -r '.addons[] | select(.name == "bosh-dns")') == "" ]]; then
+# # Check for BOSH DNS
+if ! rcq -e '.addons[] | .name | select(. == "bosh-dns")' &>/dev/null; then
   runtime_ok=no
-  describe "  #R{Errors were found} in your runtime-config:"
-  describe "    - #R{BOSH DNS is not in the runtime-config, which is required. Refer to}"
-  describe "      #R{'genesis man $GENESIS_ENVIRONMENT' for more info.}"
-  describe ""
+  describe >&2 \
+    "  #R{Errors were found} in your runtime-config:" \
+    "    - #R{BOSH DNS is not in the runtime-config, which is required. Refer to}" \
+    "      #R{'genesis man $GENESIS_ENVIRONMENT' for more info.}" ""
 fi
 
 # Check if there were any errors reported from runtime config checks
