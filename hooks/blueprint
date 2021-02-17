@@ -14,7 +14,7 @@ manifests=( \
   "overlay/base.yml" \
   "overlay/upstream_version.yml" \
   "overlay/change_deployment_and_network.yml" \
-  "overlay/releases.yml" \
+  "overlay/releases/app-autoscaler.yml" \
 )
 
 if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "bosh-variables.subdomain_root" 2>/dev/null); then
