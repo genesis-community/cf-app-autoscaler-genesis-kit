@@ -7,6 +7,7 @@
 #
 # author:  James Hunt <james@niftylogic.com>
 #          Dennis Bell <dennis.j.bell@gmail.com>
+#          Ramon Makkelie <makkelie@starkandwayne.com>
 
 need_command() {
   local cmd=${1:?need_command() - no command name given}
@@ -37,7 +38,7 @@ echo >&2 "Using settings found in ${settings_file}"
 
 set -e
 trap "rm -f .deploy.yml" QUIT TERM EXIT INT
-spruce merge pipeline.yml ${settings_file} > .deploy.yml
+spruce merge pipeline/*.yml ${settings_file} > .deploy.yml
 PIPELINE=$(spruce json .deploy.yml | jq -r '.meta.pipeline // ""')
 if [[ -z ${PIPELINE} ]]; then
   echo >&2 "Missing pipeline name in ci/settings.yml!"
