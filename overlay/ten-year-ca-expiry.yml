@@ -1,0 +1,11 @@
+# CAs should last 10 years instead of the default Credhub 1y
+variables:
+- { name: scalingengine_ca,           options: { duration: 3650 } }
+- { name: eventgenerator_ca,          options: { duration: 3650 } }
+- { name: apiserver_ca,               options: { duration: 3650 } }
+- { name: apiserver_public_ca,        options: { duration: 3650 } }
+- { name: servicebroker_ca,           options: { duration: 3650 } }
+- { name: servicebroker_public_ca,    options: { duration: 3650 } }
+- { name: scheduler_ca,               options: { duration: 3650 } }
+- { name: metricsserver_ca,           options: { duration: 3650 } }
+- { name: postgres_ca,                options: { duration: 3650 } }
