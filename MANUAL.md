@@ -54,8 +54,9 @@ The following values can be specified in your environment file, under `params:`
 | `cf_deployment_env`  | specify the name of the cf deployment environment | the cf-app-autoscaler environment name |
 | `cf_deployment_type` | override the type of deployment used for the CF deployment | `cf` |
 | `cf_core_network`    | name of the core CF network. | provided by Exodus data from your CF Genesis kit deployment |
-| `cf_system_domain`   | thhe system domain for your CF deployment. | provided by Exodus data from your CF Genesis kit deployment |
+| `cf_system_domain`   | the system domain for your CF deployment. | provided by Exodus data from your CF Genesis kit deployment |
 | `skip_ssl_validation` | set to false to force ssl validation | true |
+| `db_disk_type`       | the name of the persistent disk type to use for the local postgres VM. | `10GB`
 
 ## Features
 

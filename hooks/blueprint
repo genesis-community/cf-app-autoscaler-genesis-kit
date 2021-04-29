@@ -13,6 +13,7 @@ manifests=( \
   "upstream/templates/app-autoscaler-deployment.yml" \
   "overlay/base.yml" \
   "overlay/ten-year-ca-expiry.yml" \
+  "overlay/db-persistent-disk.yml" \
   "overlay/upstream_version.yml" \
   "overlay/change_deployment_and_network.yml" \
   "overlay/releases/app-autoscaler.yml" \

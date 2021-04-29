@@ -127,7 +127,6 @@ instance_groups:
   vm_type: small
   networks:
   - name: default
-  persistent_disk_type: 10GB
   jobs:
   - name: postgres
     release: postgres
