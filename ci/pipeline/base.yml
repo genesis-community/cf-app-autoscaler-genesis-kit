@@ -77,7 +77,7 @@ groups:
     - shipit
   - name: upstream
     jobs:
-    - UPDATEME-release
+    - app-autoscaler-release
   - name: versions
     jobs:
     - major
