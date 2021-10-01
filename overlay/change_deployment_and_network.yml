@@ -69,6 +69,20 @@ addons:
           deployment: (( grab name ))
           network:    (( grab params.network ))
 
+      - domain: nats.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network:    (( grab params.cf_core_network ))
+      
+      - domain: _.nats.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '_'
+          deployment: (( grab meta.cf.deployment_name ))
+          network:    (( grab params.cf_core_network ))
+
 instance_groups:
 - name: postgres_autoscaler
   networks:
@@ -79,16 +93,31 @@ instance_groups:
   networks:
   - (( replace ))
   - name: (( grab params.network ))
+  jobs:
+  - name: route_registrar
+    consumes:
+      nats: 
+        deployment: (( grab meta.cf.deployment_name ))
 
 - name: asmetrics
   networks:
   - (( replace ))
   - name: (( grab params.network ))
+  jobs:
+  - name: route_registrar
+    consumes:
+      nats: 
+        deployment: (( grab meta.cf.deployment_name ))
 
 - name: asnozzle
   networks:
   - (( replace ))
   - name: (( grab params.network ))
+  jobs:
+  - name: route_registrar
+    consumes:
+      nats: 
+        deployment: (( grab meta.cf.deployment_name ))
 
 - name: asapi
   networks:
