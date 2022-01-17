@@ -1,0 +1,3 @@
+/secret/exodus/base-test/cf:
+  system_domain: sys.test.cf.domain
+  core_network: test-core-network

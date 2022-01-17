@@ -1,0 +1,39 @@
+---
+kit:
+  features:
+  - external-db
+  - mysql
+  - cf-v1-support
+
+genesis:
+  env: params
+
+params:
+  cf_deployment_env:   base-test
+  cf_deployment_type:  cfv1
+  cf_core_network:     cf-v1-core-network
+  cf_system_domain:    cf-v1.lab.example.com
+  skip_ssl_validation: true
+  db_disk_type:        20GB
+
+bosh-variables:
+  database:
+    host:     external-mysql-host.lab.example.com 
+    port:     3377
+    scheme:   mysql
+    name:     cfas
+    username: as
+    password: '$up3r$ecr!t'
+    sslmode:  allow
+    tls.ca:   <!database.tla.ca!>
+
+  cf_client_id: some-client-id
+  cf_client_secret: some-client-secret
+  loggregator_ca:
+    certificate: test-loggregator-ca
+  loggregator_tls_agent:
+    certificate: test-loggregator-agent-cert
+    private_key: test-loggregator-agent-key
+  loggregator_tls_rlp:
+    certificate: test-loggregator-rlp-cert
+    private_key: test-loggregator-rlp-key
