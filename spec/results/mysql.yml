@@ -1,8 +1,5 @@
 addons:
-- include:
-    stemcell:
-    - os: ubuntu-xenial
-  jobs:
+- jobs:
   - name: bosh-dns-aliases
     properties:
       aliases:
@@ -69,6 +66,20 @@ addons:
           instance_group: asmetrics
           network: test-core-network
           query: '*'
+      - domain: nats.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: nats
+          network: test-core-network
+          query: '*'
+      - domain: _.nats.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: nats
+          network: test-core-network
+          query: _
       - domain: sql-db.service.cf.internal
         targets:
         - deployment: cf
@@ -78,9 +89,13 @@ addons:
           query: '*'
     release: bosh-dns-aliases
   name: bosh-dns-aliases
+- jobs:
+  - name: bpm
+    release: bpm
+  name: bpm
 exodus:
-  app-autoscaler-release-date: 2020-Jun-15 22:05:34 UTC
-  app-autoscaler-release-version: 3.0.1
+  app-autoscaler-release-date: 2022-Jan-11 09:55:37 UTC
+  app-autoscaler-release-version: 4.0.0
   autoscaler_api_domain: autoscaler.sys.test.cf.domain
   autoscaler_metrics_domain: autoscalermetrics.sys.test.cf.domain
   bosh: mysql
@@ -130,7 +145,9 @@ instance_groups:
           ca_cert: <!{credhub}:scalingengine_ca.ca!>
           defaultCoolDownSecs: 300
           health:
+            password: <!{credhub}:autoscaler_scalingengine_health_password!>
             port: 6204
+            username: scalingengine
           http_client_timeout: 60s
           lockSize: 32
           logging:
@@ -196,7 +213,10 @@ instance_groups:
         scheduler:
           ca_cert: <!{credhub}:scheduler_ca.ca!>
           health:
+            basicAuthEnabled: true
+            password: <!{credhub}:autoscaler_scheduler_health_password!>
             port: 6202
+            username: scheduler
           http_client_timeout: 60
           job_reschedule_interval_millisecond: 10000
           job_reschedule_maxcount: 6
@@ -292,7 +312,9 @@ instance_groups:
             retry_interval: 5s
             ttl: 15s
           health:
+            password: <!{credhub}:autoscaler_operator_health_password!>
             port: 6208
+            username: operator
           http_client_timeout: 60s
           logging:
             level: info
@@ -343,6 +365,36 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
     release: app-autoscaler
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: autoscaler_scalingengine_health
+          port: 6204
+          registration_interval: 20s
+          tags:
+            component: autoscaler_scalingengine_health
+          uris:
+          - autoscaler-scalingengine.sys.test.cf.domain
+        - name: autoscaler_operator_health
+          port: 6208
+          registration_interval: 20s
+          tags:
+            component: autoscaler_operator_health
+          uris:
+          - autoscaler-operator.sys.test.cf.domain
+        - name: autoscaler_scheduler_health
+          port: 6202
+          registration_interval: 20s
+          tags:
+            component: autoscaler_scheduler_health
+          uris:
+          - autoscaler-scheduler.sys.test.cf.domain
+    release: routing
   name: asactors
   networks:
   - name: test-core-network
@@ -390,7 +442,9 @@ instance_groups:
             refresh_interval: 60s
             save_interval: 5s
           health:
+            password: <!{credhub}:autoscaler_metricsserver_health_password!>
             port: 6303
+            username: metricsserver
           http_client_timeout: 60s
           logging:
             level: info
@@ -458,7 +512,9 @@ instance_groups:
             evaluator_count: 20
             trigger_array_channel_size: 200
           health:
+            password: <!{credhub}:autoscaler_eventgenerator_health_password!>
             port: 6205
+            username: eventgenerator
           http_client_timeout: 60s
           logging:
             level: info
@@ -497,6 +553,29 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
     release: app-autoscaler
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: autoscaler_eventgenerator_health
+          port: 6205
+          registration_interval: 20s
+          tags:
+            component: autoscaler_eventgenerator_health
+          uris:
+          - autoscaler-eventgenerator.sys.test.cf.domain
+        - name: autoscaler_metricsserver_health
+          port: 6303
+          registration_interval: 20s
+          tags:
+            component: autoscaler_metricsserver_health
+          uris:
+          - autoscaler-metricsserver.sys.test.cf.domain
+    release: routing
   name: asmetrics
   networks:
   - name: test-core-network
@@ -528,7 +607,9 @@ instance_groups:
             retry_delay: 1s
           envelop_chan_size: 1000
           health:
+            password: <!{credhub}:autoscaler_metricsgateway_health_password!>
             port: 6503
+            username: metricsgateway
           logging:
             level: info
           nozzle:
@@ -558,6 +639,22 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
     release: app-autoscaler
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: autoscaler_metricsgateway_health
+          port: 6503
+          registration_interval: 20s
+          tags:
+            component: autoscaler_metricsgateway_health
+          uris:
+          - autoscaler-metricsgateway.sys.test.cf.domain
+    release: routing
   name: asnozzle
   networks:
   - name: test-core-network
@@ -668,7 +765,9 @@ instance_groups:
           cache_cleanup_interval: 6h
           cache_ttl: 900s
           health:
+            password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
             port: 6403
+            username: metricsforwarder
           logging:
             level: info
           loggregator:
@@ -729,9 +828,14 @@ instance_groups:
             component: autoscaler_metrics_forwarder
           uris:
           - autoscalermetrics.sys.test.cf.domain
+        - name: autoscaler_metricsforwarder_health
+          port: 6403
+          registration_interval: 20s
+          tags:
+            component: autoscaler_metricsforwarder_health
+          uris:
+          - autoscaler-metricsforwarder.sys.test.cf.domain
     release: routing
-  - name: bpm
-    release: bpm
   - consumes:
       doppler:
         deployment: base-test-cf
@@ -760,27 +864,30 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=3.0.1
   version: 3.0.1
 - name: postgres
-  sha1: 20929ee4b0c64fd97072a266311a6d00714124a7
-  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=25
-  version: "25"
+  sha1: 24d2e2887a45258b71bc40577c0f406180e47701
+  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=29
+  version: "29"
 - name: bosh-dns-aliases
   sha1: b0d0a0350ed87f1ded58b2ebb469acea0e026ccc
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.3
   version: 0.0.3
 - name: routing
-  sha1: f17cf09d2414f5f486d18bbd57b17fd48fb69773
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.162.0
-  version: 0.162.0
+  sha1: edb2f822ca5bbe579a179abfa4b053dc9c99224f
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.223.0
+  version: 0.223.0
 - name: loggregator-agent
   sha1: bf723af956a61c7b51db0ba535c871bad24dd289
   url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=3.9
   version: "3.9"
 - name: bpm
-  sha1: 82e83a5e8ebd6e07f6ca0765e94eb69e03324a19
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.0
-  version: 1.1.0
+  sha1: sha256:031cf5600158f44762c747a1f8648b7cebca876d4297dd9e2ce3b51b36ccd476
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.9
+  version: 1.1.9
 stemcells:
 - alias: default
+  os: ubuntu-bionic
+  version: latest
+- alias: xenial
   os: ubuntu-xenial
   version: latest
 update:
