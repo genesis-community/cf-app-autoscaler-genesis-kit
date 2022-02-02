@@ -30,12 +30,6 @@ $BOSH deployments
 #cleanup ci-baseline-${KIT_SHORTNAME}
 #safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
 
-# Create a cf deployment to be used from cf-app-autoscaler
-cd ..
-mkdir -p cf
-cd cf
-genesis init --kit cf/1.10.7 -d ci-baseline-v2-cf
-
 header "Deploying BASELINE environment to verify functionality..."
 cd dev
 # make sure hooks are executable before screaming at shipit for failing.
