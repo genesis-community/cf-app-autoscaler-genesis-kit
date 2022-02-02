@@ -24,9 +24,17 @@ cleanup() {
 header "Checking previous deployments on ${BOSH_ENVIRONMENT}..."
 $BOSH deployments
 
-header "Cleaning up from any previous deployments (if necessary)..."
-cleanup ci-baseline-${KIT_SHORTNAME}
-safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
+### Removing cleanup procedure prior to deployment to address 
+### liquibase.exception.DatabaseException race condition
+#header "Cleaning up from any previous deployments (if necessary)..."
+#cleanup ci-baseline-${KIT_SHORTNAME}
+#safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
+
+# Create a cf deployment to be used from cf-app-autoscaler
+cd ..
+mkdir -p cf
+cd cf
+genesis init --kit cf/1.10.7 -d ci-baseline-v2-cf
 
 header "Deploying BASELINE environment to verify functionality..."
 cd dev
@@ -42,3 +50,4 @@ genesis do ci-baseline -- bind-autoscaler
 genesis do ci-baseline -- setup-cf-plugin -f
 
 cleanup ci-baseline-${KIT_SHORTNAME}
+safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
