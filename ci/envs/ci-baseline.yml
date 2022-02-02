@@ -7,4 +7,4 @@ genesis:
   bosh_env:  genesis-ci
 
 params:
-  cf_deployment_env: ci-baseline-v2-cf
+  cf_deployment_env: ci-baseline-v2
