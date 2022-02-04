@@ -41,7 +41,7 @@ $BOSH -d ci-baseline-${KIT_SHORTNAME} instances --ps
 
 #Connect to the defined cf environment
 cd
-git clone git@github.com:starkandwayne/deployments.git
+git clone https://github.com/starkandwayne/deployments.git
 cd deployments/cf
 genesis do ci-baseline-v2 -- setup-cli
 # Continue on testing the addons
