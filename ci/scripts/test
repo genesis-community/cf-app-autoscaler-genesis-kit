@@ -39,9 +39,16 @@ genesis add-secrets ci-baseline
 genesis deploy -y ci-baseline
 $BOSH -d ci-baseline-${KIT_SHORTNAME} instances --ps
 
+#Connect to the defined cf environment
+cd
+git clone git@github.com:starkandwayne/deployments.git
+cd deployments/cf
+genesis do ci-baseline-v2 -- setup-cli
+# Continue on testing the addons
+
 header "Testing addons..."
-genesis do ci-baseline -- bind-autoscaler
-genesis do ci-baseline -- setup-cf-plugin -f
+genesis do ci-baseline-v2 -- bind-autoscaler
+genesis do ci-baseline-v2 -- setup-cf-plugin -f
 
 cleanup ci-baseline-${KIT_SHORTNAME}
-safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
+safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}``
