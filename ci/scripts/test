@@ -39,11 +39,8 @@ genesis add-secrets ci-baseline
 genesis deploy -y ci-baseline
 $BOSH -d ci-baseline-${KIT_SHORTNAME} instances --ps
 
-#Connect to the defined cf environment
-cd
-git clone https://github.com/starkandwayne/deployments.git
-cd deployments/cf
-genesis do ci-baseline-v2 -- setup-cli
+#Install (force) the cf-targets plugin required for the add-on tests
+cf install-plugin Targets -f
 # Continue on testing the addons
 
 header "Testing addons..."
