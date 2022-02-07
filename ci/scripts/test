@@ -44,8 +44,8 @@ cf install-plugin Targets -f
 # Continue on testing the addons
 
 header "Testing addons..."
-genesis do ci-baseline-v2 -- bind-autoscaler
-genesis do ci-baseline-v2 -- setup-cf-plugin -f
+genesis do ci-baseline -- bind-autoscaler
+genesis do ci-baseline -- setup-cf-plugin -f
 
 cleanup ci-baseline-${KIT_SHORTNAME}
 safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}``
