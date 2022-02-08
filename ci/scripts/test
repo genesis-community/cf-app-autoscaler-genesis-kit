@@ -47,6 +47,6 @@ header "Testing addons..."
 genesis do ci-baseline -- setup-cf-plugin -f
 genesis do ci-baseline -- bind-autoscaler
 
-cf delete-service-broker autoscaler
+cf delete-service-broker autoscaler -f
 cleanup ci-baseline-${KIT_SHORTNAME}
 safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}``
