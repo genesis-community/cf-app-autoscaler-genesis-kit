@@ -853,9 +853,9 @@ instance_groups:
 name: external-db-cf-app-autoscaler
 releases:
 - name: app-autoscaler
-  sha1: 4e0e9af071bb9de1b7f7db8a946e9cf67b902d4f
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=3.0.1
-  version: 3.0.1
+  sha1: cb4fde237c835ca736721341867420d6050ba963
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=4.0.0
+  version: 4.0.0
 - name: postgres
   sha1: 24d2e2887a45258b71bc40577c0f406180e47701
   url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=29
