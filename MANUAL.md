@@ -16,15 +16,15 @@ While theoretically you can attach this to any Cloud Foundry deployment, it is h
 
 As per usual with Genesis kits, you will need a Genesis deployment repository to contain your environment file.  If you don't already have one from a previous `cf-app-autoscaler` version, run `genesis init -k cf-app-autoscaler/<version>`, where <version> is replaced with the current cf-app-autoscaler genesis kit version.  If you have this already, you'll need to download the latest copy of this kit via `genesis fetch-kit` from within that directory.
 
-Once in the Genesis `cf-app-autoscaler` deployment repository, and run `genesis new <env>` to create a new env file, replacing `<env>` with your desired env.  This will walk you through a wizard that will populate thedesired features and the corresponding parameters.
+Once in the Genesis `cf-app-autoscaler` deployment repository, and run `genesis new <env>` to create a new env file, replacing `<env>` with your desired env.  This will walk you through a wizard that will populate the desired features and the corresponding parameters.
 
-Once you have an env file, you may want to manually change parameters or features. The rest of this document covers how to modify your environmentfiles to make use of provided features.
+Once you have an env file, you may want to manually change parameters or features. The rest of this document covers how to modify your environment files to make use of provided features.
 
 ## Supporting or Upgrading from cf-genesis-kit v1.x.x
 
 If you are upgrading from an existing cf-genesis-kit with a built-in app autoscaler feature, you will need to disable the feature if the CF kit and redeploy it.  If you are using external database, you can continue using those same tables for this kit, but if you are using the internal database, you will need to backup the tables first BEFORE you disable the feature, so they can be restored into the new deployment.
 
-Once disabled in the cf genesis kit, you can deploy this kit with the `cf-v1-support` feature.  This provides a way to specify the required configurations that would normally be made available (via Exodus data) from the cf v2.x kit.  You will need to specify the following values in your enviornment file:
+Once disabled in the cf genesis kit, you can deploy this kit with the `cf-v1-support` feature.  This provides a way to specify the required configurations that would normally be made available (via Exodus data) from the cf v2.x kit.  You will need to specify the following values in your environment file:
 
 ```
 bosh-variables:
