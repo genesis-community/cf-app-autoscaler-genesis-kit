@@ -31,10 +31,7 @@ resources:
       uri:         (( grab meta.github.uri ))
       branch:      (( grab meta.github.branch ))
       private_key: (( grab meta.github.private_key ))
-# Point to commit where release were first introduced
-    version:
-      ref: 83383afc28be80c236840f68afd559ed7243cb14
-#      tag_filter: "v*"
+      tag_filter: "v*"
       disable_ci_skip: true
 
   - name: version
