@@ -1,7 +1,8 @@
 name:    cf-app-autoscaler
-version: 0.0.1
+version: 3.0.0
 author:  Dennis Bell <dennis.j.bell@gmail.com>
-docs:    https://github.com/cloudfoundry-community/cf-app-autoscaler-boshrelease
+         Ioannis Tsouvalas <tsouvalasi@atic.gr>
+docs:    https://github.com/cloudfoundry/app-autoscaler-release
 code:    https://github.com/genesis-community/cf-app-autoscaler-genesis-kit
 
 # 2.6.0 was our last big feature bump
