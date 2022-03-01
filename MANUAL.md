@@ -22,7 +22,7 @@ Once you have an env file, you may want to manually change parameters or feature
 
 ## Supporting or Upgrading from cf-genesis-kit v1.x.x
 
-If you are upgrading from an existing cf-genesis-kit with a built-in app autoscaler feature, you will need to disable the feature if the CF kit and redeploy it.  If you are using external database, you can continue using those same tables for this kit, but if you are using the internal database, you will need to backup the tables first BEFORE you disable the feature, so they can be restored into the new deployment.
+If you are upgrading from an existing cf-genesis-kit with a built-in app autoscaler feature, you will need to disable the feature in the CF kit and redeploy it.  If you are using external database, you can continue using those same tables for this kit, but if you are using the internal database, you will need to backup the tables first BEFORE you disable the feature, so they can be restored into the new deployment.
 
 Once disabled in the cf genesis kit, you can deploy this kit with the `cf-v1-support` feature.  This provides a way to specify the required configurations that would normally be made available (via Exodus data) from the cf v2.x kit.  You will need to specify the following values in your environment file:
 
