@@ -887,9 +887,6 @@ stemcells:
 - alias: default
   os: ubuntu-bionic
   version: latest
-- alias: xenial
-  os: ubuntu-xenial
-  version: latest
 update:
   canaries: 1
   canary_watch_time: 1000-300000
