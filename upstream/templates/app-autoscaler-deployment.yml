@@ -498,6 +498,7 @@ instance_groups:
           broker:
             server:
               port: &brokerServerPort 6102
+
               catalog:
                 services:
                 - id: autoscaler-guid
