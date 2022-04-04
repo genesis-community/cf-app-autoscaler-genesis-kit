@@ -1,0 +1,18 @@
+---
+kit:
+  features:
+    - mysql 
+
+genesis:
+  env: mysql
+
+params:
+  cf_deployment_env: base-test
+
+bosh-variables:
+  mysql_server_certificate:
+    ca: <!mysql_server_certificate.ca!>
+    certificate: <!mysql_server_certificate.certificate!>
+    key: <!mysql_server_certificate.key!>
+  autoscaler_database_password: "<!somepassword!>"
+    

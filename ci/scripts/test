@@ -24,9 +24,11 @@ cleanup() {
 header "Checking previous deployments on ${BOSH_ENVIRONMENT}..."
 $BOSH deployments
 
-header "Cleaning up from any previous deployments (if necessary)..."
-cleanup ci-baseline-${KIT_SHORTNAME}
-safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
+### Removing cleanup procedure prior to deployment to address 
+### liquibase.exception.DatabaseException race condition
+#header "Cleaning up from any previous deployments (if necessary)..."
+#cleanup ci-baseline-${KIT_SHORTNAME}
+#safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}
 
 header "Deploying BASELINE environment to verify functionality..."
 cd dev
@@ -37,8 +39,15 @@ genesis add-secrets ci-baseline
 genesis deploy -y ci-baseline
 $BOSH -d ci-baseline-${KIT_SHORTNAME} instances --ps
 
-header "Testing addons..."
-genesis do ci-baseline -- bind-autoscaler
-genesis do ci-baseline -- setup-cf-plugin -f
+#Install (force) the cf-targets plugin required for the add-on tests
+cf install-plugin Targets -f
+# Continue on testing the addons
 
+header "Testing addons..."
+genesis do ci-baseline -- setup-cf-plugin -f
+genesis do ci-baseline -- bind-autoscaler
+
+header "Cleaning up for future deployments ..."
+cf delete-service-broker autoscaler -f
 cleanup ci-baseline-${KIT_SHORTNAME}
+safe rm -rf secret/ci/baseline/${KIT_SHORTNAME}``

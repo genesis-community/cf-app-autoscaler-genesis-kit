@@ -1,0 +1,14 @@
+---
+kit:
+  features:
+    - external-db 
+
+genesis:
+  env: external-db
+
+params:
+  cf_deployment_env: base-test
+
+bosh-variables:
+  database:
+    host:  external.mysql.mycorp.com

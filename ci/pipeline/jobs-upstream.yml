@@ -17,7 +17,7 @@ jobs:
         input_mapping:
           bosh-release: bosh-release-app-autoscaler
         params:
-          OPS_FILE_PATH: manifests/releases/app-autoscaler.yml
+          OPS_FILE_PATH: overlay/releases/app-autoscaler.yml
           RELEASE_NAME: app-autoscaler
           BRANCH: (( grab meta.github.branch ))
       - put: git

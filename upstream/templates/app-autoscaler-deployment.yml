@@ -7,9 +7,9 @@ releases:
 - name: app-autoscaler
   version: latest
 - name: "postgres"
-  version: "25"
-  url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=25"
-  sha1: "20929ee4b0c64fd97072a266311a6d00714124a7"
+  version: "29"
+  url: "https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=29"
+  sha1: "24d2e2887a45258b71bc40577c0f406180e47701"
 - name: bosh-dns-aliases
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.3
   version: '0.0.3'
@@ -30,9 +30,6 @@ features:
   use_dns_addresses: true
 addons:
 - name: bosh-dns-aliases
-  include:
-    stemcell:
-    - os: ubuntu-xenial
   jobs:
   - name: bosh-dns-aliases
     release: bosh-dns-aliases
@@ -122,7 +119,7 @@ addons:
 # Stemcell details
 stemcells:
 - alias: default
-  os: ubuntu-xenial
+  os: ubuntu-bionic
   version: latest
 
 # Canary details
@@ -257,17 +254,17 @@ instance_groups:
             port: *scalingEnginePort
             ca_cert: ((scalingengine_ca.ca))
             client_cert: ((scalingengine_client.certificate))
-            client_key: ((scalingengine_client.private_key))                
+            client_key: ((scalingengine_client.private_key))
           scheduler:
             port: *schedulerPort
             ca_cert: ((scheduler_ca.ca))
             client_cert: ((scheduler_client.certificate))
-            client_key: ((scheduler_client.private_key))        
-          db_lock: 
+            client_key: ((scheduler_client.private_key))
+          db_lock:
             ttl: 15s
             retry_interval: 5s
           logging:
-            level: info 
+            level: info
           http_client_timeout: 60s
           health:
             port: &operatorHealthPort 6208
@@ -427,7 +424,7 @@ instance_groups:
   vm_type: small
   update:
     max_in_flight: 1
-    serial: true  
+    serial: true
   jobs:
   - name: metricsgateway
     release: app-autoscaler
@@ -501,7 +498,8 @@ instance_groups:
           broker:
             server:
               port: &brokerServerPort 6102
-              catalog: 
+
+              catalog:
                 services:
                 - id: autoscaler-guid
                   name: autoscaler
@@ -535,9 +533,9 @@ instance_groups:
           event_generator:
             ca_cert: ((eventgenerator_ca.ca))
             client_cert: ((eventgenerator_client.certificate))
-            client_key: ((eventgenerator_client.private_key)) 
-          metrics_forwarder: 
-            host: autoscalermetrics.((system_domain))              
+            client_key: ((eventgenerator_client.private_key))
+          metrics_forwarder:
+            host: autoscalermetrics.((system_domain))
         policy_db: *database
         policy_db_connection_config: *databaseConnectionConfig
         binding_db: *database
@@ -677,7 +675,7 @@ variables:
     ca: eventgenerator_ca
     common_name: eventgenerator client
     extended_key_usage:
-    - client_auth      
+    - client_auth
 - name: apiserver_ca
   type: certificate
   options:

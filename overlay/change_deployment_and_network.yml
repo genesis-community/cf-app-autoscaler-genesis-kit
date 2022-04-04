@@ -75,7 +75,7 @@ addons:
         - query: '*'
           deployment: (( grab meta.cf.deployment_name ))
           network:    (( grab params.cf_core_network ))
-      
+
       - domain: _.nats.service.cf.internal
         targets:
         - (( merge on query ))

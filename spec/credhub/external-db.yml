@@ -19,7 +19,6 @@ apiserver_server:
   certificate: <!{credhub}:apiserver_server.certificate!>
   private_key: <!{credhub}:apiserver_server.private_key!>
 autoscaler_service_broker_password: <!{credhub}:autoscaler_service_broker_password!>
-database_password: <!{credhub}:database_password!>
 eventgenerator_ca:
   ca: <!{credhub}:eventgenerator_ca.ca!>
   certificate: <!{credhub}:eventgenerator_ca.certificate!>

@@ -25,7 +25,7 @@ params:
   GITHUB_OWNER:     genesis-community
   GIT_EMAIL:        ci@starkandwayne.com
   GIT_NAME:         Stark & Wayne CI Bot
-  KIT_SHORTNAME:    UPDATEME
+  KIT_SHORTNAME:    cf-app-autoscaler
 
 run:
   path: git-ci/ci/tasks/shipit/task

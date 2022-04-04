@@ -23,4 +23,40 @@ var _ = Describe("CF App Autoscaler Kit", func() {
 			Exodus:        "base",
 		})
 	})
+	Describe("mysql", func() {
+		Test(Environment{
+			Name:          "mysql",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+		})
+	})
+	Describe("external-db", func() {
+		Test(Environment{
+			Name:          "external-db",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+		})
+	})
+	Describe("params", func() {
+		Test(Environment{
+			Name:          "params",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+		})
+	})
+	Describe("cf-v1-support", func() {
+		Test(Environment{
+			Name:          "cf-v1-support",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base-cf-v1",
+		})
+	})
 })
