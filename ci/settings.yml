@@ -2,9 +2,9 @@
 meta:
   kit:     cf-app-autoscaler
   release: CF App Autoscaler Genesis Kit
-  target:  pipes@genesis
-  url:     https://pipes.starkandwayne.com
-  exposed: yes
+  target:  cloudpipes@genesis
+  url:     https://cloudpipes.starkandwayne.com
+  exposed: no
 
   initial_version: 1.0.0
 

@@ -3,8 +3,8 @@ kit:
   features: []
 
 genesis:
-  env:       ci-baseline
-  bosh_env:  snw-genesis-ci
+  env:       ci-gcp-baseline
+  bosh_env:  gcp-uswest2-genesis-ci
 
 params:
   cf_deployment_env: ci-baseline-v2
