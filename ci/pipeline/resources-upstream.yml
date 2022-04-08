@@ -3,4 +3,4 @@ resources:
     type: bosh-io-release
     check_every: 24h
     source:
-      repository: cloudfoundry/app-autoscaler-release
+      repository: cloudfoundry-incubator/app-autoscaler-release
