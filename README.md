@@ -27,5 +27,8 @@ Change to the created repository and run `genesis new <env-name>` to create
 your new cf-app-autoscaler deployment environment file, then run `genesis
 deploy <env-name>` to deploy it.
 
-See MANUAL.md for more detailed information regarding features and parameters
+See [MANUAL.md](/MANUAL.md) for more detailed information regarding features and parameters
 to customize your deployment.
+
+See [config-autoscaler.md](/docs/config-autoscaler.md) to setup basic autoscaling policies without having to 
+edit, create or have to manually apply a policy-example.xml
