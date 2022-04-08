@@ -17,6 +17,8 @@ The following addons are defined:
 
   #G{setup-cf-plugin}   Adds the 'autoscaler' plugin to the cf cli. Use #y{-f} option
                     to bypass confirmation prompt.
+
+  #G{config-autoscaler} Configures autoscaling for a Cloudfoundry app of your choosing.
 EOF
 )" ""
 }
@@ -84,6 +86,162 @@ bind_autoscaler() {
   exit 0
 }
 
+config_autoscaler() {
+  bold=$(tput bold)
+  normal=$(tput sgr0)
+
+  function target_new_org_space
+  ( printf "\n"
+    printf "%90s" " " | tr ' ' '='
+    echo -e "\nThese are the organizations defined in your Cloudfoundry deployment"
+    printf "%90s" " " | tr ' ' '=' && printf "\n"
+
+    cf orgs
+    prompt_for org_name line  \
+    'Type the organization name your application resides on'
+
+    cf target -o $org_name
+    printf "\n"
+    printf "%90s" " " | tr ' ' '='
+    echo -e "\nThese are the spaces defined for your ${bold}$org_name${normal} orgnization in your Cloudfoundry deployment"
+    printf "%90s" " " | tr ' ' '=' && printf "\n"
+
+    cf spaces
+
+    prompt_for space_name line  \
+    'Type the space name your application resides on'
+
+    cf target -o $org_name -s $space_name
+
+  )
+
+  current_target=`cf target` || true
+
+  if echo "$current_target" | grep "FAILED" > /dev/null 2>&1; then
+    cf_login
+    username="$(exodus service_broker_username)"
+    password="$(exodus service_broker_password)"
+    target_new_org_space
+  fi
+
+  new_target=$(cf target) || true
+
+  if echo "$new_target" | grep "No org or space targeted" > /dev/null 2>&1; then
+    target_new_org_space
+    new_target=$(cf target)
+  fi
+
+  current_org=$( echo $new_target | awk '{print $10}' )
+  current_space=$( echo $new_target | awk '{print $12}' )
+
+  prompt_for target_new boolean \
+    "You have targeted organization ${bold}$current_org${normal} and space ${bold}$current_space${normal}.
+    Would you like to connect to another org/space?"
+
+        if [[ "$target_new" == "true" ]]; then
+          target_new_org_space
+            new_target=$(cf target)
+            org_name=$( echo $new_target | awk '{print $10}' )
+            space_name=$( echo $new_target | awk '{print $12}' )
+          else
+          org_name=$current_org
+          space_name=$current_space
+        fi
+  printf "\n"
+  printf "%90s" " " | tr ' ' '='
+  echo -e "\nThese are the applications running in your Cloudfoundry deployment"
+  printf "%90s" " " | tr ' ' '=' && printf "\n"
+
+  cf apps
+  prompt_for app_name line  \
+    'Type the application name you would like to configure autoscaling for'
+    
+  prompt_for app_min line --default "2" --validation '/^\d+$/' \
+    'Type the minimum number of instances running at all times'
+
+  prompt_for app_max line --default "5" --validation '/^\d+$/' \
+    'Type the maximum number of instances running at all times'
+  
+  prompt_for app_metric_type select \
+    'Choose the metric type used for autoscaling' \
+    -o '[cpu]             CPU (%)' \
+    -o '[memory_used]     Memory Used (MB)' \
+    -o '[memory_util]     Memory Used (%)' \
+    -o '[response_time]   Response Time' \
+    -o '[throughput]      Throughput (requests per second)'
+    
+  
+  prompt_for app_metric_up line --default "10" --validation '/^\d+$/' \
+    'Type the threshold value at which your instances will scale up'
+
+  prompt_for app_metric_down line --default "1" --validation '/^\d+$/' \
+    'Type the threshold value at which your instances will scale down'
+
+  mkdir -p $GENESIS_ROOT/policies
+
+  function create_policy_json 
+  (
+      cat <<EOF > $GENESIS_ROOT/policies/$org_name-$space_name-$app_name-as-policy.json
+{
+    "instance_min_count": $app_min,
+    "instance_max_count": $app_max,
+    "scaling_rules": [
+        {
+            "metric_type": "$app_metric_type",
+            "breach_duration_secs": 60,
+            "threshold": $app_metric_down,
+            "operator": "<=",
+            "cool_down_secs": 60,
+            "adjustment": "-1"
+        },
+        {
+            "metric_type": "cpu",
+            "breach_duration_secs": 60,
+            "threshold": $app_metric_up,
+            "operator": ">",
+            "cool_down_secs": 60,
+            "adjustment": "+1"
+        }
+    ]
+}
+EOF
+  )
+
+  if [ -f "$GENESIS_ROOT/policies/$org_name-$space_name-$app_name-as-policy.json" ]; then
+  prompt_for policy_overwrite boolean  \
+    "The policy file aleady exists. Overwrite it? Type ${bold}no${normal} to use the one under policies/$org_name-$space_name-$app_name-as-policy.json "
+    if [[ "$policy_overwrite" == "true" ]]; then
+      create_policy_json
+#      else
+#      exit 0
+      fi
+    else
+    create_policy_json
+  fi
+
+first_as_service_name=$(cf services | grep autoscaler | awk '{print $1}')
+printf "\n"
+printf "%90s" " " | tr ' ' '='
+echo -e "\nThese are the services currently running in your CloudFoundry Deployment"
+printf "%90s" " " | tr ' ' '=' && printf "\n"
+
+cf services
+  prompt_for as_service_name line --default "$first_as_service_name" \
+    'Type the autoscaler service name you would like to use'
+  if cf autoscaling-policy $app_name | grep "The application is not bound to Auto-Scaling service" > /dev/null 2>&1; then
+    cf bind-service $app_name $as_service_name -c $GENESIS_ROOT/policies/$org_name-$space_name-$app_name-as-policy.json
+    else
+      prompt_for policy_reapply boolean  \
+    "The application is already bound to an Auto-Scaling service. Re-apply it?"
+      if [[ $policy_reapply == "true" ]]; then
+        cf aasp $app_name $GENESIS_ROOT/policies/$org_name-$space_name-$app_name-as-policy.json
+        else
+        exit 0
+      fi
+  fi
+  exit 0
+}
+
 
 case $GENESIS_ADDON_SCRIPT in
 list)
@@ -96,6 +254,10 @@ setup-cf-plugin)
 
 bind|bind-autoscaler)
   bind_autoscaler
+  ;;
+
+config|config-autoscaler)
+  config_autoscaler
   ;;
 
 *)
