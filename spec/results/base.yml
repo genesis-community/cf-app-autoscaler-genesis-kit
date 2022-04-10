@@ -87,8 +87,8 @@ addons:
     release: bpm
   name: bpm
 exodus:
-  app-autoscaler-release-date: 2022-Jan-11 09:55:37 UTC
-  app-autoscaler-release-version: 4.0.0
+  app-autoscaler-release-date: 2022-Apr-10 09:04:18 UTC
+  app-autoscaler-release-version: 5.1.0
   autoscaler_api_domain: autoscaler.sys.test.cf.domain
   autoscaler_metrics_domain: autoscalermetrics.sys.test.cf.domain
   bosh: base
