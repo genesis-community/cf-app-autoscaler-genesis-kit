@@ -1,5 +1,5 @@
 name:    cf-app-autoscaler
-version: 4.0.0
+version: 4.0.1
 author:  Dennis Bell <dennis.j.bell@gmail.com>
          Ioannis Tsouvalas <tsouvalasi@atic.gr>
 docs:    https://github.com/cloudfoundry/app-autoscaler-release
