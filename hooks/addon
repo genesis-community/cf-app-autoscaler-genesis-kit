@@ -13,12 +13,17 @@ list() {
   describe "" "$(cat <<EOF
 The following addons are defined:
 
-  #G{bind-autoscaler}   Binds the Autoscaler service broker to your deployed CF.
+  #G{bind-autoscaler}       Binds the Autoscaler service broker to your deployed CF.
 
-  #G{setup-cf-plugin}   Adds the 'autoscaler' plugin to the cf cli. Use #y{-f} option
-                    to bypass confirmation prompt.
+  #G{test-bind-autoscaler}  Tests binding the Autoscaler service broker to your deployed CF
+                        and then removes it.
 
-  #G{config-autoscaler} Configures autoscaling for a Cloudfoundry app of your choosing.
+  #G{update-autoscaler}     Updates the Autoscaler service broker information to your deployed CF.
+
+  #G{setup-cf-plugin}       Adds the 'autoscaler' plugin to the cf cli. Use #y{-f} option
+                        to bypass confirmation prompt.
+
+  #G{config-autoscaler}     Configures autoscaling for a Cloudfoundry app of your choosing.
 EOF
 )" ""
 }
@@ -83,6 +88,31 @@ bind_autoscaler() {
   cf create-service-broker autoscaler "$username" "$password" "$url"
   cf enable-service-access autoscaler
   describe "" "#G{[OK]} Successfully created the service broker."
+  exit 0
+}
+
+test_bind_autoscaler() {
+  cf_login
+  username="$(exodus service_broker_username)"
+  password="$(exodus service_broker_password)"
+  domain=$(exodus service_broker_domain)
+  url="https://$domain"
+  cf create-service-broker test-bind-autoscaler "$username" "$password" "$url"
+  cf enable-service-access autoscaler
+  describe "" "#G{[OK]} Successfully created test-bind-autoscaler service broker."
+  cf delete-service-broker test-bind-autoscaler -f
+  describe "" "#G{[OK]} Successfully deleted test-bind-autoscaler service broker."
+  exit 0
+}
+
+update_autoscaler() {
+  cf_login
+  username="$(exodus service_broker_username)"
+  password="$(exodus service_broker_password)"
+  domain=$(exodus service_broker_domain)
+  url="https://$domain"
+  cf update-service-broker autoscaler "$username" "$password" "$url"
+  describe "" "#G{[OK]} Successfully updated autoscaler service broker."
   exit 0
 }
 
@@ -254,6 +284,14 @@ setup-cf-plugin)
 
 bind|bind-autoscaler)
   bind_autoscaler
+  ;;
+
+test|test-bind-autoscaler)
+  test_bind_autoscaler
+  ;;
+
+update|update-autoscaler)
+  update_autoscaler
   ;;
 
 config|config-autoscaler)
