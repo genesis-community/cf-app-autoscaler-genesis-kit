@@ -98,7 +98,7 @@ test_bind_autoscaler() {
   domain=$(exodus service_broker_domain)
   url="https://$domain"
   cf create-service-broker test-bind-autoscaler "$username" "$password" "$url"
-  cf enable-service-access autoscaler
+  cf enable-service-access autoscaler -b test-bind-autoscaler
   describe "" "#G{[OK]} Successfully created test-bind-autoscaler service broker."
   cf delete-service-broker test-bind-autoscaler -f
   describe "" "#G{[OK]} Successfully deleted test-bind-autoscaler service broker."
