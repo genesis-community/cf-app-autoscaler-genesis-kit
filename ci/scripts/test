@@ -46,6 +46,8 @@ cf install-plugin Targets -f
 header "Testing addons..."
 genesis do ci-gcp-baseline -- setup-cf-plugin -f
 genesis do ci-gcp-baseline -- bind-autoscaler
+genesis do ci-gcp-baseline -- test-bind-autoscaler
+genesis do ci-gcp-baseline -- update-autoscaler
 
 header "Cleaning up for future deployments ..."
 cf delete-service-broker autoscaler -f
