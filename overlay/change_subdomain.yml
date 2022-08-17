@@ -7,7 +7,7 @@ instance_groups:
       autoscaler:
         apiserver:
           metrics_forwarder:
-            host: ((subdomain_root))metrics.((system_domain))
+            host: (( concat params.subdomain_prefix "metrics." params.cf_system_domain ))
   - name: route_registrar
     properties:
       route_registrar:
@@ -15,25 +15,25 @@ instance_groups:
         - name: api_server
           uris:
             - (( replace ))
-            - ((subdomain_root)).((system_domain))
+            - (( concat params.subdomain_prefix "." params.cf_system_domain ))
         - name: autoscaler_service_broker
           uris:
             - (( replace ))
-            - ((subdomain_root))servicebroker.((system_domain))
+            - (( concat params.subdomain_prefix "servicebroker." params.cf_system_domain))
         - name: autoscaler_metrics_forwarder
           uris:
             - (( replace ))
-            - ((subdomain_root))metrics.((system_domain))
+            - (( concat params.subdomain_prefix "metrics." params.cf_system_domain ))
 variables:
 - name: apiserver_public_server
   options:
-    common_name: ((subdomain_root)).((system_domain))
+    common_name: (( concat params.subdomain_prefix "." params.cf_system_domain ))
 - name: servicebroker_public_server
   options:
-    common_name: ((subdomain_root))servicebroker.((system_domain))
+    common_name: (( concat params.subdomain_prefix "servicebroker." params.cf_system_domain ))
 
 exodus:
-  autoscaler_api_domain:     (( concat bosh-variables.subdomain_root "." params.cf_system_domain ))
-  autoscaler_metrics_domain: (( concat bosh-variables.subdomain_root "metrics." params.cf_system_domain ))
-  service_broker_domain:     (( concat bosh-variables.subdomain_root "servicebroker." params.cf_system_domain ))
+  autoscaler_api_domain:     (( concat params.subdomain_prefix "." params.cf_system_domain ))
+  autoscaler_metrics_domain: (( concat params.subdomain_prefix "metrics." params.cf_system_domain ))
+  service_broker_domain:     (( concat params.subdomain_prefix "servicebroker." params.cf_system_domain ))
 

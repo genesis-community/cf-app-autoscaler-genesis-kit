@@ -12,7 +12,6 @@ params:
   cf_system_domain:   (( vault meta.cf.exodus ":system_domain" ))
 
 bosh-variables:
-  system_domain:    (( grab params.cf_system_domain ))
   cf_client_id:     (( vault meta.cf.exodus ":app_autoscaler_client" ))
   cf_client_secret: (( vault meta.cf.exodus ":app_autoscaler_secret" ))
   loggregator_ca:
