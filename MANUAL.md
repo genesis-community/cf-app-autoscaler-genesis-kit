@@ -92,6 +92,24 @@ It requires the following credhub values:
 * `autoscaler_database_password` (password)
 * `autoscaler_database_tls_ca` (certificate)
 
+### `subdomain_prefix`
+
+By default the subdomain prefix is `autoscaler`, and therefore we would have these urls:
+* `autoscaler.${system_domain}`
+* `autoscalermetrics.${system_domain}`
+* `autoscalerservicebroker.${system_domain}`
+
+This can be overridden in the environment file as follows, let's say you wanted it
+to be `aas` short for "app auto scaler":
+```yaml
+params:
+  subdomain_prefix: "aas"
+```
+This would result in the following urls:
+* `aas.${system_domain}`
+* `aasmetrics.${system_domain}`
+* `aasservicebroker.${system_domain}`
+
 ### `postgres`
 
 This is the default database type, but can be explicitly stated.

@@ -19,7 +19,7 @@ manifests=( \
   "overlay/releases/app-autoscaler.yml" \
 )
 
-if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "bosh-variables.subdomain_root" 2>/dev/null); then
+if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "params.subdomain_prefix" 2>/dev/null); then
   manifests+=( "overlay/change_subdomain.yml" )
 fi
 

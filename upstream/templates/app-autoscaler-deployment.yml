@@ -189,7 +189,7 @@ instance_groups:
         scheduler_db_connection_config: *databaseConnectionConfig
         policy_db_connection_config: *databaseConnectionConfig
         cf: &cf_credentials
-          api: "https://api.((system_domain))"
+          api: (( concat "https://api." params.cf_system_domain ))
           grant_type: client_credentials
           client_id: "((cf_client_id))"
           secret: "((cf_client_secret))"
@@ -283,21 +283,21 @@ instance_groups:
             tags:
               component: autoscaler_scalingengine_health
             uris:
-              - autoscaler-scalingengine.((system_domain))
+              - (( concat "autoscaler-scalingengine." params.cf_system_domain ))
           - name: autoscaler_operator_health
             registration_interval: 20s
             port: *operatorHealthPort
             tags:
               component: autoscaler_operator_health
             uris:
-              - autoscaler-operator.((system_domain))
+              - (( concat "autoscaler-operator." params.cf_system_domain ))
           - name: autoscaler_scheduler_health
             registration_interval: 20s
             port: *schedulerHealthPort
             tags:
               component: autoscaler_scheduler_health
             uris:
-              - autoscaler-scheduler.((system_domain))
+              - (( concat "autoscaler-scheduler." params.cf_system_domain ))
 # asmetrics Instance Group: metricsserver&eventgenerator
 - name: asmetrics
   azs:
@@ -406,14 +406,14 @@ instance_groups:
             tags:
               component: autoscaler_eventgenerator_health
             uris:
-              - autoscaler-eventgenerator.((system_domain))
+              - (( concat "autoscaler-eventgenerator." params.cf_system_domain ))
           - name: autoscaler_metricsserver_health
             registration_interval: 20s
             port: *metricsserverHealthPort
             tags:
               component: autoscaler_metricsserver_health
             uris:
-              - autoscaler-metricsserver.((system_domain))
+              - (( concat "autoscaler-metricsserver." params.cf_system_domain ))
 - name: asnozzle
   azs:
   - z1
@@ -474,7 +474,7 @@ instance_groups:
             tags:
               component: autoscaler_metricsgateway_health
             uris:
-              - autoscaler-metricsgateway.((system_domain))
+              - (( concat "autoscaler-metricsgateway." params.cf_system_domain ))
 # asapi Instance Group : apiserver&servicebroker
 - name: asapi
   azs:
@@ -534,7 +534,7 @@ instance_groups:
             client_cert: ((eventgenerator_client.certificate))
             client_key: ((eventgenerator_client.private_key)) 
           metrics_forwarder: 
-            host: autoscalermetrics.((system_domain))              
+            host: (( concat "autoscalermetrics." params.cf_system_domain ))
         policy_db: *database
         policy_db_connection_config: *databaseConnectionConfig
         binding_db: *database
@@ -578,28 +578,28 @@ instance_groups:
           tags:
             component: api_server
           uris:
-            - autoscaler.((system_domain))
+            - (( concat "autoscaler." params.cf_system_domain ))
         - name: autoscaler_service_broker
           registration_interval: 20s
           port: *brokerServerPort
           tags:
             component: autoscaler_service_broker
           uris:
-            - autoscalerservicebroker.((system_domain))
+            - (( concat "autoscalerservicebroker." params.cf_system_domain ))
         - name: autoscaler_metrics_forwarder
           registration_interval: 20s
           port: *metricsforwarderServerPort
           tags:
             component: autoscaler_metrics_forwarder
           uris:
-            - autoscalermetrics.((system_domain))
+            - (( concat "autoscalermetrics." params.cf_system_domain ))
         - name: autoscaler_metricsforwarder_health
           registration_interval: 20s
           port: *metricsforwarderHealthPort
           tags:
             component: autoscaler_metricsforwarder_health
           uris:
-            - autoscaler-metricsforwarder.((system_domain))
+            - (( concat "autoscaler-metricsforwarder." params.cf_system_domain ))
   - name: loggregator_agent
     release: loggregator-agent
     consumes:
@@ -699,9 +699,9 @@ variables:
   type: certificate
   options:
     ca: apiserver_public_ca
-    common_name: autoscaler.((system_domain))
+    common_name: (( concat "autoscaler." params.cf_system_domain ))
     alternative_names:
-    - autoscaler.((system_domain))
+    - (( concat "autoscaler." params.cf_system_domain ))
     extended_key_usage:
     - client_auth
     - server_auth
@@ -743,9 +743,9 @@ variables:
   type: certificate
   options:
     ca: servicebroker_public_ca
-    common_name: autoscalerservicebroker.((system_domain))
+    common_name: (( concat "autoscalerservicebroker." params.cf_system_domain ))
     alternative_names:
-    - autoscalerservicebroker.((system_domain))
+    - (( concat "autoscalerservicebroker." params.cf_system_domain ))
     extended_key_usage:
     - client_auth
     - server_auth
