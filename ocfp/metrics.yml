@@ -2,7 +2,7 @@
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=loggregator_agent/properties/metrics
   value:
-    server_name: metricsserver.service.cf.internal
-    ca_cert:     (( concat "((/" meta.env.name "-bosh/" meta.env.name "-cf/loggregator_agent_metrics_tls.ca))" ))
-    cert:        (( concat "((/" meta.env.name "-bosh/" meta.env.name "-cf/loggregator_agent_metrics_tls.certificate))" ))
-    key:         (( concat "((/" meta.env.name "-bosh/" meta.env.name "-cf/loggregator_agent_metrics_tls.private_key))" ))
+    server_name: "metricsserver.service.cf.internal"
+    ca_cert:     (( concat "((/" meta.env_name "-bosh/" meta_env.name "-cf/loggregator_agent_metrics_tls.ca))" ))
+    cert:        (( concat "((/" meta.env_name "-bosh/" meta_env.name "-cf/loggregator_agent_metrics_tls.certificate))" ))
+    key:         (( concat "((/" meta.env_name "-bosh/" meta_env.name "-cf/loggregator_agent_metrics_tls.private_key))" ))

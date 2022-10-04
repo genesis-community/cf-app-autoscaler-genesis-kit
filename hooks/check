@@ -14,9 +14,20 @@ set -e
 cc_ok=yes
 # Cloud Config checks
 if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
-  for t in minimal small; do
-    cloud_config_needs vm_type "$t"
-  done
+  if want_feature ocfp ; then
+    _env_scale="$(lookup --merged meta.env_scale)"
+    _vm_type="shield-${_env_scale}"
+    _network="${GENESIS_ENVIRONMENT}-shield"
+    _disk_type="shield-${_env_scale}"
+
+    cloud_config_needs vm_type   "$(lookup params.vm_type   ${_vm_type})"
+    cloud_config_needs network   "$(lookup params.network   ${_network})"
+    cloud_config_needs disk_type "$(lookup params.disk_pool ${_disk_type})"
+  else # Legacy was hard coded
+    for t in minimal small; do
+      cloud_config_needs vm_type "$t"
+    done
+  fi
 
   # Check if there were any errors reported from the above checks.
   if check_cloud_config ; then
