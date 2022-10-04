@@ -1,0 +1,12 @@
+---
+meta:
+  db:
+    hostname: (( param "Specify the host URL domain or IP for connecting to the external database" ))
+    port:     (( param "Specify the port for connecting to the external database" ))
+    scheme:   (( param "Specify the type of database, expect one of mysql or postgres" ))
+    database: autoscaler
+    username: autoscaler
+    password: ((autoscaler_database_password))
+    sslmode:  (( param "Specify SSL validation mode to use, expect one of disable, allow, prefer, require, verify-ca, verify-full (postgres), verify_identity (mysql)" ))
+    ca:       ((autoscaler_database_tls_ca))
+

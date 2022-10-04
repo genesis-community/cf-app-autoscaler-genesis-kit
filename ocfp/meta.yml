@@ -1,0 +1,32 @@
+---
+meta:
+  env:
+    name:  (( grab $GENESIS_ENVIRONMENT ))
+    slug:  (( grab $GENESIS_SECRETS_SLUG ))
+    scale: (( grab params.env_scale || "dev" ))
+
+  vault:
+    mount:       (( grab $GENESIS_SECRETS_MOUNT ))
+    exodus_path: (( grab $GENESIS_EXODUS_MOUNT ))
+    tf_path:     (( concat meta.vault_mount "tf/" meta.env_slug ))
+    env_path:    (( concat meta.vault_mount meta.env_slug ))
+    certs_path:  (( concat meta.vault_mount "certs" ))
+
+  trusted_certs:
+    - (( vault meta.vault_certs "/org:ca" )) # Organization CA, if exists
+    - (( vault meta.vault_certs "/dbs:ca" )) # External Databases CA
+
+  db:
+    hostname: (( vault meta.tf_path "/dbs/autoscaler:hostname" ))
+    port:     (( vault meta.tf_path "/dbs/autoscaler:port"     ))
+    scheme:   (( vault meta.tf_path "/dbs/autoscaler:scheme"   ))
+    database: (( vault meta.tf_path "/dbs/autoscaler:database" ))
+    username: (( vault meta.tf_path "/dbs/autoscaler:username" ))
+    password: (( vault meta.tf_path "/dbs/autoscaler:password" ))
+    sslmode:  "verify-ca"
+    ca:       (( vault meta.tf_path "/dbs/autoscaler:ca"       ))
+
+  cf:
+    exodus:          (( concat meta.vault.exodus_path meta.env.name "/cf" ))
+    deployment_name: (( concat meta.env.name "-cf" ))
+

@@ -72,6 +72,10 @@ Using features is a way to configure the kit to suite the requirements of your s
 
 ## Features Provided by the Genesis Kit
 
+### `ocfp`
+
+
+
 ### `external-db`
 
 Use this feature to use an external database instead of creating an internal one.  It supports the following parameters set under `bosh_variables:` in your environment.
