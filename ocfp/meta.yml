@@ -1,29 +1,34 @@
 ---
 meta:
-  env_name:          (( grab $GENESIS_ENVIRONMENT ))
-  env_slug:          (( grab $GENESIS_SECRETS_SLUG ))
-  env_scale:         (( grab params.env_scale || "dev" ))
-  vault_mount:       (( grab $GENESIS_SECRETS_MOUNT ))
-  vault_exodus_path: (( grab $GENESIS_EXODUS_MOUNT ))
-  vault_tf_path:     (( concat meta.vault_mount "tf/" meta.env_slug ))
-  vault_env_path:    (( concat meta.vault_mount meta.env_slug ))
-  vault_certs_path:  (( concat meta.vault_mount "certs" ))
+  # NOTE: vvv next genesis rc will have these 3  built in, remove then
+  vault_env:    (( grab $GENESIS_SECRETS_SLUG ))
+  vault_mount:  (( grab $GENESIS_SECRETS_MOUNT ))
+  vault_exodus: (( grab $GENESIS_EXODUS_MOUNT ))
+  # NOTE: ^^^
 
-  trusted_certs:
-    - (( vault meta.vault_certs_path "/org:ca" )) # Organization CA, if exists
-    - (( vault meta.vault_certs_path "/dbs:ca" )) # External Databases CA
+  ocfp:
+    env:
+      scale: (( grab params.env.scale || "dev" ))
+
+    vault:
+      tf:    (( concat meta.vault_mount "tf/" meta.vault_env ))
+
+    certs:
+      trusted:
+        - (( vault meta.vault_mount "/certs/org:ca" )) # Organization CA, if exists
+        - (( vault meta.vault_mount "/certs/dbs:ca" )) # External Databases CA
 
   db:
-    hostname: (( vault meta.vault_tf_path "/dbs/autoscaler:hostname" ))
-    port:     (( vault meta.vault_tf_path "/dbs/autoscaler:port"     ))
-    scheme:   (( vault meta.vault_tf_path "/dbs/autoscaler:scheme"   ))
-    database: (( vault meta.vault_tf_path "/dbs/autoscaler:database" ))
-    username: (( vault meta.vault_tf_path "/dbs/autoscaler:username" ))
-    password: (( vault meta.vault_tf_path "/dbs/autoscaler:password" ))
+    hostname: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:hostname" ))
+    port:     (( vault meta.ocfp.vault.tf "/dbs/autoscaler:port"     ))
+    scheme:   (( vault meta.ocfp.vault.tf "/dbs/autoscaler:scheme"   ))
+    database: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:database" ))
+    username: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:username" ))
+    password: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:password" ))
     sslmode:  "verify-ca"
-    ca:       (( vault meta.vault_tf_path "/dbs/autoscaler:ca"       ))
+    ca:       (( vault meta.ocfp.vault.tf "/dbs/autoscaler:ca"       ))
 
   cf:
-    exodus:          (( concat meta.vault_exodus_path meta.env_name "/cf" ))
-    deployment_name: (( concat meta.env_name "-cf" ))
+    exodus:          (( concat meta.vault_exodus genesis.env "/cf" ))
+    deployment_name: (( concat genesis.env "-cf" ))
 
