@@ -12,17 +12,17 @@ meta:
         - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
         - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
 
-  db:
-    hostname: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:hostname" ))
-    port:     (( vault meta.ocfp.vault.tf "/dbs/autoscaler:port"     ))
-    scheme:   (( vault meta.ocfp.vault.tf "/dbs/autoscaler:scheme"   ))
-    database: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:database" ))
-    username: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:username" ))
-    password: (( vault meta.ocfp.vault.tf "/dbs/autoscaler:password" ))
-    sslmode:  "verify-ca"
-    ca:       (( vault meta.ocfp.vault.tf "/dbs/autoscaler:ca"       ))
-
   cf:
     exodus:          (( concat meta.vault_exodus genesis.env "/cf" ))
     deployment_name: (( concat genesis.env "-cf" ))
+
+  db:
+    hostname: (( vault meta.vault "/db/autoscaler:hostname" ))
+    port:     (( vault meta.vault "/db/autoscaler:port"     ))
+    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
+    database: (( vault meta.vault "/db/autoscaler:database" ))
+    username: (( vault meta.vault "/db/autoscaler:username" ))
+    password: (( vault meta.vault "/db/autoscaler:password" ))
+    sslmode:  "verify-ca"
+    ca:       (( vault meta.vault "/db/autoscaler:ca"       ))
 
