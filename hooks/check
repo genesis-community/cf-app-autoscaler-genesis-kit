@@ -15,14 +15,17 @@ cc_ok=yes
 # Cloud Config checks
 if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
   if want_feature ocfp ; then
-    _env_scale="$(lookup --merged meta.env_scale)"
-    _vm_type="shield-${_env_scale}"
-    _network="${GENESIS_ENVIRONMENT}-shield"
-    _disk_type="shield-${_env_scale}"
+    _env_scale="$(lookup --partial meta.ocfp.env.scale)"
+    jobs=( as-actors as-api as-metrics as-nozzle )
+    for job in ${jobs[@]} ; do
+      _vm_type="${job}-${_env_scale}"
+      _disk_type="${job}-${_env_scale}"
+      _network="${GENESIS_ENVIRONMENT}-ocf"
 
-    cloud_config_needs vm_type   "$(lookup params.vm_type   ${_vm_type})"
-    cloud_config_needs network   "$(lookup params.network   ${_network})"
-    cloud_config_needs disk_type "$(lookup params.disk_pool ${_disk_type})"
+      cloud_config_needs vm_type   "$(lookup params.vm_type   ${_vm_type})"
+      cloud_config_needs network   "$(lookup params.network   ${_network})"
+      cloud_config_needs disk_type "$(lookup params.disk_pool ${_disk_type})"
+    done
   else # Legacy was hard coded
     for t in minimal small; do
       cloud_config_needs vm_type "$t"

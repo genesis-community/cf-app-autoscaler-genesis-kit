@@ -3,6 +3,6 @@
   path: /instance_groups/name=asapi/jobs/name=loggregator_agent/properties/metrics
   value:
     server_name: "metricsserver.service.cf.internal"
-    ca_cert:     (( concat "((/" genesis.env "-bosh/" genesis.env "-cf/loggregator_agent_metrics_tls.ca))" ))
-    cert:        (( concat "((/" genesis.env "-bosh/" genesis.env "-cf/loggregator_agent_metrics_tls.certificate))" ))
-    key:         (( concat "((/" genesis.env "-bosh/" genesis.env "-cf/loggregator_agent_metrics_tls.private_key))" ))
+    ca_cert:     (( grab meta.cf.loggregator.agent.ca ))
+    cert:        (( grab meta.cf.loggregator.agent.cert ))
+    key:         (( grab meta.cf.loggregator.agent.key ))
