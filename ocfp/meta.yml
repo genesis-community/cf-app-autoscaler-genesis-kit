@@ -13,7 +13,7 @@ meta:
         - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
 
   cf:
-    exodus:          (( concat meta.vault_exodus genesis.env "/cf" ))
+    exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
     deployment_name: (( concat genesis.env "-cf" ))
     loggregator:
       agent:

@@ -9,16 +9,20 @@ instance_groups:
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
     vm_type: (( concat "as-api-" meta.ocfp.env.scale ))
+    stemcell: default
   - name: asactors
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
     vm_type: (( concat "as-actors-" meta.ocfp.env.scale ))
+    stemcell: default
   - name: asmetrics
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
     vm_type: (( concat "as-metrics-" meta.ocfp.env.scale ))
+    stemcell: default
   - name: asnozzle
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
     vm_type: (( concat "as-nozzle-" meta.ocfp.env.scale ))
+    stemcell: default
 

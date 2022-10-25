@@ -7,7 +7,7 @@ bosh-variables:
     host:     (( grab meta.db.hostname ))
     port:     (( grab meta.db.port ))
     scheme:   (( grab meta.db.scheme ))
-    name:     (( grab meta.db.name ))
+    name:     (( grab meta.db.database ))
     username: (( grab meta.db.username ))
     password: (( grab meta.db.password ))
     sslmode:  (( grab meta.db.sslmode ))
