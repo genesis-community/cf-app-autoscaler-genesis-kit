@@ -33,6 +33,7 @@ do
         "ocfp/meta.yml"
         "overlay/external_db/common.yml"
         "ocfp/ocfp.yml"
+        "ocfp/metrics.yml"
       )
       ;;
     (override-subdomain)
