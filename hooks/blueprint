@@ -35,6 +35,7 @@ do
         "ocfp/ocfp.yml"
         "ocfp/loggregator-agent.yml"
         "ocfp/metrics.yml"
+        "ocfp/broker.yml"
       )
       ;;
     (override-subdomain)
