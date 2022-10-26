@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=asapi/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_service_broker/uris/0
+  value: (( concat "autoscaler-broker." params.cf_system_domain ))
