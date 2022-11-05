@@ -1,8 +1,8 @@
 ---
 exodus:
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
-  autoscaler_metrics_domain: (( concat "autoscaler-metrics." params.cf_system_domain ))
-  service_broker_domain:     (( concat "autoscaler-broker." params.cf_system_domain ))
+  autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
+  service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
 instance_groups:
   - name: asapi
