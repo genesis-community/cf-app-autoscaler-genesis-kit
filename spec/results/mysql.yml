@@ -860,9 +860,9 @@ instance_groups:
 name: mysql-cf-app-autoscaler
 releases:
 - name: app-autoscaler
-  sha1: 2e926ef783e31daea619e915a6d26effc91289d0
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=8.2.0
-  version: 8.2.0
+  sha1: efdaa7a8c339b5a42adfc8566bd4552a5623ca1d
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=9.0.0
+  version: 9.0.0
 - name: postgres
   sha1: 24d2e2887a45258b71bc40577c0f406180e47701
   url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=29
