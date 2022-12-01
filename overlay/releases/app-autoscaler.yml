@@ -2,6 +2,6 @@
   path: /releases?/name=app-autoscaler?
   value:
     name: app-autoscaler
-    version: 9.1.0
-    url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=9.1.0
-    sha1: a8b55f1ca2628f9eccf08a6c9ed5a3aaa445b872
+    version: 9.2.0
+    url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=9.2.0
+    sha1: 5ca9c787cc3adf5ce300487d82419cd265e703aa
