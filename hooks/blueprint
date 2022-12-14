@@ -43,7 +43,6 @@ do
     (external-db)
       manifests+=( \
         "upstream/operations/external-db.yml" \
-        "overlay/external_db/meta.yml" \
         "overlay/external_db/common.yml" \
       )
       if want_feature mysql ; then
