@@ -21,16 +21,6 @@ meta:
         cert: (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_certificate" ))
         key:  (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_private_key" ))
 
-  db:
-    hostname: (( vault meta.vault "/db/autoscaler:hostname" ))
-    port:     (( vault meta.vault "/db/autoscaler:port"     ))
-    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
-    database: (( vault meta.vault "/db/autoscaler:database" ))
-    username: (( vault meta.vault "/db/autoscaler:username" ))
-    password: (( vault meta.vault "/db/autoscaler:password" ))
-    sslmode:  "verify-ca"
-    ca:       (( vault meta.vault "/db/autoscaler:ca"       ))
-
   as:
     azs:
       - (( concat genesis.env "-z1" ))
@@ -39,3 +29,16 @@ meta:
 
     networks:
       - name: (( concat genesis.env "-ocf" ))
+
+bosh-variables:
+  database:
+    host:     (( vault meta.vault "/db/autoscaler:hostname" ))
+    port:     (( vault meta.vault "/db/autoscaler:port"     ))
+    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
+    name:     (( vault meta.vault "/db/autoscaler:database" ))
+    username: (( vault meta.vault "/db/autoscaler:username" ))
+    password: (( vault meta.vault "/db/autoscaler:password" ))
+    sslmode:  "verify-ca"
+    tls:
+      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
+
