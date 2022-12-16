@@ -1,3 +1,4 @@
+---
 bosh-variables:
   database:
     port: 3306

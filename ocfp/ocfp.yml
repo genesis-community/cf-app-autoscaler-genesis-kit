@@ -1,0 +1,28 @@
+---
+exodus:
+  autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
+  autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
+  service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
+
+instance_groups:
+  - name: asapi
+    azs: (( grab meta.as.azs ))
+    networks: (( grab meta.as.networks ))
+    vm_type: (( concat "as-api-" meta.ocfp.env.scale ))
+    stemcell: default
+  - name: asactors
+    azs: (( grab meta.as.azs ))
+    networks: (( grab meta.as.networks ))
+    vm_type: (( concat "as-actors-" meta.ocfp.env.scale ))
+    stemcell: default
+  - name: asmetrics
+    azs: (( grab meta.as.azs ))
+    networks: (( grab meta.as.networks ))
+    vm_type: (( concat "as-metrics-" meta.ocfp.env.scale ))
+    stemcell: default
+  - name: asnozzle
+    azs: (( grab meta.as.azs ))
+    networks: (( grab meta.as.networks ))
+    vm_type: (( concat "as-nozzle-" meta.ocfp.env.scale ))
+    stemcell: default
+

@@ -72,6 +72,31 @@ Using features is a way to configure the kit to suite the requirements of your s
 
 ## Features Provided by the Genesis Kit
 
+### `ocfp`
+
+#### OCFP Reference Architecture
+
+This referene architecture requires using an external database, which has been provisioned externally from this kit (typically with terraform).
+
+The new OCFP approach is: `terraform` -> `vault` -> `ocfp init pg`-> `ocfp init env`.
+
+The OCFP reference architecture approach 
+1. Terraform computes values and places them in vault at contract specified paths, ex: `secret/tf/{tf-env-path}/dbs/{bosh,credhub,uaa}`
+2. The `ocfp init pg` script initializes the database and then populates 
+the environment's database vaules in vault path according to the contract: 
+`secret/{env-path}/db/cf-app-autoscaler:{hostname,ca,...}`
+3. The `ocfp init env` script is run which generates a genesis bosh kit env
+file using a template which pulls values according to the OCFP contracts.
+3. Enable any required features and deploy.
+
+Note that the main differences with `ocfp` are that the following are specified according to contract, based off of environment name:
+- `azs`
+- `networks`
+- `vm_types` based on env scale (`params.ocfp_env_scale`: `prod` or `dev`, with dev as default.)
+- location of external database and lb information in vault
+- org and db certificates locations in vault
+
+
 ### `external-db`
 
 Use this feature to use an external database instead of creating an internal one.  It supports the following parameters set under `bosh_variables:` in your environment.

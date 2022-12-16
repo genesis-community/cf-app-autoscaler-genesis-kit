@@ -1,0 +1,44 @@
+---
+meta:
+  ocfp:
+    env:
+      scale: (( grab params.ocfp_env_scale || "dev" ))
+
+    vault:
+      tf: (( concat genesis.secrets_mount "tf/" genesis.vault_env ))
+
+    certs:
+      trusted:
+        - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
+        - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
+
+  cf:
+    exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
+    deployment_name: (( concat genesis.env "-cf" ))
+    loggregator:
+      agent:
+        ca:   (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_ca" ))
+        cert: (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_certificate" ))
+        key:  (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_private_key" ))
+
+  as:
+    azs:
+      - (( concat genesis.env "-z1" ))
+      - (( concat genesis.env "-z2" ))
+      - (( concat genesis.env "-z3" ))
+
+    networks:
+      - name: (( concat genesis.env "-ocf" ))
+
+bosh-variables:
+  database:
+    host:     (( vault meta.vault "/db/autoscaler:hostname" ))
+    port:     (( vault meta.vault "/db/autoscaler:port"     ))
+    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
+    name:     (( vault meta.vault "/db/autoscaler:database" ))
+    username: (( vault meta.vault "/db/autoscaler:username" ))
+    password: (( vault meta.vault "/db/autoscaler:password" ))
+    sslmode:  "verify-ca"
+    tls:
+      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
+

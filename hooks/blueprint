@@ -24,22 +24,23 @@ if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "params.s
 fi
 
 # Do features => opsfiles stuff here
-for want in $GENESIS_REQUESTED_FEATURES; do
-  if [[ $want =~ operations/.* ]] ; then
-    if [[ -f "upstream/$want.yml" ]] ; then
-      manifests+=( "upstream/$want.yml" )
-    else
-      __bail "$GENSIS_KIT_ID does not support the $want feature"
-    fi
-  elif [[ -f $GENESIS_ROOT/ops/$want.yml ]] ; then
-    mkdir -p "$(dirname "local_ops/$want.yml")"
-    cp "$GENESIS_ROOT/ops/$want.yml" "local_ops/$want.yml"
-    manifests+=( "local_ops/$want.yml" )
-  else
-    case "$want" in
-    override-subdomain)
+for want in $GENESIS_REQUESTED_FEATURES
+do
+  case "$want" in
+    (ocfp)
+      manifests+=(
+        "upstream/operations/external-db.yml"
+        "ocfp/meta.yml"
+        "overlay/external_db/common.yml"
+        "ocfp/ocfp.yml"
+        "ocfp/loggregator-agent.yml"
+        "ocfp/metrics.yml"
+        "ocfp/broker.yml"
+      )
       ;;
-    external-db)
+    (override-subdomain)
+      ;;
+    (external-db)
       manifests+=( \
         "upstream/operations/external-db.yml" \
         "overlay/external_db/common.yml" \
@@ -50,22 +51,33 @@ for want in $GENESIS_REQUESTED_FEATURES; do
         manifests+=( "overlay/external_db/postgres.yml" )
       fi
       ;;
-    postgres)
+    (postgres)
       : # Default - do nothing (only provided for explicit specification of db type
       ;;
-    mysql)
+    (mysql)
       if ! want_feature external-db ; then
         manifests+=( "upstream/operations/cf-mysql-db.yml" )
       fi
       ;;
-    cf-v1-support)
+    (cf-v1-support)
       manifests+=( "overlay/cf-v1-support.yml" )
       ;;
-    *)
-      __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
+    (*)
+      if [[ $want =~ operations/.* ]] ; then
+        if [[ -f "upstream/$want.yml" ]] ; then
+          manifests+=( "upstream/$want.yml" )
+        else
+          __bail "$GENSIS_KIT_ID does not support the $want feature"
+        fi
+      elif [[ -f "${GENESIS_ROOT}/ops/$want.yml" ]] ; then
+        mkdir -p "$(dirname "local_ops/$want.yml")"
+        cp "$GENESIS_ROOT/ops/$want.yml" "local_ops/$want.yml"
+        manifests+=( "local_ops/$want.yml" )
+      else
+        __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
+      fi
       ;;
-    esac
-  fi
+  esac
 done
 
 echo "${manifests[@]}"

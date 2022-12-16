@@ -1,6 +1,8 @@
 #!/bin/bash
+
 set -u
-#Version check
+
+# Version check
 min_version="2.7.0"
 genesis_version="$(genesis -v 2>&1 | grep '^Genesis v' | sed -e 's/Genesis v\(.*\) (.*$/\1/')"
 if ! [[ "$genesis_version" =~ -dev$ ]] && ! new_enough "$genesis_version" "$min_version" ; then
@@ -12,9 +14,23 @@ set -e
 cc_ok=yes
 # Cloud Config checks
 if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
-  for t in minimal small; do
-    cloud_config_needs vm_type "$t"
-  done
+  if want_feature ocfp ; then
+    _env_scale="$(lookup --partial meta.ocfp.env.scale)"
+    jobs=( as-actors as-api as-metrics as-nozzle )
+    for job in ${jobs[@]} ; do
+      _vm_type="${job}-${_env_scale}"
+      _disk_type="${job}-${_env_scale}"
+      _network="${GENESIS_ENVIRONMENT}-ocf"
+
+      cloud_config_needs vm_type   "$(lookup params.vm_type   ${_vm_type})"
+      cloud_config_needs network   "$(lookup params.network   ${_network})"
+      cloud_config_needs disk_type "$(lookup params.disk_pool ${_disk_type})"
+    done
+  else # Legacy was hard coded
+    for t in minimal small; do
+      cloud_config_needs vm_type "$t"
+    done
+  fi
 
   # Check if there were any errors reported from the above checks.
   if check_cloud_config ; then
@@ -25,11 +41,10 @@ if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
   fi
 fi
 
-
 # Runtime config checks
 runtime_ok=yes
 
-# # Check for BOSH DNS
+# Check for BOSH DNS
 if ! rcq -e '.addons[] | .name | select(. == "bosh-dns")' &>/dev/null; then
   runtime_ok=no
   describe >&2 \
