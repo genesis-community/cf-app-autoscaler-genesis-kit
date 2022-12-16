@@ -30,8 +30,8 @@ do
     (ocfp)
       manifests+=(
         "upstream/operations/external-db.yml"
-        "ocfp/meta.yml"
         "overlay/external_db/common.yml"
+        "ocfp/meta.yml"
         "ocfp/ocfp.yml"
         "ocfp/loggregator-agent.yml"
         "ocfp/metrics.yml"
