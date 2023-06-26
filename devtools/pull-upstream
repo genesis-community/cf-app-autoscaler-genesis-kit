@@ -26,7 +26,7 @@ file="$workdir/${package}-${version}.tar.gz"
 echo "Fetching ${package} v${version} release from ${github_org} Github organization}"
 
 curl -sSL -o "$file"\
-  "https://github.com/${github_org}/${package}/archive/refs/tags/${version}.tar.gz" > /dev/null
+  "https://github.com/${github_org}/${package}/archive/refs/tags/v${version}.tar.gz" > /dev/null
 if ! [[ -f "$file" ]] ; then
   error "Failed to download ${package} v${version} -- cannot continue"
 fi
