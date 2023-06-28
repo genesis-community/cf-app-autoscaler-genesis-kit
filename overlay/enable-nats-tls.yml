@@ -5,8 +5,8 @@
   value:
     tls:
       enabled: true
-      client_cert: ((/bosh-autoscaler/cf/nats_client_cert.certificate))
-      client_key: ((/bosh-autoscaler/cf/nats_client_cert.private_key))
+      client_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.certificate))" ))
+      client_key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.private_key))" ))
 
 - type: remove
   path: /instance_groups/name=asactors/jobs/name=route_registrar/consumes/nats
@@ -15,15 +15,15 @@
   path: /instance_groups/name=asactors/jobs/name=route_registrar/consumes/nats-tls?
   value:
     from: nats-tls
-    deployment: cf
+    deployment: (( grab meta.cf.deployment_name ))
 
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=route_registrar/properties/nats?
   value:
     tls:
       enabled: true
-      client_cert: ((/bosh-autoscaler/cf/nats_client_cert.certificate))
-      client_key: ((/bosh-autoscaler/cf/nats_client_cert.private_key))
+      client_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.certificate))" ))
+      client_key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.private_key))" ))
 
 - type: remove
   path: /instance_groups/name=asapi/jobs/name=route_registrar/consumes/nats
@@ -32,15 +32,15 @@
   path: /instance_groups/name=asapi/jobs/name=route_registrar/consumes/nats-tls?
   value:
     from: nats-tls
-    deployment: cf
+    deployment: (( grab meta.cf.deployment_name ))
 
 - type: replace
   path: /instance_groups/name=asnozzle/jobs/name=route_registrar/properties/nats?
   value:
     tls:
       enabled: true
-      client_cert: ((/bosh-autoscaler/cf/nats_client_cert.certificate))
-      client_key: ((/bosh-autoscaler/cf/nats_client_cert.private_key))
+      client_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.certificate))" ))
+      client_key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.private_key))" ))
 
 - type: remove
   path: /instance_groups/name=asnozzle/jobs/name=route_registrar/consumes/nats
@@ -49,15 +49,15 @@
   path: /instance_groups/name=asnozzle/jobs/name=route_registrar/consumes/nats-tls?
   value:
     from: nats-tls
-    deployment: cf
+    deployment: (( grab meta.cf.deployment_name ))
 
 - type: replace
   path: /instance_groups/name=asmetrics/jobs/name=route_registrar/properties/nats?
   value:
     tls:
       enabled: true
-      client_cert: ((/bosh-autoscaler/cf/nats_client_cert.certificate))
-      client_key: ((/bosh-autoscaler/cf/nats_client_cert.private_key))
+      client_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.certificate))" ))
+      client_key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/nats_client_cert.private_key))" ))
 
 - type: remove
   path: /instance_groups/name=asmetrics/jobs/name=route_registrar/consumes/nats
@@ -66,4 +66,4 @@
   path: /instance_groups/name=asmetrics/jobs/name=route_registrar/consumes/nats-tls?
   value:
     from: nats-tls
-    deployment: cf
+    deployment: (( grab meta.cf.deployment_name ))
