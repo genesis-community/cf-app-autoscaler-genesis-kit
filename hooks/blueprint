@@ -62,6 +62,12 @@ do
     (cf-v1-support)
       manifests+=( "overlay/cf-v1-support.yml" )
       ;;
+    (enable-nats-tls)
+      manifests+=( "overlay/enable-nats-tls.yml" )
+      ;;
+    (enable-log-cache)
+      manifests+=( "overlay/enable-log-cache.yml" )
+      ;;
     (*)
       if [[ $want =~ operations/.* ]] ; then
         if [[ -f "upstream/$want.yml" ]] ; then
