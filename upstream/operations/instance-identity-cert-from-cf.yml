@@ -7,7 +7,7 @@
 
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
-  value: (( concat "autoscaler-metricsforwarder-mtls." params.cf_system_domain ))
+  value: autoscaler-metricsforwarder-mtls.((system_domain))
 
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=route_registrar/properties/route_registrar/routes/-
@@ -18,4 +18,4 @@
     tags:
       component: autoscaler_metrics_forwarder_mtls
     uris:
-    - (( concat "autoscaler-metricsforwarder-mtls." params.cf_system_domain ))
+    - autoscaler-metricsforwarder-mtls.((system_domain))
