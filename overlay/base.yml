@@ -38,3 +38,9 @@ exodus:
 
   cf_deployment_env:  (( grab params.cf_deployment_env ))
   cf_deployment_type: (( grab params.cf_deployment_type ))
+
+stemcells:
+- (( merge on alias ))
+- alias: default
+  os: (( grab params.stemcell_os || "ubuntu-jammy" ))
+  version: (( grab params.stemcell_version || "latest" ))

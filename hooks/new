@@ -28,7 +28,7 @@ prompt_for cf_deployment line \
 
 cf_deployment_type=
 prompt_for cf_deployment_type line \
-  'What is deployment type of thi Cloud Foundry enviornment?' \
+  'What is deployment type of the Cloud Foundry enviornment?' \
   --default 'cf'
 
 describe "" "#Yi{Fetching metadata from CF deployment }#Ci{$cf_deployment-$cf_deployment_type}#Yi{...}"

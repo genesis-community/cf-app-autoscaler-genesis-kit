@@ -23,6 +23,18 @@ if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "params.s
   manifests+=( "overlay/change_subdomain.yml" )
 fi
 
+cf_exodus="$(safe get "$(lookup --merged meta.cf.exodus)" | spruce json | jq -r .)"
+cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
+if new_enough "$cf_kit_version" 2.3.0 ; then
+  manifests+=(
+    "overlay/enable-nats-tls.yml"
+    "overlay/enable-log-cache.yml"
+    "overlay/instance-identity-cert-from-cf.yml"
+    "overlay/loggregator-certs-from-cf.yml"
+    "overlay/log-cache-syslog-server.yml"
+  )
+fi
+
 # Do features => opsfiles stuff here
 for want in $GENESIS_REQUESTED_FEATURES
 do
@@ -37,8 +49,13 @@ do
         "ocfp/metrics.yml"
         "ocfp/broker.yml"
       )
+      if new_enough "$cf_kit_version" "2.3.0" ; then
+        manifests+=(
+        )
+      fi
       ;;
     (override-subdomain)
+      : # Already handled above
       ;;
     (external-db)
       manifests+=( \
@@ -52,7 +69,7 @@ do
       fi
       ;;
     (postgres)
-      : # Default - do nothing (only provided for explicit specification of db type
+      manifests+=( "overlay/enable-jammy-postgres.yml" )
       ;;
     (mysql)
       if ! want_feature external-db ; then
@@ -60,25 +77,10 @@ do
       fi
       ;;
     (cf-v1-support)
+      if new_enough "$cf_kit_version" "2.3.0" ; then
+        bail "Feature #C{cf-v1-support} is no longer supported by cf kit v2.3.0 or later"
+      fi
       manifests+=( "overlay/cf-v1-support.yml" )
-      ;;
-    (enable-nats-tls)
-      manifests+=( "overlay/enable-nats-tls.yml" )
-      ;;
-    (enable-log-cache)
-      manifests+=( "overlay/enable-log-cache.yml" )
-      ;;
-    (instance-identity-cert-from-cf)
-      manifests+=( "overlay/instance-identity-cert-from-cf.yml" )
-      ;;
-    (loggregator-certs-from-cf)
-      manifests+=( "overlay/loggregator-certs-from-cf.yml" )
-      ;;
-    (log-cache-syslog-server)
-      manifests+=( "overlay/log-cache-syslog-server.yml" )
-      ;;
-    (enable-jammy-postgres)
-      manifests+=( "overlay/enable-jammy-postgres.yml" )
       ;;
     (*)
       if [[ $want =~ operations/.* ]] ; then
