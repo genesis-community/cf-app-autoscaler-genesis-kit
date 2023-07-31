@@ -68,6 +68,18 @@ do
     (enable-log-cache)
       manifests+=( "overlay/enable-log-cache.yml" )
       ;;
+    (instance-identity-cert-from-cf)
+      manifests+=( "overlay/instance-identity-cert-from-cf.yml" )
+      ;;
+    (loggregator-certs-from-cf)
+      manifests+=( "overlay/loggregator-certs-from-cf.yml" )
+      ;;
+    (log-cache-syslog-server)
+      manifests+=( "overlay/log-cache-syslog-server.yml" )
+      ;;
+    (enable-jammy-postgres)
+      manifests+=( "overlay/enable-jammy-postgres.yml" )
+      ;;
     (*)
       if [[ $want =~ operations/.* ]] ; then
         if [[ -f "upstream/$want.yml" ]] ; then
