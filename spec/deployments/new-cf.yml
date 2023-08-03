@@ -1,0 +1,9 @@
+---
+kit:
+  features: []
+
+genesis:
+  env: new-cf
+
+params:
+  cf_deployment_env: base-test

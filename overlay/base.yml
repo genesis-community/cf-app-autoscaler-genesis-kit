@@ -3,13 +3,16 @@ meta:
   cf:
     exodus:  (( concat $GENESIS_EXODUS_MOUNT params.cf_deployment_env "/" params.cf_deployment_type ))
     deployment_name: (( concat params.cf_deployment_env "-" params.cf_deployment_type ))
+    credhub_path: (( concat "/" params.cf_deployment_bosh_env "-" params.cf_deployment_bosh_type "/"  params.cf_deployment_env "-" params.cf_deployment_type "/" ))
 
 params:
-  network:            (( grab params.cf_core_network ))
-  cf_deployment_env:  (( grab genesis.env )) # assumes same name as cf env
-  cf_deployment_type: cf # for crazy people using an "non-cf" cf deployment named something else
-  cf_core_network:    (( vault meta.cf.exodus ":core_network" ))
-  cf_system_domain:   (( vault meta.cf.exodus ":system_domain" ))
+  network:                 (( grab params.cf_core_network ))
+  cf_deployment_env:       (( grab genesis.env )) # assumes same name as cf env
+  cf_deployment_type:      cf # for crazy people using an "non-cf" cf deployment named something else
+  cf_deployment_bosh_env:  (( grab genesis.env ))
+  cf_deployment_bosh_type: bosh
+  cf_core_network:         (( vault meta.cf.exodus ":core_network" ))
+  cf_system_domain:        (( vault meta.cf.exodus ":system_domain" ))
 
 bosh-variables:
   system_domain:    (( grab params.cf_system_domain ))
@@ -39,8 +42,12 @@ exodus:
   cf_deployment_env:  (( grab params.cf_deployment_env ))
   cf_deployment_type: (( grab params.cf_deployment_type ))
 
+instance_groups:
+- name: postgres_autoscaler
+  stemcell: default
+
 stemcells:
-- (( merge on alias ))
+- (( replace ))
 - alias: default
   os: (( grab params.stemcell_os || "ubuntu-jammy" ))
   version: (( grab params.stemcell_version || "latest" ))

@@ -5,42 +5,42 @@ addons:
       aliases:
       - domain: autoscalerpostgres.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: postgres_autoscaler
           network: test-core-network
           query: '*'
       - domain: apiserver.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asapi
           network: test-core-network
           query: '*'
       - domain: autoscalerscheduler.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asactors
           network: test-core-network
           query: '*'
       - domain: servicebroker.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asapi
           network: test-core-network
           query: '*'
       - domain: eventgenerator.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asmetrics
           network: test-core-network
           query: '*'
       - domain: scalingengine.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asactors
           network: test-core-network
@@ -54,14 +54,14 @@ addons:
           query: '*'
       - domain: metricsgateway.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asnozzle
           network: test-core-network
           query: '*'
       - domain: metricsserver.service.cf.internal
         targets:
-        - deployment: base-cf-app-autoscaler
+        - deployment: new-cf-cf-app-autoscaler
           domain: bosh
           instance_group: asmetrics
           network: test-core-network
@@ -91,7 +91,7 @@ exodus:
   app-autoscaler-release-version: 10.0.5
   autoscaler_api_domain: autoscaler.sys.test.cf.domain
   autoscaler_metrics_domain: autoscalermetrics.sys.test.cf.domain
-  bosh: base
+  bosh: new-cf
   cf_deployment_env: base-test
   cf_deployment_type: cf
   features: ""
@@ -444,11 +444,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_scalingengine_health
@@ -612,11 +617,12 @@ instance_groups:
           logging:
             level: info
           metricscollector:
-            ca_cert: <!{credhub}:metricsserver_ca.ca!>
-            client_cert: <!{credhub}:metricsserver_client.certificate!>
-            client_key: <!{credhub}:metricsserver_client.private_key!>
-            host: metricsserver.service.cf.internal
-            port: 6103
+            ca_cert: <!{credhub}:log_cache.ca!>
+            client_cert: <!{credhub}:log_cache.certificate!>
+            client_key: <!{credhub}:log_cache.private_key!>
+            host: logcache
+            port: 8080
+            use_log_cache: true
           scaling_engine:
             ca_cert: <!{credhub}:scalingengine_ca.ca!>
             client_cert: <!{credhub}:scalingengine_client.certificate!>
@@ -652,11 +658,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_eventgenerator_health
@@ -712,9 +723,9 @@ instance_groups:
             level: info
           nozzle:
             loggregator_rlp_tls:
-              ca_cert: test-loggregator-ca
-              cert: test-loggregator-rlp-cert
-              key: test-loggregator-rlp-key
+              ca_cert: <!{credhub}:loggregator_ca.certificate!>
+              cert: <!{credhub}:loggregator_tls_rlp.certificate!>
+              key: <!{credhub}:loggregator_tls_rlp.private_key!>
             rlp_addr: reverse-log-proxy.service.cf.internal:8082
             shard_id: CF_AUTOSCALER
           nozzle_count: 3
@@ -743,11 +754,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_metricsgateway_health
@@ -800,6 +816,7 @@ instance_groups:
             level: info
           metrics_forwarder:
             host: autoscalermetrics.sys.test.cf.domain
+            mtls_host: autoscaler-metricsforwarder-mtls.sys.test.cf.domain
           public_api:
             server:
               port: 6101
@@ -881,9 +898,12 @@ instance_groups:
           loggregator:
             metron_address: 127.0.0.1:3458
             tls:
-              ca_cert: test-loggregator-ca
-              cert: test-loggregator-agent-cert
-              key: test-loggregator-agent-key
+              ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+              cert: <!{credhub}:loggregator_tls_agent.certificate!>
+              key: <!{credhub}:loggregator_tls_agent.private_key!>
+          metricshandler:
+            tls:
+              ca_cert: <!{credhub}:diego_instance_identity_ca.certificate!>
           policy_poller_interval: 60s
           server:
             port: 6201
@@ -912,11 +932,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: api_server
@@ -947,24 +972,27 @@ instance_groups:
             component: autoscaler_metricsforwarder_health
           uris:
           - autoscaler-metricsforwarder.sys.test.cf.domain
+        - name: autoscaler_metrics_forwarder_mtls
+          port: 6201
+          registration_interval: 20s
+          tags:
+            component: autoscaler_metrics_forwarder_mtls
+          uris:
+          - autoscaler-metricsforwarder-mtls.sys.test.cf.domain
     release: routing
-  - consumes:
-      doppler:
-        deployment: base-test-cf
-        from: doppler
-    name: loggregator_agent
+  - name: loggr-syslog-agent
     properties:
-      loggregator:
-        tls:
-          agent:
-            cert: test-loggregator-agent-cert
-            key: test-loggregator-agent-key
-          ca_cert: test-loggregator-ca
+      aggregate_drains: syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true
+      drain_ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
       metrics:
         ca_cert: <!{credhub}:loggregator_agent_metrics_tls.ca!>
         cert: <!{credhub}:loggregator_agent_metrics_tls.certificate!>
         key: <!{credhub}:loggregator_agent_metrics_tls.private_key!>
         server_name: loggregator_agent_server
+      tls:
+        ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+        cert: <!{credhub}:loggregator_tls_agent.certificate!>
+        key: <!{credhub}:loggregator_tls_agent.private_key!>
     release: loggregator-agent
   name: asapi
   networks:
@@ -974,7 +1002,7 @@ instance_groups:
     max_in_flight: 1
     serial: true
   vm_type: minimal
-name: base-cf-app-autoscaler
+name: new-cf-cf-app-autoscaler
 releases:
 - name: app-autoscaler
   sha1: da4e71fceb23b747e1dd71346d1296575fe71669
@@ -985,21 +1013,21 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=44
   version: "44"
 - name: bosh-dns-aliases
-  sha1: b0d0a0350ed87f1ded58b2ebb469acea0e026ccc
-  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.3
-  version: 0.0.3
+  sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
+  version: 0.0.4
 - name: routing
-  sha1: 0024f2d9f8bb3c624a162db4c3a5919388c6d800
-  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.237.0
-  version: 0.237.0
+  sha1: 6dd63d1653bf333ea64fca061a3a16d9be2e750f
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.275.0
+  version: 0.275.0
 - name: loggregator-agent
-  sha1: 02ec285cce8fef717ab7baee79a5ed9210a7391c
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=6.4.1
-  version: 6.4.1
+  sha1: 623e45f6c19a68d01c313a9a1a504dabc39ac1cf
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=7.2.1
+  version: 7.2.1
 - name: bpm
-  sha1: 86675f90d66f7018c57f4ae0312f1b3834dd58c9
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.18
-  version: 1.1.18
+  sha1: 36299a55c00d28cfe54bbb4772ca617f52d76adb
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.2.1
+  version: 1.2.1
 stemcells:
 - alias: default
   os: ubuntu-jammy

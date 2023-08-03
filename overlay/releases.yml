@@ -1,6 +1,0 @@
----
-releases:
-- name:    "app-autoscaler"
-  version: "10.0.5"
-  url:     "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=10.0.5"
-  sha1:    "da4e71fceb23b747e1dd71346d1296575fe71669"

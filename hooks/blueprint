@@ -9,14 +9,14 @@ declare -a manifests
 want_feature postgres && want_feature mysql && bail \
   "#R{[ERROR]} Cannot specify both postgres and mysql features"
 
-manifests=( \
-  "upstream/templates/app-autoscaler-deployment.yml" \
-  "overlay/base.yml" \
-  "overlay/ten-year-ca-expiry.yml" \
-  "overlay/db-persistent-disk.yml" \
-  "overlay/upstream_version.yml" \
-  "overlay/change_deployment_and_network.yml" \
-  "overlay/releases/app-autoscaler.yml" \
+manifests=(
+  "upstream/templates/app-autoscaler-deployment.yml"
+  "overlay/base.yml"
+  "overlay/ten-year-ca-expiry.yml"
+  "overlay/db-persistent-disk.yml"
+  "overlay/upstream_version.yml"
+  "overlay/change_deployment_and_network.yml"
+  "overlay/releases/app-autoscaler.yml"
 )
 
 if (lookup --defined "params.subdomain_prefix" 2>/dev/null); then
@@ -29,6 +29,7 @@ cf_type="$(jq -r '.params.cf_deployment_type//"cf"' <<<"$GENESIS_ENVIRONMENT_PAR
 cf_exodus="$(lookup --exodus-for "${cf_env}/${cf_type}" .)"
 
 cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
+[[ -n "$cf_kit_version" ]] || bail "#R{[ERROR]} Could not determine kit version with associated CF deployment"
 if new_enough "$cf_kit_version" 2.3.0 ; then
   manifests+=(
     "overlay/enable-nats-tls.yml"
@@ -36,6 +37,7 @@ if new_enough "$cf_kit_version" 2.3.0 ; then
     "overlay/instance-identity-cert-from-cf.yml"
     "overlay/loggregator-certs-from-cf.yml"
     "overlay/log-cache-syslog-server.yml"
+    "overlay/releases/cf-kit-2.3.0-compatibility.yml"
   )
 fi
 
@@ -47,6 +49,7 @@ do
       manifests+=(
         "upstream/operations/external-db.yml"
         "overlay/external_db/common.yml"
+        "overlay/no-postgres.yml"
         "ocfp/meta.yml"
         "ocfp/ocfp.yml"
         "ocfp/loggregator-agent.yml"
@@ -63,8 +66,9 @@ do
       ;;
     (external-db)
       manifests+=( \
-        "upstream/operations/external-db.yml" \
-        "overlay/external_db/common.yml" \
+        "upstream/operations/external-db.yml"
+        "overlay/external_db/common.yml"
+        "overlay/no-postgres.yml"
       )
       if want_feature mysql ; then
         manifests+=( "overlay/external_db/mysql.yml" )
@@ -73,11 +77,14 @@ do
       fi
       ;;
     (postgres)
-      manifests+=( "overlay/enable-jammy-postgres.yml" )
+      : # Default
       ;;
     (mysql)
       if ! want_feature external-db ; then
-        manifests+=( "upstream/operations/cf-mysql-db.yml" )
+        manifests+=(
+          "upstream/operations/cf-mysql-db.yml"
+          "overlay/no-postgres.yml"
+        )
       fi
       ;;
     (cf-v1-support)
@@ -104,4 +111,5 @@ do
   esac
 done
 
+echo "${manifests[@]}" > "/tmp/$GENESIS_ENVIRONMENT.yamls"
 echo "${manifests[@]}"

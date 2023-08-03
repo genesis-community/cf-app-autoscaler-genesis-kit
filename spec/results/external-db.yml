@@ -853,13 +853,9 @@ instance_groups:
 name: external-db-cf-app-autoscaler
 releases:
 - name: app-autoscaler
-  sha1: 837ac0d7e14c67b3054e09494678441e72fbeabb
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=10.0.1
-  version: 10.0.1
-- name: postgres
-  sha1: 582b1de9522077102dfa44ff7164cd8f499dbfc8
-  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=44
-  version: "44"
+  sha1: da4e71fceb23b747e1dd71346d1296575fe71669
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=10.0.5
+  version: 10.0.5
 - name: bosh-dns-aliases
   sha1: b0d0a0350ed87f1ded58b2ebb469acea0e026ccc
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.3
@@ -879,9 +875,6 @@ releases:
 stemcells:
 - alias: default
   os: ubuntu-jammy
-  version: latest
-- alias: xenial
-  os: ubuntu-xenial
   version: latest
 update:
   canaries: 1

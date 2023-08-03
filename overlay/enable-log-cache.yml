@@ -12,13 +12,13 @@
 
 - type: replace
   path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/metricscollector/ca_cert
-  value: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/log_cache.ca))" ))
+  value: (( concat "((" meta.cf.credhub_path "log_cache.ca))" ))
 - type: replace
   path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/metricscollector/client_cert
-  value: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/log_cache.certificate))" ))
+  value: (( concat "((" meta.cf.credhub_path "log_cache.certificate))" ))
 
 - type: replace
   path: /instance_groups/name=asmetrics/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/metricscollector/client_key
-  value: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/log_cache.private_key))" ))
+  value: (( concat "((" meta.cf.credhub_path "log_cache.private_key))" ))
 
 

@@ -1,22 +1,31 @@
 ---
+- type: remove
+  path: /bosh-variables/loggregator_ca
+
+- type: remove
+  path: /bosh-variables/loggregator_tls_agent
+
+- type: remove
+  path: /bosh-variables/loggregator_tls_rlp
+
 - type: replace
   path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/metricsgateway/nozzle/loggregator_rlp_tls
   value:
-    cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_rlp.certificate))" ))
-    key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_rlp.private_key))" ))
-    ca_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_ca.certificate))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_rlp.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_rlp.private_key))" ))
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_ca.certificate))" ))
 
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/loggregator/tls
   value:
-    ca_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_agent.ca))" ))
-    cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_agent.certificate))" ))
-    key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_agent.private_key))" ))
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
 
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=loggregator_agent/properties/loggregator/tls
   value:
-    ca_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_ca.certificate))" ))
-    agent:  
-      cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_agent.certificate))" ))
-      key: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/loggregator_tls_agent.private_key))" ))
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_ca.certificate))" ))
+    agent:
+      cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+      key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))

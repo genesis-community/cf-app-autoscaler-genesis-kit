@@ -3,7 +3,7 @@
   path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/metricshandler?
   value:
     tls:
-      ca_cert: (( concat "((/" params.cf_deployment_env "-bosh/" meta.cf.deployment_name "/diego_instance_identity_ca.certificate))" ))
+      ca_cert: (( concat "((" meta.cf.credhub_path "diego_instance_identity_ca.certificate))" ))
 
 - type: replace
   path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?

@@ -10,4 +10,4 @@
   loggregator_tls_agent_key: test-loggregator-agent-key
   loggregator_agent_metrics_tls: loggregator_agent_metrics_tls
   metric_scraper_ca: metric_scraper_ca
-  kit_version: 2.2.8
+  kit_version: 2.3.2-rc.2

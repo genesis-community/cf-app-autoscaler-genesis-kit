@@ -1,0 +1,136 @@
+/new-cf-bosh/base-test-cf/diego_instance_identity_ca:
+  ca: <!{credhub}:diego_instance_identity_ca.ca!>
+  certificate: <!{credhub}:diego_instance_identity_ca.certificate!>
+  private_key: <!{credhub}:diego_instance_identity_ca.private_key!>
+/new-cf-bosh/base-test-cf/log_cache:
+  ca: <!{credhub}:log_cache.ca!>
+  certificate: <!{credhub}:log_cache.certificate!>
+  private_key: <!{credhub}:log_cache.private_key!>
+/new-cf-bosh/base-test-cf/loggregator_ca:
+  ca: <!{credhub}:loggregator_ca.ca!>
+  certificate: <!{credhub}:loggregator_ca.certificate!>
+  private_key: <!{credhub}:loggregator_ca.private_key!>
+/new-cf-bosh/base-test-cf/loggregator_tls_agent:
+  ca: <!{credhub}:loggregator_tls_agent.ca!>
+  certificate: <!{credhub}:loggregator_tls_agent.certificate!>
+  private_key: <!{credhub}:loggregator_tls_agent.private_key!>
+/new-cf-bosh/base-test-cf/loggregator_tls_rlp:
+  ca: <!{credhub}:loggregator_tls_rlp.ca!>
+  certificate: <!{credhub}:loggregator_tls_rlp.certificate!>
+  private_key: <!{credhub}:loggregator_tls_rlp.private_key!>
+/new-cf-bosh/base-test-cf/nats_client_cert:
+  ca: <!{credhub}:nats_client_cert.ca!>
+  certificate: <!{credhub}:nats_client_cert.certificate!>
+  private_key: <!{credhub}:nats_client_cert.private_key!>
+
+apiserver_ca:
+  ca: <!{credhub}:apiserver_ca.ca!>
+  certificate: <!{credhub}:apiserver_ca.certificate!>
+  private_key: <!{credhub}:apiserver_ca.private_key!>
+apiserver_client:
+  ca: <!{credhub}:apiserver_client.ca!>
+  certificate: <!{credhub}:apiserver_client.certificate!>
+  private_key: <!{credhub}:apiserver_client.private_key!>
+apiserver_public_ca:
+  ca: <!{credhub}:apiserver_public_ca.ca!>
+  certificate: <!{credhub}:apiserver_public_ca.certificate!>
+  private_key: <!{credhub}:apiserver_public_ca.private_key!>
+apiserver_public_server:
+  ca: <!{credhub}:apiserver_public_server.ca!>
+  certificate: <!{credhub}:apiserver_public_server.certificate!>
+  private_key: <!{credhub}:apiserver_public_server.private_key!>
+apiserver_server:
+  ca: <!{credhub}:apiserver_server.ca!>
+  certificate: <!{credhub}:apiserver_server.certificate!>
+  private_key: <!{credhub}:apiserver_server.private_key!>
+autoscaler_service_broker_password: <!{credhub}:autoscaler_service_broker_password!>
+database_password: <!{credhub}:database_password!>
+eventgenerator_ca:
+  ca: <!{credhub}:eventgenerator_ca.ca!>
+  certificate: <!{credhub}:eventgenerator_ca.certificate!>
+  private_key: <!{credhub}:eventgenerator_ca.private_key!>
+eventgenerator_client:
+  ca: <!{credhub}:eventgenerator_client.ca!>
+  certificate: <!{credhub}:eventgenerator_client.certificate!>
+  private_key: <!{credhub}:eventgenerator_client.private_key!>
+eventgenerator_server:
+  ca: <!{credhub}:eventgenerator_server.ca!>
+  certificate: <!{credhub}:eventgenerator_server.certificate!>
+  private_key: <!{credhub}:eventgenerator_server.private_key!>
+metricsserver_ca:
+  ca: <!{credhub}:metricsserver_ca.ca!>
+  certificate: <!{credhub}:metricsserver_ca.certificate!>
+  private_key: <!{credhub}:metricsserver_ca.private_key!>
+metricsserver_client:
+  ca: <!{credhub}:metricsserver_client.ca!>
+  certificate: <!{credhub}:metricsserver_client.certificate!>
+  private_key: <!{credhub}:metricsserver_client.private_key!>
+metricsserver_server:
+  ca: <!{credhub}:metricsserver_server.ca!>
+  certificate: <!{credhub}:metricsserver_server.certificate!>
+  private_key: <!{credhub}:metricsserver_server.private_key!>
+postgres_ca:
+  ca: <!{credhub}:postgres_ca.ca!>
+  certificate: <!{credhub}:postgres_ca.certificate!>
+  private_key: <!{credhub}:postgres_ca.private_key!>
+postgres_server:
+  ca: <!{credhub}:postgres_server.ca!>
+  certificate: <!{credhub}:postgres_server.certificate!>
+  private_key: <!{credhub}:postgres_server.private_key!>
+scalingengine_ca:
+  ca: <!{credhub}:scalingengine_ca.ca!>
+  certificate: <!{credhub}:scalingengine_ca.certificate!>
+  private_key: <!{credhub}:scalingengine_ca.private_key!>
+scalingengine_client:
+  ca: <!{credhub}:scalingengine_client.ca!>
+  certificate: <!{credhub}:scalingengine_client.certificate!>
+  private_key: <!{credhub}:scalingengine_client.private_key!>
+scalingengine_server:
+  ca: <!{credhub}:scalingengine_server.ca!>
+  certificate: <!{credhub}:scalingengine_server.certificate!>
+  private_key: <!{credhub}:scalingengine_server.private_key!>
+scheduler_ca:
+  ca: <!{credhub}:scheduler_ca.ca!>
+  certificate: <!{credhub}:scheduler_ca.certificate!>
+  private_key: <!{credhub}:scheduler_ca.private_key!>
+scheduler_client:
+  ca: <!{credhub}:scheduler_client.ca!>
+  certificate: <!{credhub}:scheduler_client.certificate!>
+  private_key: <!{credhub}:scheduler_client.private_key!>
+scheduler_server:
+  ca: <!{credhub}:scheduler_server.ca!>
+  certificate: <!{credhub}:scheduler_server.certificate!>
+  private_key: <!{credhub}:scheduler_server.private_key!>
+servicebroker_ca:
+  ca: <!{credhub}:servicebroker_ca.ca!>
+  certificate: <!{credhub}:servicebroker_ca.certificate!>
+  private_key: <!{credhub}:servicebroker_ca.private_key!>
+servicebroker_client:
+  ca: <!{credhub}:servicebroker_client.ca!>
+  certificate: <!{credhub}:servicebroker_client.certificate!>
+  private_key: <!{credhub}:servicebroker_client.private_key!>
+servicebroker_public_ca:
+  ca: <!{credhub}:servicebroker_public_ca.ca!>
+  certificate: <!{credhub}:servicebroker_public_ca.certificate!>
+  private_key: <!{credhub}:servicebroker_public_ca.private_key!>
+servicebroker_public_server:
+  ca: <!{credhub}:servicebroker_public_server.ca!>
+  certificate: <!{credhub}:servicebroker_public_server.certificate!>
+  private_key: <!{credhub}:servicebroker_public_server.private_key!>
+servicebroker_server:
+  ca: <!{credhub}:servicebroker_server.ca!>
+  certificate: <!{credhub}:servicebroker_server.certificate!>
+  private_key: <!{credhub}:servicebroker_server.private_key!>
+autoscaler_eventgenerator_health_password: <!{credhub}:autoscaler_eventgenerator_health_password!>
+autoscaler_metricsforwarder_health_password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
+autoscaler_metricsgateway_health_password: <!{credhub}:autoscaler_metricsgateway_health_password!>
+autoscaler_metricsserver_health_password: <!{credhub}:autoscaler_metricsserver_health_password!>
+autoscaler_operator_health_password: <!{credhub}:autoscaler_operator_health_password!>
+autoscaler_scalingengine_health_password: <!{credhub}:autoscaler_scalingengine_health_password!>
+autoscaler_scheduler_health_password: <!{credhub}:autoscaler_scheduler_health_password!>
+loggregator_agent_metrics_tls:
+  ca: <!{credhub}:loggregator_agent_metrics_tls.ca!>
+  certificate: <!{credhub}:loggregator_agent_metrics_tls.certificate!>
+  private_key: <!{credhub}:loggregator_agent_metrics_tls.private_key!>
+metric_scraper_ca:
+  ca: <!{credhub}:metric_scraper_ca.ca!>

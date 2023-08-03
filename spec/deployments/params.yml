@@ -15,10 +15,11 @@ params:
   cf_system_domain:    cf-v1.lab.example.com
   skip_ssl_validation: true
   db_disk_type:        20GB
+  stemcell_os:         ubuntu-xenial
 
 bosh-variables:
   database:
-    host:     external-mysql-host.lab.example.com 
+    host:     external-mysql-host.lab.example.com
     port:     3377
     scheme:   mysql
     name:     cfas
