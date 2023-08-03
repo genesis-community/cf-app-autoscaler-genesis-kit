@@ -19,11 +19,15 @@ manifests=( \
   "overlay/releases/app-autoscaler.yml" \
 )
 
-if (genesis -C "$GENESIS_ROOT" lookup --defined "$GENESIS_ENVIRONMENT" "params.subdomain_prefix" 2>/dev/null); then
+if (lookup --defined "params.subdomain_prefix" 2>/dev/null); then
   manifests+=( "overlay/change_subdomain.yml" )
 fi
 
-cf_exodus="$(safe get "$(lookup --merged meta.cf.exodus)" | spruce json | jq -r .)"
+# Get CF deployment exodus data
+cf_env="$(jq -r '.params.cf_deployment_env//.genesis.env' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
+cf_type="$(jq -r '.params.cf_deployment_type//"cf"' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
+cf_exodus="$(lookup --exodus-for "${cf_env}/${cf_type}" .)"
+
 cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
 if new_enough "$cf_kit_version" 2.3.0 ; then
   manifests+=(
