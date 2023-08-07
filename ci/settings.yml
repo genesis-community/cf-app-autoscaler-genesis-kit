@@ -2,8 +2,8 @@
 meta:
   kit:     cf-app-autoscaler
   release: CF App Autoscaler Genesis Kit
-  target:  cloudpipes@genesis
-  url:     https://cloudpipes.starkandwayne.com
+  target:  pipes/genesis
+  url:     https://pipes.scalecf.net
   exposed: no
 
   initial_version: 1.0.0
@@ -28,6 +28,8 @@ meta:
     branch:       master
     private_key:  ((github.private_key))
     access_token: ((github.access_token))
+    name:         ((github.name))
+    email:        ((github.email))
 
   shout:
     url:      ((shout.url))

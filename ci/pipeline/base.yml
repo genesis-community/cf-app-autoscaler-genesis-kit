@@ -24,12 +24,12 @@ meta:
     token: (( param "Please provide a Vault Token" ))
 
   git:
-    email: ci@starkandwayne.com
-    name:  Stark & Wayne CI Bot
+    email: ((github.email))
+    name:  ((github.name))
 
   image:
-    name: starkandwayne/genesis
-    tag: latest
+    name: ((image/genesis.url))
+    tag:  ((image/genesis.tag))
 
   aws:
     bucket:      genesis-pipeline

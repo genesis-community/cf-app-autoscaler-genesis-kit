@@ -4,7 +4,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: starkandwayne/concourse
+    repository: ((image/genesis.url))
+    tag:        ((image/genesis.tag))
 
 inputs:
 - name: git

@@ -4,7 +4,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: starkandwayne/concourse
+    repository: ((image/genesis.url))
+    tag:        ((image/genesis.tag))
 
 inputs:
 - name: version
@@ -23,8 +24,8 @@ params:
   NOTIFICATION_OUT: notifications
   BRANCH:           master
   GITHUB_OWNER:     genesis-community
-  GIT_EMAIL:        ci@starkandwayne.com
-  GIT_NAME:         Stark & Wayne CI Bot
+  GIT_EMAIL:        ((github.email))
+  GIT_NAME:         ((github.name))
   KIT_SHORTNAME:    cf-app-autoscaler
 
 run:
