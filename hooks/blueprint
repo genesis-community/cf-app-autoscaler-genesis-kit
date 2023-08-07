@@ -52,12 +52,15 @@ do
         "overlay/no-postgres.yml"
         "ocfp/meta.yml"
         "ocfp/ocfp.yml"
-        "ocfp/loggregator-agent.yml"
-        "ocfp/metrics.yml"
         "ocfp/broker.yml"
       )
       if new_enough "$cf_kit_version" "2.3.0" ; then
         manifests+=(
+        )
+      else
+        manifests+=(
+          "ocfp/loggregator-agent.yml"
+          "ocfp/metrics.yml"
         )
       fi
       ;;
