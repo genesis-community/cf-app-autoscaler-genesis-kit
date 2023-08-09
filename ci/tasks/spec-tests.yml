@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: ((image/concourse_go.url))
+    tag:        ((image/concourse_go.tag))
+
+inputs:
+- name: git
+- name: git-ci
+
+run:
+  dir: git/spec
+  path: ginkgo
+  args: [ "-p", "." ]

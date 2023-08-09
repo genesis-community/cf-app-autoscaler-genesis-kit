@@ -1,0 +1,13 @@
+# Target cf
+genesis do "${DEPLOY_ENV}" -- cf-login
+
+#Install (force) the cf-targets plugin required for the add-on tests
+cf install-plugin Targets -f || true
+
+genesis do "${DEPLOY_ENV}" -- setup-cf-plugin -f
+genesis do "${DEPLOY_ENV}" -- bind-autoscaler
+genesis do "${DEPLOY_ENV}" -- test-bind-autoscaler
+genesis do "${DEPLOY_ENV}" -- update-autoscaler
+
+# Clean up service broker
+cf delete-service-broker autoscaler -f

@@ -4,9 +4,20 @@ meta:
   release: CF App Autoscaler Genesis Kit
   target:  pipes/genesis
   url:     https://pipes.scalecf.net
+  iaas:    vsphere
   exposed: no
 
+  version_file:    version
   initial_version: 1.0.0
+
+  upstream:
+    manifest:
+      package: app-autoscaler
+    bosh_releases:
+    - name:       app-autoscaler-release
+      type:       github-release
+      repository: cloudfoundry/app-autoscaler-release
+      path:       overlay/releases/app-autoscaler.yml
 
   bosh:
     uri:      ((bosh.uri))
@@ -25,7 +36,8 @@ meta:
   github:
     owner:        genesis-community
     repo:         cf-app-autoscaler-genesis-kit
-    branch:       master
+    branch:       develop
+    main-branch:  main
     private_key:  ((github.private_key))
     access_token: ((github.access_token))
     name:         ((github.name))
