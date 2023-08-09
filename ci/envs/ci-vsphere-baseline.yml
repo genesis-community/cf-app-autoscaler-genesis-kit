@@ -6,4 +6,4 @@ genesis:
   env: ci-vsphere-baseline
 
 params:
-  cf_deployment_env: rsat-bc-thunderdome
+  cf_deployment_env: rsat-bc-genesis-ci
