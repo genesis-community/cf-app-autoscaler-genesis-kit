@@ -72,9 +72,10 @@ group_file="$base_dir/pipeline/upstream/update_group.yml"
 if [[ "${#update_group[@]}" -gt 0 ]] ; then
   (
   echo "groups:"
-  echo "- (( append ))"
+  echo "- (( merge on name ))"
   echo "- name: upstream"
   echo "  jobs:"
+  echo "  - (( append ))"
   for job in ${update_group[@]+"${update_group[@]}"} ; do
     echo "  - $job"
   done
