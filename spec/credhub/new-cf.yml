@@ -1,24 +1,24 @@
-/new-cf-bosh/base-test-cf/diego_instance_identity_ca:
+/base-test-bosh/base-test-cf/diego_instance_identity_ca:
   ca: <!{credhub}:diego_instance_identity_ca.ca!>
   certificate: <!{credhub}:diego_instance_identity_ca.certificate!>
   private_key: <!{credhub}:diego_instance_identity_ca.private_key!>
-/new-cf-bosh/base-test-cf/log_cache:
+/base-test-bosh/base-test-cf/log_cache:
   ca: <!{credhub}:log_cache.ca!>
   certificate: <!{credhub}:log_cache.certificate!>
   private_key: <!{credhub}:log_cache.private_key!>
-/new-cf-bosh/base-test-cf/loggregator_ca:
+/base-test-bosh/base-test-cf/loggregator_ca:
   ca: <!{credhub}:loggregator_ca.ca!>
   certificate: <!{credhub}:loggregator_ca.certificate!>
   private_key: <!{credhub}:loggregator_ca.private_key!>
-/new-cf-bosh/base-test-cf/loggregator_tls_agent:
+/base-test-bosh/base-test-cf/loggregator_tls_agent:
   ca: <!{credhub}:loggregator_tls_agent.ca!>
   certificate: <!{credhub}:loggregator_tls_agent.certificate!>
   private_key: <!{credhub}:loggregator_tls_agent.private_key!>
-/new-cf-bosh/base-test-cf/loggregator_tls_rlp:
+/base-test-bosh/base-test-cf/loggregator_tls_rlp:
   ca: <!{credhub}:loggregator_tls_rlp.ca!>
   certificate: <!{credhub}:loggregator_tls_rlp.certificate!>
   private_key: <!{credhub}:loggregator_tls_rlp.private_key!>
-/new-cf-bosh/base-test-cf/nats_client_cert:
+/base-test-bosh/base-test-cf/nats_client_cert:
   ca: <!{credhub}:nats_client_cert.ca!>
   certificate: <!{credhub}:nats_client_cert.certificate!>
   private_key: <!{credhub}:nats_client_cert.private_key!>

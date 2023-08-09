@@ -9,7 +9,7 @@ params:
   network:                 (( grab params.cf_core_network ))
   cf_deployment_env:       (( grab genesis.env )) # assumes same name as cf env
   cf_deployment_type:      cf # for crazy people using an "non-cf" cf deployment named something else
-  cf_deployment_bosh_env:  (( grab genesis.env ))
+  cf_deployment_bosh_env:  (( grab params.cf_deployment_env ))
   cf_deployment_bosh_type: bosh
   cf_core_network:         (( vault meta.cf.exodus ":core_network" ))
   cf_system_domain:        (( vault meta.cf.exodus ":system_domain" ))
