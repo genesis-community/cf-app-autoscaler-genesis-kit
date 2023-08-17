@@ -80,6 +80,13 @@ addons:
           instance_group: nats
           network: test-core-network
           query: _
+      - domain: log-cache.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-cache
+          network: test-core-network
+          query: '*'
     release: bosh-dns-aliases
   name: bosh-dns-aliases
 - jobs:
@@ -620,7 +627,7 @@ instance_groups:
             ca_cert: <!{credhub}:log_cache.ca!>
             client_cert: <!{credhub}:log_cache.certificate!>
             client_key: <!{credhub}:log_cache.private_key!>
-            host: logcache
+            host: log-cache.service.cf.internal
             port: 8080
             use_log_cache: true
           scaling_engine:
