@@ -8,7 +8,7 @@ instance_groups:
         eventgenerator:
           metricscollector:
             use_log_cache: true
-            host:          log-cache.service.cf.internal
+            host:          log-cache
             port:          8080
             ca_cert:       (( concat "((" meta.cf.credhub_path "log_cache.ca))" ))
             client_cert:   (( concat "((" meta.cf.credhub_path "log_cache.certificate))" ))
@@ -21,7 +21,7 @@ addons:
     properties:
       aliases:
       - (( merge on domain))
-      - domain: log-cache.service.cf.internal
+      - domain: log-cache
         targets:
         - (( merge on query ))
         - query: "*"
