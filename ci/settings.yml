@@ -18,6 +18,7 @@ meta:
       type:       github-release
       repository: cloudfoundry/app-autoscaler-release
       path:       overlay/releases/app-autoscaler.yml
+      access_token: ((github.access_token))
 
   bosh:
     uri:      ((bosh.uri))
