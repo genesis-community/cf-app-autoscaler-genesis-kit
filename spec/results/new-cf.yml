@@ -80,7 +80,7 @@ addons:
           instance_group: nats
           network: test-core-network
           query: _
-      - domain: log-cache.service.cf.internal
+      - domain: log-cache
         targets:
         - deployment: base-test-cf
           domain: bosh
@@ -627,7 +627,7 @@ instance_groups:
             ca_cert: <!{credhub}:log_cache.ca!>
             client_cert: <!{credhub}:log_cache.certificate!>
             client_key: <!{credhub}:log_cache.private_key!>
-            host: log-cache.service.cf.internal
+            host: log-cache
             port: 8080
             use_log_cache: true
           scaling_engine:
