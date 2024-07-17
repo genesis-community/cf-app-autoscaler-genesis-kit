@@ -45,7 +45,7 @@ mkdir -p upstream/templates
 
 src="$workdir/${package}-${version}"
 cp "$src"/templates/*.yml upstream/templates/
-cp "$src"/example/operation/*.yml upstream/operations/
+cp "$src"/operations/*.yml upstream/operations/
 
 # Get rid of v1 cruft
 find upstream -name '*-v1.yml' -exec rm {} \;
