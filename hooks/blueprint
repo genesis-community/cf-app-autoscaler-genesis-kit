@@ -10,8 +10,11 @@ want_feature postgres && want_feature mysql && bail \
   "#R{[ERROR]} Cannot specify both postgres and mysql features"
 
 manifests=(
-  "upstream/templates/app-autoscaler-deployment.yml"
+  "upstream/templates/app-autoscaler.yml"
+  "upstream/operations/add-releases.yml"
   "overlay/base.yml"
+  "overlay/update_domains.yml"
+  "overlay/add-postgress-variables.yml"
   "overlay/ten-year-ca-expiry.yml"
   "overlay/db-persistent-disk.yml"
   "overlay/upstream_version.yml"
@@ -36,7 +39,7 @@ if new_enough "$cf_kit_version" 2.3.0 ; then
     "overlay/enable-log-cache.yml"
     "overlay/instance-identity-cert-from-cf.yml"
     "overlay/loggregator-certs-from-cf.yml"
-    "overlay/log-cache-syslog-server.yml"
+#    "overlay/log-cache-syslog-server.yml" deprecated  - default from upstream
     "overlay/releases/cf-kit-2.3.0-compatibility.yml"
   )
 fi
@@ -59,8 +62,8 @@ do
         )
       else
         manifests+=(
-          "ocfp/loggregator-agent.yml"
-          "ocfp/metrics.yml"
+#          "ocfp/loggregator-agent.yml" deprecated over log-cache
+#          "ocfp/metrics.yml" 
         )
       fi
       ;;
