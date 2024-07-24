@@ -11,77 +11,92 @@ addons:
         - (( merge on query ))
         - query: "*"
           deployment: (( grab meta.cf.deployment_name ))
-          network:    (( grab params.cf_core_network ))
-
+          network: (( grab params.cf_core_network ))
+          instance_group: log-api
       - domain: autoscalerpostgres.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
-      - domain: apiserver.service.cf.internal
+          instance_group: postgres_autoscaler
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
+      - domain: autoscaler.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          instance_group: apiserver
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
       - domain: autoscalerscheduler.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          instance_group: scheduler
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
       - domain: servicebroker.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
+          instance_group: apiserver
       - domain: eventgenerator.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
+          instance_group: eventgenerator
       - domain: scalingengine.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
+          instance_group: scalingengine
       - domain: metricsgateway.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
+          instance_group: metricsforwarder
       - domain: metricsserver.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
-          deployment: (( grab name ))
-          network:    (( grab params.network ))
-
+          deployment: ((deployment_name))
+          network: (( grab params.network ))
+          instance_group: metricsforwarder
       - domain: nats.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '*'
           deployment: (( grab meta.cf.deployment_name ))
-          network:    (( grab params.cf_core_network ))
-
+          network: (( grab params.cf_core_network ))
+          instance_group: nats
       - domain: _.nats.service.cf.internal
         targets:
         - (( merge on query ))
         - query: '_'
           deployment: (( grab meta.cf.deployment_name ))
-          network:    (( grab params.cf_core_network ))
+          network: (( grab params.cf_core_network ))
+          instance_group: nats
+      - domain: logcache
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+          instance_group: log-cache
+      - domain: log-cache.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+          instance_group: log-cache
 
 instance_groups:
 - name: postgres_autoscaler
@@ -89,7 +104,7 @@ instance_groups:
   - (( replace ))
   - name: (( grab params.network ))
 
-- name: asactors
+- name: scalingengine
   networks:
   - (( replace ))
   - name: (( grab params.network ))
@@ -97,9 +112,10 @@ instance_groups:
   - name: route_registrar
     consumes:
       nats:
+        from: nats
         deployment: (( grab meta.cf.deployment_name ))
 
-- name: asmetrics
+- name: apiserver
   networks:
   - (( replace ))
   - name: (( grab params.network ))
@@ -107,9 +123,11 @@ instance_groups:
   - name: route_registrar
     consumes:
       nats:
+        from: nats
         deployment: (( grab meta.cf.deployment_name ))
 
-- name: asnozzle
+
+- name: scheduler
   networks:
   - (( replace ))
   - name: (( grab params.network ))
@@ -117,26 +135,119 @@ instance_groups:
   - name: route_registrar
     consumes:
       nats:
+        from: nats
         deployment: (( grab meta.cf.deployment_name ))
 
-- name: asapi
+- name: operator
   networks:
   - (( replace ))
   - name: (( grab params.network ))
   jobs:
-  - name: loggregator_agent
-    consumes:
-      doppler:
-        deployment: (( grab meta.cf.deployment_name ))
   - name: route_registrar
     consumes:
       nats:
+        from: nats
         deployment: (( grab meta.cf.deployment_name ))
+
+- name: eventgenerator
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+  jobs:
+  - name: eventgenerator
+    properties:
+      autoscaler:
+        eventgenerator:
+          metricscollector:
+            ca_cert: ((metricscollector_ca_cert.ca))
+            client_cert: ((metricscollector_client.certificate))
+            client_key: ((metricscollector_client.private_key))
+
+  - name: route_registrar
+    consumes:
+      nats:
+        from: nats
+        deployment: (( grab meta.cf.deployment_name ))
+
+- name: metricsforwarder
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+  jobs:
+  - name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: autoscaler_metrics_forwarder_mtls
+          registration_interval: 20s
+          port: (( grab instance_groups.metricsforwarder.jobs.metricsforwarder.properties.autoscaler.metricsforwarder.server.port ))
+
+    consumes:
+      nats:
+        from: nats
+        deployment: (( grab meta.cf.deployment_name ))
+
+  - name: loggr-syslog-binding-cache
+    consumes:
+      cloud_controller: { from: cloud_controller, deployment: (( grab meta.cf.deployment_name )) }
+    properties:
+      aggregate_drains:
+      - ca: ((log_cache_syslog_tls_ca.certificate))
+        cert: ((syslog_agent_log_cache_tls.certificate))
+        key: ((syslog_agent_log_cache_tls.private_key))
+        url: syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true
 
 variables:
-- name: metricsserver_server
+- name: metricscollector_ca
+  type: certificate
   options:
+    is_ca: true
+    common_name: metricscollectorCA
+
+- name: metricscollector_server
+  type: certificate
+  options:
+    ca: metricscollector_ca
+    common_name: metricscollector_server
     alternative_names:
-    - (( replace ))
-    - metricsserver.service.cf.internal
-    - (( concat "*.asmetrics." params.network "." name ".bosh" ))
+    - "*.metricscollector.service.cf.internal"
+    extended_key_usage:
+    - server_auth
+
+- name: metricscollector_client
+  type: certificate
+  options:
+    ca: metricscollector_ca
+    common_name: metricscollector_client
+    extended_key_usage:
+    - client_auth
+
+- name: log_cache_syslog_tls_ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: log_cache_syslog_tls_ca
+
+- name: syslog_agent_log_cache_tls
+  type: certificate
+  options:
+    ca: log_cache_syslog_tls_ca
+    common_name: syslog_agent_log_cache
+    extended_key_usage:
+    - client_auth
+    - server_auth
+
+- name: loggregator_ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: loggregatorCA
+
+- name: loggregator_tls_agent
+  type: certificate
+  options:
+    ca: loggregator_ca
+    common_name: loggregator_agent
+    extended_key_usage:
+    - client_auth
+    - server_auth

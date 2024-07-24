@@ -15,6 +15,7 @@ params:
   cf_system_domain:        (( vault meta.cf.exodus ":system_domain" ))
 
 bosh-variables:
+  deployment_name:  (( grab name ))
   system_domain:    (( grab params.cf_system_domain ))
   cf_client_id:     (( vault meta.cf.exodus ":app_autoscaler_client" ))
   cf_client_secret: (( vault meta.cf.exodus ":app_autoscaler_secret" ))
@@ -41,10 +42,6 @@ exodus:
 
   cf_deployment_env:  (( grab params.cf_deployment_env ))
   cf_deployment_type: (( grab params.cf_deployment_type ))
-
-instance_groups:
-- name: postgres_autoscaler
-  stemcell: default
 
 stemcells:
 - (( replace ))
