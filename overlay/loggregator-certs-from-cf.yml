@@ -1,31 +1,86 @@
+# latest upstream introduces a number of certificates not being used under the loggregator-agent release
+# we are removing and replacing those with cf generated loggregator_ca and loggregator_tls_agent's certs and key
 ---
 - type: remove
-  path: /bosh-variables/loggregator_ca
+  path: /variables/name=metricsforwarder_autoscaler_metricsforwarder_loggregator_tls
 
 - type: remove
-  path: /bosh-variables/loggregator_tls_agent
+  path: /variables/name=loggr_syslog_agent_tls
 
 - type: remove
-  path: /bosh-variables/loggregator_tls_rlp
+  path: /variables/name=loggr_syslog_agent_cache_tls
+
+- type: remove
+  path: /variables/name=loggr_syslog_agent_metrics
+
+- type: remove
+  path: /variables/name=loggr_syslog_binding_cache_tls
+
+- type: remove
+  path: /variables/name=loggr_syslog_binding_cache_metrics
+
+- type: remove
+  path: /variables/name=loggr_syslog_binding_cache_api_tls
+
 
 - type: replace
-  path: /instance_groups/name=asnozzle/jobs/name=metricsgateway/properties/autoscaler/metricsgateway/nozzle/loggregator_rlp_tls
-  value:
-    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_rlp.certificate))" ))
-    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_rlp.private_key))" ))
-    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_ca.certificate))" ))
-
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/loggregator/tls
+  path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/loggregator/tls
   value:
     ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
     cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
     key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=loggregator_agent/properties/loggregator/tls
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-agent/properties/tls
   value:
-    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_ca.certificate))" ))
-    agent:
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-agent/properties/cache/tls
+  value:
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+    cn: loggr_syslog_binding_cache
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-agent/properties/metrics
+  value:
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+    server_name: metrics.config.is.required.by.job.specification.but.not.needed.in.our.case
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-binding-cache/properties/tls
+  value:
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+    cn: loggr_syslog_agent_tls
+  
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-binding-cache/properties/aggregate_drains
+  value:
+    - ca: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
       cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
       key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+      url: "syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true"
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-binding-cache/properties/metrics
+  value:
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+    server_name: metrics.config.is.required.by.job.specification.but.not.needed.in.our.case
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=loggr-syslog-binding-cache/properties/api/tls
+  value:
+    ca_cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.ca))" ))
+    cert: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.certificate))" ))
+    key: (( concat "((" meta.cf.credhub_path "loggregator_tls_agent.private_key))" ))
+    cn: api.tls.config.is.required.by.job.specification.but.not.needed.in.our.case
