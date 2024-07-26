@@ -1,16 +1,20 @@
 ---
+params:
+  metricsforwarder_mtls_url: (( concat "autoscaler-metricsforwarder-mtls." params.cf_system_domain ))
+
+operations:
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/metricshandler?
+  path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/metricshandler?
   value:
     tls:
       ca_cert: (( concat "((" meta.cf.credhub_path "diego_instance_identity_ca.certificate))" ))
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
-  value: (( concat "autoscaler-metricsforwarder-mtls." params.cf_system_domain ))
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
+  value: (( grab params.metricsforwarder_mtls_url ))
 
 - type: replace
-  path: /instance_groups/name=asapi/jobs/name=route_registrar/properties/route_registrar/routes/-
+  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/properties/route_registrar/routes/-
   value:
     name: autoscaler_metrics_forwarder_mtls
     registration_interval: 20s
@@ -18,4 +22,4 @@
     tags:
       component: autoscaler_metrics_forwarder_mtls
     uris:
-    - (( concat "autoscaler-metricsforwarder-mtls." params.cf_system_domain ))
+    - (( grab params.metricsforwarder_mtls_url ))

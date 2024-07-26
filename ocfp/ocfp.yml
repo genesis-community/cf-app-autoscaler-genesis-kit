@@ -5,24 +5,33 @@ exodus:
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
 instance_groups:
-  - name: asapi
+  - name: apiserver
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-api-" meta.ocfp.env.scale ))
+    vm_type: (( concat "as-apiserver-" meta.ocfp.env.scale ))
     stemcell: default
-  - name: asactors
+  - name: scalingengine
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-actors-" meta.ocfp.env.scale ))
+    vm_type: (( concat "as-scalingengine-" meta.ocfp.env.scale ))
     stemcell: default
-  - name: asmetrics
+  - name: scheduler
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-metrics-" meta.ocfp.env.scale ))
+    vm_type: (( concat "as-scheduler-" meta.ocfp.env.scale ))
     stemcell: default
-  - name: asnozzle
+  - name: operator
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-nozzle-" meta.ocfp.env.scale ))
+    vm_type: (( concat "as-operator-" meta.ocfp.env.scale ))
     stemcell: default
-
+  - name: eventgenerator
+    azs: (( grab meta.as.azs ))
+    networks: (( grab meta.as.networks ))
+    vm_type: (( concat "as-eventgenerator-" meta.ocfp.env.scale ))
+    stemcell: default
+  - name: metricsforwarder
+    azs: (( grab meta.as.azs ))
+    networks: (( grab meta.as.networks ))
+    vm_type: (( concat "as-metricsforwarder-" meta.ocfp.env.scale ))
+    stemcell: default
