@@ -21,6 +21,3 @@ bosh-variables:
   loggregator_tls_agent:
     certificate: (( param "Please specify the Loggregrator TLS Certificate" ))
     private_key: (( param "Please specify the Loggregrator TLS Private Key" ))
-  loggregator_tls_rlp:
-    certificate: (( param "Please specify the Loggregrator TLS RLP Certificate" ))
-    private_key: (( param "Please specify the Loggregrator TLS RLP Private Key" ))
