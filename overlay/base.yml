@@ -26,9 +26,6 @@ bosh-variables:
     ca:             (( grab bosh-variables.loggregator_ca.certificate ))
     certificate:    (( vault meta.cf.exodus ":loggregator_tls_agent_cert" ))
     private_key:    (( vault meta.cf.exodus ":loggregator_tls_agent_key" ))
-  loggregator_tls_rlp:
-    certificate:    (( vault meta.cf.exodus ":loggregator_tls_rlp_cert" ))
-    private_key:    (( vault meta.cf.exodus ":loggregator_tls_rlp_key" ))
 
   skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
 

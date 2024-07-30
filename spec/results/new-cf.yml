@@ -10,60 +10,39 @@ addons:
           instance_group: postgres_autoscaler
           network: test-core-network
           query: '*'
-      - domain: apiserver.service.cf.internal
+      - domain: autoscaler.service.cf.internal
         targets:
         - deployment: new-cf-cf-app-autoscaler
           domain: bosh
-          instance_group: asapi
+          instance_group: apiserver
           network: test-core-network
           query: '*'
       - domain: autoscalerscheduler.service.cf.internal
         targets:
         - deployment: new-cf-cf-app-autoscaler
           domain: bosh
-          instance_group: asactors
+          instance_group: scheduler
           network: test-core-network
           query: '*'
       - domain: servicebroker.service.cf.internal
         targets:
         - deployment: new-cf-cf-app-autoscaler
           domain: bosh
-          instance_group: asapi
+          instance_group: apiserver
           network: test-core-network
           query: '*'
       - domain: eventgenerator.service.cf.internal
         targets:
         - deployment: new-cf-cf-app-autoscaler
           domain: bosh
-          instance_group: asmetrics
+          instance_group: eventgenerator
           network: test-core-network
           query: '*'
       - domain: scalingengine.service.cf.internal
         targets:
         - deployment: new-cf-cf-app-autoscaler
           domain: bosh
-          instance_group: asactors
-          network: test-core-network
-          query: '*'
-      - domain: reverse-log-proxy.service.cf.internal
-        targets:
-        - deployment: base-test-cf
-          domain: bosh
-          instance_group: log-api
-          network: test-core-network
-          query: '*'
-      - domain: metricsgateway.service.cf.internal
-        targets:
-        - deployment: new-cf-cf-app-autoscaler
-          domain: bosh
-          instance_group: asnozzle
-          network: test-core-network
-          query: '*'
-      - domain: metricsserver.service.cf.internal
-        targets:
-        - deployment: new-cf-cf-app-autoscaler
-          domain: bosh
-          instance_group: asmetrics
+          instance_group: scalingengine
           network: test-core-network
           query: '*'
       - domain: nats.service.cf.internal
@@ -73,6 +52,13 @@ addons:
           instance_group: nats
           network: test-core-network
           query: '*'
+      - domain: reverse-log-proxy.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-api
+          network: test-core-network
+          query: '*'
       - domain: _.nats.service.cf.internal
         targets:
         - deployment: base-test-cf
@@ -80,6 +66,32 @@ addons:
           instance_group: nats
           network: test-core-network
           query: _
+      - domain: logcache
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-cache
+          network: test-core-network
+          query: '*'
+      - domain: log-cache.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-cache
+          network: test-core-network
+          query: '*'
+      - domain: metricsgateway.service.cf.internal
+        targets:
+        - deployment: new-cf-cf-app-autoscaler
+          instance_group: metricsforwarder
+          network: test-core-network
+          query: '*'
+      - domain: metricsserver.service.cf.internal
+        targets:
+        - deployment: new-cf-cf-app-autoscaler
+          instance_group: metricsforwarder
+          network: test-core-network
+          query: '*'
       - domain: log-cache
         targets:
         - deployment: base-test-cf
@@ -93,9 +105,16 @@ addons:
   - name: bpm
     release: bpm
   name: bpm
+domains:
+  api: new-cf-cf-app-autoscaler.apiserver.service.cf.internal
+  eventgenerator: new-cf-cf-app-autoscaler.eventgenerator.service.cf.internal
+  postgres: new-cf-cf-app-autoscaler.autoscalerpostgres.service.cf.internal
+  scalingengine: new-cf-cf-app-autoscaler.scalingengine.service.cf.internal
+  scheduler: new-cf-cf-app-autoscaler.autoscalerscheduler.service.cf.internal
+  servicebroker: new-cf-cf-app-autoscaler.servicebroker.service.cf.internal
 exodus:
-  app-autoscaler-release-date: 2023-Jun-28 13:16:36 UTC
-  app-autoscaler-release-version: 10.0.5
+  app-autoscaler-release-date: 2024-Jul-17 12:05:53 UTC
+  app-autoscaler-release-version: 14.1.0
   autoscaler_api_domain: autoscaler.sys.test.cf.domain
   autoscaler_metrics_domain: autoscalermetrics.sys.test.cf.domain
   bosh: new-cf
@@ -117,6 +136,7 @@ instance_groups:
   - name: postgres
     properties:
       databases:
+        address: autoscalerpostgres.service.cf.internal
         connection_config:
           connection_max_lifetime: 60s
           max_idle_connections: 10
@@ -158,6 +178,7 @@ instance_groups:
           secret: app-autoscaler-secret
           skip_ssl_validation: "true"
         policy_db:
+          address: autoscalerpostgres.service.cf.internal
           connection_config:
             connection_max_lifetime: 60s
             max_idle_connections: 10
@@ -181,21 +202,17 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
         scalingengine:
-          ca_cert: <!{credhub}:scalingengine_ca.ca!>
-          defaultCoolDownSecs: 300
+          ca_cert: <!{credhub}:app_autoscaler_ca_cert.ca!>
           health:
             password: <!{credhub}:autoscaler_scalingengine_health_password!>
             port: 6204
             username: scalingengine
-          http_client_timeout: 60s
-          lockSize: 32
           logging:
             level: info
-          server:
-            port: 6104
-          server_cert: <!{credhub}:scalingengine_server.certificate!>
-          server_key: <!{credhub}:scalingengine_server.private_key!>
+          server_cert: <!{credhub}:scalingengine_server_cert.certificate!>
+          server_key: <!{credhub}:scalingengine_server_cert.private_key!>
         scalingengine_db:
+          address: autoscalerpostgres.service.cf.internal
           connection_config:
             connection_max_lifetime: 60s
             max_idle_connections: 10
@@ -219,6 +236,7 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
         scheduler_db:
+          address: autoscalerpostgres.service.cf.internal
           connection_config:
             connection_max_lifetime: 60s
             max_idle_connections: 10
@@ -242,214 +260,6 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
     release: app-autoscaler
-  - name: scheduler
-    properties:
-      autoscaler:
-        policy_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        scheduler:
-          ca_cert: <!{credhub}:scheduler_ca.ca!>
-          health:
-            basicAuthEnabled: true
-            password: <!{credhub}:autoscaler_scheduler_health_password!>
-            port: 6202
-            username: scheduler
-          http_client_timeout: 60
-          job_reschedule_interval_millisecond: 10000
-          job_reschedule_maxcount: 6
-          notification_reschedule_maxcount: 3
-          port: 6102
-          scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
-          server_cert: <!{credhub}:scheduler_server.certificate!>
-          server_key: <!{credhub}:scheduler_server.private_key!>
-        scheduler_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-    release: app-autoscaler
-  - name: operator
-    properties:
-      autoscaler:
-        appmetrics_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        appmetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        cf:
-          api: https://api.sys.test.cf.domain
-          client_id: app-autoscaler-client
-          grant_type: client_credentials
-          secret: app-autoscaler-secret
-          skip_ssl_validation: "true"
-        instancemetrics_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        instancemetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        lock_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        lock_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        operator:
-          app_sync_interval: 24h
-          db_lock:
-            retry_interval: 5s
-            ttl: 15s
-          health:
-            password: <!{credhub}:autoscaler_operator_health_password!>
-            port: 6208
-            username: operator
-          http_client_timeout: 60s
-          logging:
-            level: info
-          scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
-            port: 6104
-          scheduler:
-            ca_cert: <!{credhub}:scheduler_ca.ca!>
-            client_cert: <!{credhub}:scheduler_client.certificate!>
-            client_key: <!{credhub}:scheduler_client.private_key!>
-            host: autoscalerscheduler.service.cf.internal
-            port: 6102
-        policy_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        scalingengine_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        scalingengine_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
   - consumes:
       nats-tls:
         deployment: base-test-cf
@@ -469,326 +279,13 @@ instance_groups:
           tags:
             component: autoscaler_scalingengine_health
           uris:
-          - autoscaler-scalingengine.sys.test.cf.domain
-        - name: autoscaler_operator_health
-          port: 6208
-          registration_interval: 20s
-          tags:
-            component: autoscaler_operator_health
-          uris:
-          - autoscaler-operator.sys.test.cf.domain
-        - name: autoscaler_scheduler_health
-          port: 6202
-          registration_interval: 20s
-          tags:
-            component: autoscaler_scheduler_health
-          uris:
-          - autoscaler-scheduler.sys.test.cf.domain
+          - app-autoscaler-scalingengine.sys.test.cf.domain
     release: routing
-  name: asactors
+  name: scalingengine
   networks:
   - name: test-core-network
   stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
   vm_type: minimal
-- azs:
-  - z1
-  instances: 1
-  jobs:
-  - name: metricsserver
-    properties:
-      autoscaler:
-        instancemetrics_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        instancemetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        metricsserver:
-          ca_cert: <!{credhub}:metricsserver_server.ca!>
-          collector:
-            collect_interval: 60s
-            envelope_channel_size: 1000
-            envelope_processor_count: 5
-            keep_alive_time: 60s
-            metric_cache_size_per_app: 1000
-            metric_channel_size: 1000
-            persist_metrics: true
-            port: 7103
-            refresh_interval: 60s
-            save_interval: 5s
-          health:
-            password: <!{credhub}:autoscaler_metricsserver_health_password!>
-            port: 6303
-            username: metricsserver
-          http_client_timeout: 60s
-          logging:
-            level: info
-          server:
-            port: 6103
-          server_cert: <!{credhub}:metricsserver_server.certificate!>
-          server_key: <!{credhub}:metricsserver_server.private_key!>
-        policy_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - name: eventgenerator
-    properties:
-      autoscaler:
-        appmetrics_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        appmetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        eventgenerator:
-          aggregator:
-            aggregator_execute_interval: 40s
-            app_metric_channel_size: 1000
-            app_monitor_channel_size: 200
-            metric_poller_count: 20
-            policy_poller_interval: 60s
-            save_interval: 5s
-          ca_cert: <!{credhub}:eventgenerator_ca.ca!>
-          circuitBreaker:
-            back_off_initial_interval: 5m
-            back_off_max_interval: 120m
-            consecutive_failure_count: 5
-          defaultBreachDurationSecs: 120
-          defaultStatWindowSecs: 120
-          evaluator:
-            evaluation_manager_execute_interval: 60s
-            evaluator_count: 20
-            trigger_array_channel_size: 200
-          health:
-            password: <!{credhub}:autoscaler_eventgenerator_health_password!>
-            port: 6205
-            username: eventgenerator
-          http_client_timeout: 60s
-          logging:
-            level: info
-          metricscollector:
-            ca_cert: <!{credhub}:log_cache.ca!>
-            client_cert: <!{credhub}:log_cache.certificate!>
-            client_key: <!{credhub}:log_cache.private_key!>
-            host: log-cache
-            port: 8080
-            use_log_cache: true
-          scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
-            host: scalingengine.service.cf.internal
-            port: 6104
-          server:
-            port: 6105
-          server_cert: <!{credhub}:eventgenerator_server.certificate!>
-          server_key: <!{credhub}:eventgenerator_server.private_key!>
-        policy_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - consumes:
-      nats-tls:
-        deployment: base-test-cf
-        from: nats-tls
-    name: route_registrar
-    properties:
-      nats:
-        tls:
-          client_cert: <!{credhub}:nats_client_cert.certificate!>
-          client_key: <!{credhub}:nats_client_cert.private_key!>
-          enabled: true
-      route_registrar:
-        routes:
-        - name: autoscaler_eventgenerator_health
-          port: 6205
-          registration_interval: 20s
-          tags:
-            component: autoscaler_eventgenerator_health
-          uris:
-          - autoscaler-eventgenerator.sys.test.cf.domain
-        - name: autoscaler_metricsserver_health
-          port: 6303
-          registration_interval: 20s
-          tags:
-            component: autoscaler_metricsserver_health
-          uris:
-          - autoscaler-metricsserver.sys.test.cf.domain
-    release: routing
-  name: asmetrics
-  networks:
-  - name: test-core-network
-  stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
-  vm_type: small
-- azs:
-  - z1
-  instances: 1
-  jobs:
-  - name: metricsgateway
-    properties:
-      autoscaler:
-        metricsgateway:
-          app_manager:
-            app_refresh_interval: 5s
-          emitter:
-            buffer_size: 500
-            handshake_timeout: 1s
-            keep_alive_interval: 5s
-            max_close_retry_count: 3
-            max_setup_retry_count: 3
-            metricsserver_client:
-              ca_cert: <!{credhub}:metricsserver_client.ca!>
-              cert: <!{credhub}:metricsserver_client.certificate!>
-              key: <!{credhub}:metricsserver_client.private_key!>
-            retry_delay: 1s
-          envelop_chan_size: 1000
-          health:
-            password: <!{credhub}:autoscaler_metricsgateway_health_password!>
-            port: 6503
-            username: metricsgateway
-          logging:
-            level: info
-          nozzle:
-            loggregator_rlp_tls:
-              ca_cert: <!{credhub}:loggregator_ca.certificate!>
-              cert: <!{credhub}:loggregator_tls_rlp.certificate!>
-              key: <!{credhub}:loggregator_tls_rlp.private_key!>
-            rlp_addr: reverse-log-proxy.service.cf.internal:8082
-            shard_id: CF_AUTOSCALER
-          nozzle_count: 3
-        policy_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - consumes:
-      nats-tls:
-        deployment: base-test-cf
-        from: nats-tls
-    name: route_registrar
-    properties:
-      nats:
-        tls:
-          client_cert: <!{credhub}:nats_client_cert.certificate!>
-          client_key: <!{credhub}:nats_client_cert.private_key!>
-          enabled: true
-      route_registrar:
-        routes:
-        - name: autoscaler_metricsgateway_health
-          port: 6503
-          registration_interval: 20s
-          tags:
-            component: autoscaler_metricsgateway_health
-          uris:
-          - autoscaler-metricsgateway.sys.test.cf.domain
-    release: routing
-  name: asnozzle
-  networks:
-  - name: test-core-network
-  stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
-  vm_type: small
 - azs:
   - z1
   instances: 1
@@ -798,46 +295,54 @@ instance_groups:
       autoscaler:
         apiserver:
           broker:
-            password: <!{credhub}:autoscaler_service_broker_password!>
+            broker_credentials:
+            - broker_password: <!{credhub}:service_broker_password!>
+              broker_username: autoscaler-broker-user
+            - broker_password: <!{credhub}:service_broker_password_blue!>
+              broker_username: autoscaler-broker-user-blue
             server:
               catalog:
                 services:
                 - bindable: true
+                  bindings_retrievable: true
                   description: Automatically increase or decrease the number of application
                     instances based on a policy you define.
                   id: autoscaler-guid
-                  name: autoscaler
+                  instances_retrievable: true
+                  name: app-autoscaler
                   plans:
                   - description: This is the free service plan for the Auto-Scaling
                       service.
                     id: autoscaler-free-plan-id
                     name: autoscaler-free-plan
+                  tags:
+                  - app-autoscaler
               dashboard_redirect_uri: ""
               port: 6102
-            username: autoscaler_service_broker_user
           event_generator:
-            ca_cert: <!{credhub}:eventgenerator_ca.ca!>
-            client_cert: <!{credhub}:eventgenerator_client.certificate!>
-            client_key: <!{credhub}:eventgenerator_client.private_key!>
-          logging:
-            level: info
+            ca_cert: <!{credhub}:eventgenerator_client_cert.ca!>
+            client_cert: <!{credhub}:eventgenerator_client_cert.certificate!>
+            client_key: <!{credhub}:eventgenerator_client_cert.private_key!>
+            host: eventgenerator.service.cf.internal
           metrics_forwarder:
             host: autoscalermetrics.sys.test.cf.domain
-            mtls_host: autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+            mtls_host: app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
           public_api:
             server:
               port: 6101
           scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
           scheduler:
-            ca_cert: <!{credhub}:scheduler_ca.ca!>
-            client_cert: <!{credhub}:scheduler_client.certificate!>
-            client_key: <!{credhub}:scheduler_client.private_key!>
+            ca_cert: <!{credhub}:scheduler_client_cert.ca!>
+            client_cert: <!{credhub}:scheduler_client_cert.certificate!>
+            client_key: <!{credhub}:scheduler_client_cert.private_key!>
             host: autoscalerscheduler.service.cf.internal
           use_buildin_mode: false
         binding_db:
+          address: autoscalerpostgres.service.cf.internal
           connection_config:
             connection_max_lifetime: 60s
             max_idle_connections: 10
@@ -856,10 +361,6 @@ instance_groups:
             ca: <!{credhub}:postgres_ca.ca!>
             certificate: <!{credhub}:postgres_server.certificate!>
             private_key: <!{credhub}:postgres_server.private_key!>
-        binding_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
         cf:
           api: https://api.sys.test.cf.domain
           client_id: app-autoscaler-client
@@ -867,54 +368,7 @@ instance_groups:
           secret: app-autoscaler-secret
           skip_ssl_validation: "true"
         policy_db:
-          connection_config:
-            connection_max_lifetime: 60s
-            max_idle_connections: 10
-            max_open_connections: 100
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: postgres
-          port: 5432
-          roles:
-          - name: postgres
-            password: <!{credhub}:database_password!>
-            tag: default
-          sslmode: verify-full
-          tls:
-            ca: <!{credhub}:postgres_ca.ca!>
-            certificate: <!{credhub}:postgres_server.certificate!>
-            private_key: <!{credhub}:postgres_server.private_key!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - name: metricsforwarder
-    properties:
-      autoscaler:
-        metricsforwarder:
-          cache_cleanup_interval: 6h
-          cache_ttl: 900s
-          health:
-            password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
-            port: 6403
-            username: metricsforwarder
-          logging:
-            level: info
-          loggregator:
-            metron_address: 127.0.0.1:3458
-            tls:
-              ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
-              cert: <!{credhub}:loggregator_tls_agent.certificate!>
-              key: <!{credhub}:loggregator_tls_agent.private_key!>
-          metricshandler:
-            tls:
-              ca_cert: <!{credhub}:diego_instance_identity_ca.certificate!>
-          policy_poller_interval: 60s
-          server:
-            port: 6201
-        policy_db:
+          address: autoscalerpostgres.service.cf.internal
           connection_config:
             connection_max_lifetime: 60s
             max_idle_connections: 10
@@ -965,6 +419,508 @@ instance_groups:
             component: autoscaler_service_broker
           uris:
           - autoscalerservicebroker.sys.test.cf.domain
+    release: routing
+  name: apiserver
+  networks:
+  - name: test-core-network
+  stemcell: default
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: scheduler
+    properties:
+      autoscaler:
+        policy_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        scheduler:
+          ca_cert: <!{credhub}:scheduler_server_cert.ca!>
+          health:
+            basicAuthEnabled: true
+            password: <!{credhub}:autoscaler_scheduler_health_password!>
+            port: 6202
+            username: scheduler
+          job_reschedule_interval_millisecond: 10000
+          job_reschedule_maxcount: 6
+          notification_reschedule_maxcount: 3
+          scaling_engine:
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
+          server_cert: <!{credhub}:scheduler_server_cert.certificate!>
+          server_key: <!{credhub}:scheduler_server_cert.private_key!>
+        scheduler_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+    release: app-autoscaler
+  - consumes:
+      nats-tls:
+        deployment: base-test-cf
+        from: nats-tls
+    name: route_registrar
+    properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
+      route_registrar:
+        routes:
+        - name: autoscaler_scheduler_health
+          port: 6202
+          registration_interval: 20s
+          tags:
+            component: autoscaler_scheduler_health
+          uris:
+          - app-autoscaler-scheduler.sys.test.cf.domain
+    release: routing
+  name: scheduler
+  networks:
+  - name: test-core-network
+  stemcell: default
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: operator
+    properties:
+      autoscaler:
+        appmetrics_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        appmetrics_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        cf:
+          api: https://api.sys.test.cf.domain
+          client_id: app-autoscaler-client
+          grant_type: client_credentials
+          secret: app-autoscaler-secret
+          skip_ssl_validation: "true"
+        lock_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        operator:
+          enable_db_lock: true
+          health:
+            password: <!{credhub}:autoscaler_operator_health_password!>
+            port: 6208
+            username: operator
+          logging:
+            level: info
+          scaling_engine:
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
+          scheduler:
+            ca_cert: <!{credhub}:scheduler_client_cert.ca!>
+            client_cert: <!{credhub}:scheduler_client_cert.certificate!>
+            client_key: <!{credhub}:scheduler_client_cert.private_key!>
+            host: autoscalerscheduler.service.cf.internal
+        policy_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        policy_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        scalingengine_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        scalingengine_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        scheduler.host: autoscalerscheduler.service.cf.internal
+    release: app-autoscaler
+  - consumes:
+      nats-tls:
+        deployment: base-test-cf
+        from: nats-tls
+    name: route_registrar
+    properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
+      route_registrar:
+        routes:
+        - name: autoscaler_operator_health
+          port: 6208
+          registration_interval: 20s
+          tags:
+            component: autoscaler_operator_health
+          uris:
+          - app-autoscaler-operator.sys.test.cf.domain
+    release: routing
+  name: operator
+  networks:
+  - name: test-core-network
+  stemcell: default
+  update:
+    serial: true
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: eventgenerator
+    properties:
+      autoscaler:
+        appmetrics_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        appmetrics_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        eventgenerator:
+          ca_cert: <!{credhub}:eventgenerator_server_cert.ca!>
+          enable_db_lock: false
+          health:
+            password: <!{credhub}:autoscaler_eventgenerator_health_password!>
+            port: 6205
+            username: eventgenerator
+          logging:
+            level: info
+          metricscollector:
+            ca_cert: <!{credhub}:log_cache.ca!>
+            client_cert: <!{credhub}:log_cache.certificate!>
+            client_key: <!{credhub}:log_cache.private_key!>
+            host: log-cache
+            port: 8080
+            use_log_cache: true
+          scaling_engine:
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
+          server_cert: <!{credhub}:eventgenerator_server_cert.certificate!>
+          server_key: <!{credhub}:eventgenerator_server_cert.private_key!>
+        lock_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        policy_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        policy_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+    release: app-autoscaler
+  - consumes:
+      nats-tls:
+        deployment: base-test-cf
+        from: nats-tls
+    name: route_registrar
+    properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
+      route_registrar:
+        routes:
+        - name: autoscaler_eventgenerator_health
+          port: 6205
+          registration_interval: 20s
+          tags:
+            component: autoscaler_eventgenerator_health
+          uris:
+          - app-autoscaler-eventgenerator.sys.test.cf.domain
+    release: routing
+  name: eventgenerator
+  networks:
+  - name: test-core-network
+  stemcell: default
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: metricsforwarder
+    properties:
+      autoscaler:
+        metricsforwarder:
+          health:
+            password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
+            port: 6403
+            username: metricsforwarder
+          logging:
+            level: info
+          loggregator:
+            tls:
+              ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+              cert: <!{credhub}:loggregator_tls_agent.certificate!>
+              key: <!{credhub}:loggregator_tls_agent.private_key!>
+          server:
+            port: 6201
+        policy_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+        policy_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        storedprocedure_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+    release: app-autoscaler
+  - name: loggr-syslog-agent
+    properties:
+      cache:
+        tls:
+          ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+          cert: <!{credhub}:loggregator_tls_agent.certificate!>
+          cn: loggr_syslog_binding_cache
+          key: <!{credhub}:loggregator_tls_agent.private_key!>
+      metrics:
+        ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+        cert: <!{credhub}:loggregator_tls_agent.certificate!>
+        key: <!{credhub}:loggregator_tls_agent.private_key!>
+        server_name: metrics.config.is.required.by.job.specification.but.not.needed.in.our.case
+      tls:
+        ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+        cert: <!{credhub}:loggregator_tls_agent.certificate!>
+        key: <!{credhub}:loggregator_tls_agent.private_key!>
+    release: loggregator-agent
+  - consumes:
+      cloud_controller:
+        deployment: base-test-cf
+        from: cloud_controller
+    name: loggr-syslog-binding-cache
+    properties:
+      aggregate_drains:
+      - ca: <!{credhub}:loggregator_tls_agent.ca!>
+        cert: <!{credhub}:loggregator_tls_agent.certificate!>
+        key: <!{credhub}:loggregator_tls_agent.private_key!>
+        url: syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true
+      api:
+        polling_interval: 876000h
+        tls:
+          ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+          cert: <!{credhub}:loggregator_tls_agent.certificate!>
+          cn: api.tls.config.is.required.by.job.specification.but.not.needed.in.our.case
+          key: <!{credhub}:loggregator_tls_agent.private_key!>
+      external_port: 9000
+      metrics:
+        ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+        cert: <!{credhub}:loggregator_tls_agent.certificate!>
+        key: <!{credhub}:loggregator_tls_agent.private_key!>
+        server_name: metrics.config.is.required.by.job.specification.but.not.needed.in.our.case
+      tls:
+        ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
+        cert: <!{credhub}:loggregator_tls_agent.certificate!>
+        cn: loggr_syslog_agent_tls
+        key: <!{credhub}:loggregator_tls_agent.private_key!>
+    release: loggregator-agent
+  - consumes:
+      nats-tls:
+        deployment: base-test-cf
+        from: nats-tls
+    name: route_registrar
+    properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
+      route_registrar:
+        routes:
         - name: autoscaler_metrics_forwarder
           port: 6201
           registration_interval: 20s
@@ -972,53 +928,59 @@ instance_groups:
             component: autoscaler_metrics_forwarder
           uris:
           - autoscalermetrics.sys.test.cf.domain
-        - name: autoscaler_metricsforwarder_health
-          port: 6403
-          registration_interval: 20s
-          tags:
-            component: autoscaler_metricsforwarder_health
-          uris:
-          - autoscaler-metricsforwarder.sys.test.cf.domain
         - name: autoscaler_metrics_forwarder_mtls
           port: 6201
           registration_interval: 20s
           tags:
-            component: autoscaler_metrics_forwarder_mtls
+            component: autoscaler_metrics_forwarder
           uris:
-          - autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+          - app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+        - name: autoscaler_metricsforwarder_health
+          port: 6201
+          registration_interval: 20s
+          tags:
+            component: autoscaler_metricsforwarder_health
+          uris:
+          - app-autoscaler-metricsforwarder.sys.test.cf.domain
     release: routing
-  - name: loggr-syslog-agent
-    properties:
-      aggregate_drains: syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true
-      drain_ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
-      metrics:
-        ca_cert: <!{credhub}:loggregator_agent_metrics_tls.ca!>
-        cert: <!{credhub}:loggregator_agent_metrics_tls.certificate!>
-        key: <!{credhub}:loggregator_agent_metrics_tls.private_key!>
-        server_name: loggregator_agent_server
-      tls:
-        ca_cert: <!{credhub}:loggregator_tls_agent.ca!>
-        cert: <!{credhub}:loggregator_tls_agent.certificate!>
-        key: <!{credhub}:loggregator_tls_agent.private_key!>
-    release: loggregator-agent
-  name: asapi
+  name: metricsforwarder
   networks:
   - name: test-core-network
   stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
   vm_type: minimal
 name: new-cf-cf-app-autoscaler
+operations:
+- path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/metricsforwarder/metricshandler?
+  type: replace
+  value:
+    tls:
+      ca_cert: <!{credhub}:diego_instance_identity_ca.certificate!>
+- path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host?
+  type: replace
+  value: autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+- path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/properties/route_registrar/routes/-
+  type: replace
+  value:
+    name: autoscaler_metrics_forwarder_mtls
+    port: 6201
+    registration_interval: 20s
+    tags:
+      component: autoscaler_metrics_forwarder_mtls
+    uris:
+    - autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+public_domains:
+  metricsforwarder: new-cf-cf-app-autoscalermetrics.sys.test.cf.domain
+  metricsforwarder_mtls: new-cf-cf-app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+  servicebroker: new-cf-cf-app-autoscalerservicebroker.sys.test.cf.domain
 releases:
 - name: app-autoscaler
-  sha1: da4e71fceb23b747e1dd71346d1296575fe71669
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=10.0.5
-  version: 10.0.5
+  sha1: 26865030c459bc048739c60d3d3a1874e6bbad85
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=14.1.0
+  version: 14.1.0
 - name: postgres
-  sha1: 582b1de9522077102dfa44ff7164cd8f499dbfc8
-  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=44
-  version: "44"
+  sha1: sha256:75ceb40c970c54a922768d499bee9102d7a2ae2f88e269cefecba2f1c195e70b
+  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=48
+  version: "48"
 - name: bosh-dns-aliases
   sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
@@ -1042,6 +1004,7 @@ stemcells:
 update:
   canaries: 1
   canary_watch_time: 1000-300000
-  max_in_flight: 1
+  max_in_flight: 3
+  serial: true
   update_watch_time: 1000-300000
 variables: []

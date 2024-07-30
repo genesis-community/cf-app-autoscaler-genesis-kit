@@ -35,6 +35,4 @@ bosh-variables:
   loggregator_tls_agent:
     certificate: test-loggregator-agent-cert
     private_key: test-loggregator-agent-key
-  loggregator_tls_rlp:
-    certificate: test-loggregator-rlp-cert
-    private_key: test-loggregator-rlp-key
+

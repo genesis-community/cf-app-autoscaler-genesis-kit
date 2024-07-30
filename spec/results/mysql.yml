@@ -10,60 +10,39 @@ addons:
           instance_group: postgres_autoscaler
           network: test-core-network
           query: '*'
-      - domain: apiserver.service.cf.internal
+      - domain: autoscaler.service.cf.internal
         targets:
         - deployment: mysql-cf-app-autoscaler
           domain: bosh
-          instance_group: asapi
+          instance_group: apiserver
           network: test-core-network
           query: '*'
       - domain: autoscalerscheduler.service.cf.internal
         targets:
         - deployment: mysql-cf-app-autoscaler
           domain: bosh
-          instance_group: asactors
+          instance_group: scheduler
           network: test-core-network
           query: '*'
       - domain: servicebroker.service.cf.internal
         targets:
         - deployment: mysql-cf-app-autoscaler
           domain: bosh
-          instance_group: asapi
+          instance_group: apiserver
           network: test-core-network
           query: '*'
       - domain: eventgenerator.service.cf.internal
         targets:
         - deployment: mysql-cf-app-autoscaler
           domain: bosh
-          instance_group: asmetrics
+          instance_group: eventgenerator
           network: test-core-network
           query: '*'
       - domain: scalingengine.service.cf.internal
         targets:
         - deployment: mysql-cf-app-autoscaler
           domain: bosh
-          instance_group: asactors
-          network: test-core-network
-          query: '*'
-      - domain: reverse-log-proxy.service.cf.internal
-        targets:
-        - deployment: base-test-cf
-          domain: bosh
-          instance_group: log-api
-          network: test-core-network
-          query: '*'
-      - domain: metricsgateway.service.cf.internal
-        targets:
-        - deployment: mysql-cf-app-autoscaler
-          domain: bosh
-          instance_group: asnozzle
-          network: test-core-network
-          query: '*'
-      - domain: metricsserver.service.cf.internal
-        targets:
-        - deployment: mysql-cf-app-autoscaler
-          domain: bosh
-          instance_group: asmetrics
+          instance_group: scalingengine
           network: test-core-network
           query: '*'
       - domain: nats.service.cf.internal
@@ -73,6 +52,13 @@ addons:
           instance_group: nats
           network: test-core-network
           query: '*'
+      - domain: reverse-log-proxy.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-api
+          network: test-core-network
+          query: '*'
       - domain: _.nats.service.cf.internal
         targets:
         - deployment: base-test-cf
@@ -80,6 +66,32 @@ addons:
           instance_group: nats
           network: test-core-network
           query: _
+      - domain: logcache
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-cache
+          network: test-core-network
+          query: '*'
+      - domain: log-cache.service.cf.internal
+        targets:
+        - deployment: base-test-cf
+          domain: bosh
+          instance_group: log-cache
+          network: test-core-network
+          query: '*'
+      - domain: metricsgateway.service.cf.internal
+        targets:
+        - deployment: mysql-cf-app-autoscaler
+          instance_group: metricsforwarder
+          network: test-core-network
+          query: '*'
+      - domain: metricsserver.service.cf.internal
+        targets:
+        - deployment: mysql-cf-app-autoscaler
+          instance_group: metricsforwarder
+          network: test-core-network
+          query: '*'
       - domain: sql-db.service.cf.internal
         targets:
         - deployment: cf
@@ -93,9 +105,16 @@ addons:
   - name: bpm
     release: bpm
   name: bpm
+domains:
+  api: mysql-cf-app-autoscaler.apiserver.service.cf.internal
+  eventgenerator: mysql-cf-app-autoscaler.eventgenerator.service.cf.internal
+  postgres: mysql-cf-app-autoscaler.autoscalerpostgres.service.cf.internal
+  scalingengine: mysql-cf-app-autoscaler.scalingengine.service.cf.internal
+  scheduler: mysql-cf-app-autoscaler.autoscalerscheduler.service.cf.internal
+  servicebroker: mysql-cf-app-autoscaler.servicebroker.service.cf.internal
 exodus:
-  app-autoscaler-release-date: 2023-Jun-28 13:16:36 UTC
-  app-autoscaler-release-version: 10.0.5
+  app-autoscaler-release-date: 2024-Jul-17 12:05:53 UTC
+  app-autoscaler-release-version: 14.1.0
   autoscaler_api_domain: autoscaler.sys.test.cf.domain
   autoscaler_metrics_domain: autoscalermetrics.sys.test.cf.domain
   bosh: mysql
@@ -142,20 +161,15 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
         scalingengine:
-          ca_cert: <!{credhub}:scalingengine_ca.ca!>
-          defaultCoolDownSecs: 300
+          ca_cert: <!{credhub}:app_autoscaler_ca_cert.ca!>
           health:
             password: <!{credhub}:autoscaler_scalingengine_health_password!>
             port: 6204
             username: scalingengine
-          http_client_timeout: 60s
-          lockSize: 32
           logging:
             level: info
-          server:
-            port: 6104
-          server_cert: <!{credhub}:scalingengine_server.certificate!>
-          server_key: <!{credhub}:scalingengine_server.private_key!>
+          server_cert: <!{credhub}:scalingengine_server_cert.certificate!>
+          server_key: <!{credhub}:scalingengine_server_cert.private_key!>
         scalingengine_db:
           address: sql-db.service.cf.internal
           databases:
@@ -193,179 +207,6 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
     release: app-autoscaler
-  - name: scheduler
-    properties:
-      autoscaler:
-        policy_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        scheduler:
-          ca_cert: <!{credhub}:scheduler_ca.ca!>
-          health:
-            basicAuthEnabled: true
-            password: <!{credhub}:autoscaler_scheduler_health_password!>
-            port: 6202
-            username: scheduler
-          http_client_timeout: 60
-          job_reschedule_interval_millisecond: 10000
-          job_reschedule_maxcount: 6
-          notification_reschedule_maxcount: 3
-          port: 6102
-          scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
-          server_cert: <!{credhub}:scheduler_server.certificate!>
-          server_key: <!{credhub}:scheduler_server.private_key!>
-        scheduler_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-    release: app-autoscaler
-  - name: operator
-    properties:
-      autoscaler:
-        appmetrics_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        appmetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        cf:
-          api: https://api.sys.test.cf.domain
-          client_id: app-autoscaler-client
-          grant_type: client_credentials
-          secret: app-autoscaler-secret
-          skip_ssl_validation: "true"
-        instancemetrics_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        instancemetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        lock_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        lock_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        operator:
-          app_sync_interval: 24h
-          db_lock:
-            retry_interval: 5s
-            ttl: 15s
-          health:
-            password: <!{credhub}:autoscaler_operator_health_password!>
-            port: 6208
-            username: operator
-          http_client_timeout: 60s
-          logging:
-            level: info
-          scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
-            port: 6104
-          scheduler:
-            ca_cert: <!{credhub}:scheduler_ca.ca!>
-            client_cert: <!{credhub}:scheduler_client.certificate!>
-            client_key: <!{credhub}:scheduler_client.private_key!>
-            host: autoscalerscheduler.service.cf.internal
-            port: 6102
-        policy_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        scalingengine_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        scalingengine_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
   - consumes:
       nats:
         deployment: base-test-cf
@@ -380,290 +221,13 @@ instance_groups:
           tags:
             component: autoscaler_scalingengine_health
           uris:
-          - autoscaler-scalingengine.sys.test.cf.domain
-        - name: autoscaler_operator_health
-          port: 6208
-          registration_interval: 20s
-          tags:
-            component: autoscaler_operator_health
-          uris:
-          - autoscaler-operator.sys.test.cf.domain
-        - name: autoscaler_scheduler_health
-          port: 6202
-          registration_interval: 20s
-          tags:
-            component: autoscaler_scheduler_health
-          uris:
-          - autoscaler-scheduler.sys.test.cf.domain
+          - app-autoscaler-scalingengine.sys.test.cf.domain
     release: routing
-  name: asactors
+  name: scalingengine
   networks:
   - name: test-core-network
   stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
   vm_type: minimal
-- azs:
-  - z1
-  instances: 1
-  jobs:
-  - name: metricsserver
-    properties:
-      autoscaler:
-        instancemetrics_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        instancemetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        metricsserver:
-          ca_cert: <!{credhub}:metricsserver_server.ca!>
-          collector:
-            collect_interval: 60s
-            envelope_channel_size: 1000
-            envelope_processor_count: 5
-            keep_alive_time: 60s
-            metric_cache_size_per_app: 1000
-            metric_channel_size: 1000
-            persist_metrics: true
-            port: 7103
-            refresh_interval: 60s
-            save_interval: 5s
-          health:
-            password: <!{credhub}:autoscaler_metricsserver_health_password!>
-            port: 6303
-            username: metricsserver
-          http_client_timeout: 60s
-          logging:
-            level: info
-          server:
-            port: 6103
-          server_cert: <!{credhub}:metricsserver_server.certificate!>
-          server_key: <!{credhub}:metricsserver_server.private_key!>
-        policy_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - name: eventgenerator
-    properties:
-      autoscaler:
-        appmetrics_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        appmetrics_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-        eventgenerator:
-          aggregator:
-            aggregator_execute_interval: 40s
-            app_metric_channel_size: 1000
-            app_monitor_channel_size: 200
-            metric_poller_count: 20
-            policy_poller_interval: 60s
-            save_interval: 5s
-          ca_cert: <!{credhub}:eventgenerator_ca.ca!>
-          circuitBreaker:
-            back_off_initial_interval: 5m
-            back_off_max_interval: 120m
-            consecutive_failure_count: 5
-          defaultBreachDurationSecs: 120
-          defaultStatWindowSecs: 120
-          evaluator:
-            evaluation_manager_execute_interval: 60s
-            evaluator_count: 20
-            trigger_array_channel_size: 200
-          health:
-            password: <!{credhub}:autoscaler_eventgenerator_health_password!>
-            port: 6205
-            username: eventgenerator
-          http_client_timeout: 60s
-          logging:
-            level: info
-          metricscollector:
-            ca_cert: <!{credhub}:metricsserver_ca.ca!>
-            client_cert: <!{credhub}:metricsserver_client.certificate!>
-            client_key: <!{credhub}:metricsserver_client.private_key!>
-            host: metricsserver.service.cf.internal
-            port: 6103
-          scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
-            host: scalingengine.service.cf.internal
-            port: 6104
-          server:
-            port: 6105
-          server_cert: <!{credhub}:eventgenerator_server.certificate!>
-          server_key: <!{credhub}:eventgenerator_server.private_key!>
-        policy_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - consumes:
-      nats:
-        deployment: base-test-cf
-        from: nats
-    name: route_registrar
-    properties:
-      route_registrar:
-        routes:
-        - name: autoscaler_eventgenerator_health
-          port: 6205
-          registration_interval: 20s
-          tags:
-            component: autoscaler_eventgenerator_health
-          uris:
-          - autoscaler-eventgenerator.sys.test.cf.domain
-        - name: autoscaler_metricsserver_health
-          port: 6303
-          registration_interval: 20s
-          tags:
-            component: autoscaler_metricsserver_health
-          uris:
-          - autoscaler-metricsserver.sys.test.cf.domain
-    release: routing
-  name: asmetrics
-  networks:
-  - name: test-core-network
-  stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
-  vm_type: small
-- azs:
-  - z1
-  instances: 1
-  jobs:
-  - name: metricsgateway
-    properties:
-      autoscaler:
-        metricsgateway:
-          app_manager:
-            app_refresh_interval: 5s
-          emitter:
-            buffer_size: 500
-            handshake_timeout: 1s
-            keep_alive_interval: 5s
-            max_close_retry_count: 3
-            max_setup_retry_count: 3
-            metricsserver_client:
-              ca_cert: <!{credhub}:metricsserver_client.ca!>
-              cert: <!{credhub}:metricsserver_client.certificate!>
-              key: <!{credhub}:metricsserver_client.private_key!>
-            retry_delay: 1s
-          envelop_chan_size: 1000
-          health:
-            password: <!{credhub}:autoscaler_metricsgateway_health_password!>
-            port: 6503
-            username: metricsgateway
-          logging:
-            level: info
-          nozzle:
-            loggregator_rlp_tls:
-              ca_cert: test-loggregator-ca
-              cert: test-loggregator-rlp-cert
-              key: test-loggregator-rlp-key
-            rlp_addr: reverse-log-proxy.service.cf.internal:8082
-            shard_id: CF_AUTOSCALER
-          nozzle_count: 3
-        policy_db:
-          address: sql-db.service.cf.internal
-          databases:
-          - name: autoscaler
-            tag: default
-          db_scheme: mysql
-          port: 3306
-          roles:
-          - name: autoscaler
-            password: <!somepassword!>
-            tag: default
-          sslmode: "false"
-          tls:
-            ca: <!mysql_server_certificate.ca!>
-        policy_db_connection_config:
-          connection_max_lifetime: 60s
-          max_idle_connections: 10
-          max_open_connections: 100
-    release: app-autoscaler
-  - consumes:
-      nats:
-        deployment: base-test-cf
-        from: nats
-    name: route_registrar
-    properties:
-      route_registrar:
-        routes:
-        - name: autoscaler_metricsgateway_health
-          port: 6503
-          registration_interval: 20s
-          tags:
-            component: autoscaler_metricsgateway_health
-          uris:
-          - autoscaler-metricsgateway.sys.test.cf.domain
-    release: routing
-  name: asnozzle
-  networks:
-  - name: test-core-network
-  stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
-  vm_type: small
 - azs:
   - z1
   instances: 1
@@ -673,42 +237,50 @@ instance_groups:
       autoscaler:
         apiserver:
           broker:
-            password: <!{credhub}:autoscaler_service_broker_password!>
+            broker_credentials:
+            - broker_password: <!{credhub}:service_broker_password!>
+              broker_username: autoscaler-broker-user
+            - broker_password: <!{credhub}:service_broker_password_blue!>
+              broker_username: autoscaler-broker-user-blue
             server:
               catalog:
                 services:
                 - bindable: true
+                  bindings_retrievable: true
                   description: Automatically increase or decrease the number of application
                     instances based on a policy you define.
                   id: autoscaler-guid
-                  name: autoscaler
+                  instances_retrievable: true
+                  name: app-autoscaler
                   plans:
                   - description: This is the free service plan for the Auto-Scaling
                       service.
                     id: autoscaler-free-plan-id
                     name: autoscaler-free-plan
+                  tags:
+                  - app-autoscaler
               dashboard_redirect_uri: ""
               port: 6102
-            username: autoscaler_service_broker_user
           event_generator:
-            ca_cert: <!{credhub}:eventgenerator_ca.ca!>
-            client_cert: <!{credhub}:eventgenerator_client.certificate!>
-            client_key: <!{credhub}:eventgenerator_client.private_key!>
-          logging:
-            level: info
+            ca_cert: <!{credhub}:eventgenerator_client_cert.ca!>
+            client_cert: <!{credhub}:eventgenerator_client_cert.certificate!>
+            client_key: <!{credhub}:eventgenerator_client_cert.private_key!>
+            host: eventgenerator.service.cf.internal
           metrics_forwarder:
             host: autoscalermetrics.sys.test.cf.domain
+            mtls_host: app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
           public_api:
             server:
               port: 6101
           scaling_engine:
-            ca_cert: <!{credhub}:scalingengine_ca.ca!>
-            client_cert: <!{credhub}:scalingengine_client.certificate!>
-            client_key: <!{credhub}:scalingengine_client.private_key!>
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
           scheduler:
-            ca_cert: <!{credhub}:scheduler_ca.ca!>
-            client_cert: <!{credhub}:scheduler_client.certificate!>
-            client_key: <!{credhub}:scheduler_client.private_key!>
+            ca_cert: <!{credhub}:scheduler_client_cert.ca!>
+            client_cert: <!{credhub}:scheduler_client_cert.certificate!>
+            client_key: <!{credhub}:scheduler_client_cert.private_key!>
             host: autoscalerscheduler.service.cf.internal
           use_buildin_mode: false
         binding_db:
@@ -754,27 +326,303 @@ instance_groups:
           max_idle_connections: 10
           max_open_connections: 100
     release: app-autoscaler
-  - name: metricsforwarder
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: api_server
+          port: 6101
+          registration_interval: 20s
+          tags:
+            component: api_server
+          uris:
+          - autoscaler.sys.test.cf.domain
+        - name: autoscaler_service_broker
+          port: 6102
+          registration_interval: 20s
+          tags:
+            component: autoscaler_service_broker
+          uris:
+          - autoscalerservicebroker.sys.test.cf.domain
+    release: routing
+  name: apiserver
+  networks:
+  - name: test-core-network
+  stemcell: default
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: scheduler
     properties:
       autoscaler:
-        metricsforwarder:
-          cache_cleanup_interval: 6h
-          cache_ttl: 900s
+        policy_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        scheduler:
+          ca_cert: <!{credhub}:scheduler_server_cert.ca!>
           health:
-            password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
-            port: 6403
-            username: metricsforwarder
+            basicAuthEnabled: true
+            password: <!{credhub}:autoscaler_scheduler_health_password!>
+            port: 6202
+            username: scheduler
+          job_reschedule_interval_millisecond: 10000
+          job_reschedule_maxcount: 6
+          notification_reschedule_maxcount: 3
+          scaling_engine:
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
+          server_cert: <!{credhub}:scheduler_server_cert.certificate!>
+          server_key: <!{credhub}:scheduler_server_cert.private_key!>
+        scheduler_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+    release: app-autoscaler
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: autoscaler_scheduler_health
+          port: 6202
+          registration_interval: 20s
+          tags:
+            component: autoscaler_scheduler_health
+          uris:
+          - app-autoscaler-scheduler.sys.test.cf.domain
+    release: routing
+  name: scheduler
+  networks:
+  - name: test-core-network
+  stemcell: default
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: operator
+    properties:
+      autoscaler:
+        appmetrics_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        appmetrics_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        cf:
+          api: https://api.sys.test.cf.domain
+          client_id: app-autoscaler-client
+          grant_type: client_credentials
+          secret: app-autoscaler-secret
+          skip_ssl_validation: "true"
+        lock_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        lock_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        operator:
+          enable_db_lock: true
+          health:
+            password: <!{credhub}:autoscaler_operator_health_password!>
+            port: 6208
+            username: operator
           logging:
             level: info
-          loggregator:
-            metron_address: 127.0.0.1:3458
-            tls:
-              ca_cert: test-loggregator-ca
-              cert: test-loggregator-agent-cert
-              key: test-loggregator-agent-key
-          policy_poller_interval: 60s
-          server:
-            port: 6201
+          scaling_engine:
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
+          scheduler:
+            ca_cert: <!{credhub}:scheduler_client_cert.ca!>
+            client_cert: <!{credhub}:scheduler_client_cert.certificate!>
+            client_key: <!{credhub}:scheduler_client_cert.private_key!>
+            host: autoscalerscheduler.service.cf.internal
+        policy_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        policy_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        scalingengine_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        scalingengine_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        scheduler.host: autoscalerscheduler.service.cf.internal
+    release: app-autoscaler
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
+        - name: autoscaler_operator_health
+          port: 6208
+          registration_interval: 20s
+          tags:
+            component: autoscaler_operator_health
+          uris:
+          - app-autoscaler-operator.sys.test.cf.domain
+    release: routing
+  name: operator
+  networks:
+  - name: test-core-network
+  stemcell: default
+  update:
+    serial: true
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: eventgenerator
+    properties:
+      autoscaler:
+        appmetrics_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        appmetrics_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        eventgenerator:
+          ca_cert: <!{credhub}:eventgenerator_server_cert.ca!>
+          enable_db_lock: false
+          health:
+            password: <!{credhub}:autoscaler_eventgenerator_health_password!>
+            port: 6205
+            username: eventgenerator
+          logging:
+            level: info
+          metricscollector:
+            ca_cert: <!{credhub}:metricscollector_ca_cert.ca!>
+            client_cert: <!{credhub}:metricscollector_client.certificate!>
+            client_key: <!{credhub}:metricscollector_client.private_key!>
+            host: logcache
+            port: 8080
+          scaling_engine:
+            ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
+            client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
+            client_key: <!{credhub}:scalingengine_client_cert.private_key!>
+            host: scalingengine.service.cf.internal
+          server_cert: <!{credhub}:eventgenerator_server_cert.certificate!>
+          server_key: <!{credhub}:eventgenerator_server_cert.private_key!>
+        lock_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
         policy_db:
           address: sql-db.service.cf.internal
           databases:
@@ -802,20 +650,135 @@ instance_groups:
     properties:
       route_registrar:
         routes:
-        - name: api_server
-          port: 6101
+        - name: autoscaler_eventgenerator_health
+          port: 6205
           registration_interval: 20s
           tags:
-            component: api_server
+            component: autoscaler_eventgenerator_health
           uris:
-          - autoscaler.sys.test.cf.domain
-        - name: autoscaler_service_broker
-          port: 6102
-          registration_interval: 20s
-          tags:
-            component: autoscaler_service_broker
-          uris:
-          - autoscalerservicebroker.sys.test.cf.domain
+          - app-autoscaler-eventgenerator.sys.test.cf.domain
+    release: routing
+  name: eventgenerator
+  networks:
+  - name: test-core-network
+  stemcell: default
+  vm_type: minimal
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: metricsforwarder
+    properties:
+      autoscaler:
+        metricsforwarder:
+          health:
+            password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
+            port: 6403
+            username: metricsforwarder
+          logging:
+            level: info
+          loggregator:
+            tls:
+              ca_cert: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.ca!>
+              cert: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.certificate!>
+              key: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.private_key!>
+          server:
+            port: 6201
+        policy_db:
+          address: sql-db.service.cf.internal
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: mysql
+          port: 3306
+          roles:
+          - name: autoscaler
+            password: <!somepassword!>
+            tag: default
+          sslmode: "false"
+          tls:
+            ca: <!mysql_server_certificate.ca!>
+        policy_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
+        storedprocedure_db:
+          address: autoscalerpostgres.service.cf.internal
+          connection_config:
+            connection_max_lifetime: 60s
+            max_idle_connections: 10
+            max_open_connections: 100
+          databases:
+          - name: autoscaler
+            tag: default
+          db_scheme: postgres
+          port: 5432
+          roles:
+          - name: postgres
+            password: <!{credhub}:database_password!>
+            tag: default
+          sslmode: verify-full
+          tls:
+            ca: <!{credhub}:postgres_ca.ca!>
+            certificate: <!{credhub}:postgres_server.certificate!>
+            private_key: <!{credhub}:postgres_server.private_key!>
+    release: app-autoscaler
+  - name: loggr-syslog-agent
+    properties:
+      cache:
+        tls:
+          ca_cert: <!{credhub}:loggr_syslog_agent_cache_tls.ca!>
+          cert: <!{credhub}:loggr_syslog_agent_cache_tls.certificate!>
+          cn: loggr_syslog_binding_cache
+          key: <!{credhub}:loggr_syslog_agent_cache_tls.private_key!>
+      metrics:
+        ca_cert: <!{credhub}:loggr_syslog_agent_metrics.ca!>
+        cert: <!{credhub}:loggr_syslog_agent_metrics.certificate!>
+        key: <!{credhub}:loggr_syslog_agent_metrics.private_key!>
+        server_name: metrics.config.is.required.by.job.specification.but.not.needed.in.our.case
+      tls:
+        ca_cert: <!{credhub}:loggr_syslog_agent_tls.ca!>
+        cert: <!{credhub}:loggr_syslog_agent_tls.certificate!>
+        key: <!{credhub}:loggr_syslog_agent_tls.private_key!>
+    release: loggregator-agent
+  - consumes:
+      cloud_controller:
+        deployment: base-test-cf
+        from: cloud_controller
+    name: loggr-syslog-binding-cache
+    properties:
+      aggregate_drains:
+      - ca: <!{credhub}:log_cache_syslog_tls_ca.certificate!>
+        cert: <!{credhub}:syslog_agent_log_cache_tls.certificate!>
+        key: <!{credhub}:syslog_agent_log_cache_tls.private_key!>
+        url: syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true
+      api:
+        polling_interval: 876000h
+        tls:
+          ca_cert: <!{credhub}:loggr_syslog_binding_cache_api_tls.ca!>
+          cert: <!{credhub}:loggr_syslog_binding_cache_api_tls.certificate!>
+          cn: api.tls.config.is.required.by.job.specification.but.not.needed.in.our.case
+          key: <!{credhub}:loggr_syslog_binding_cache_api_tls.private_key!>
+      external_port: 9000
+      metrics:
+        ca_cert: <!{credhub}:loggr_syslog_binding_cache_metrics.ca!>
+        cert: <!{credhub}:loggr_syslog_binding_cache_metrics.certificate!>
+        key: <!{credhub}:loggr_syslog_binding_cache_metrics.private_key!>
+        server_name: metrics.config.is.required.by.job.specification.but.not.needed.in.our.case
+      tls:
+        ca_cert: <!{credhub}:loggr_syslog_binding_cache_tls.ca!>
+        cert: <!{credhub}:loggr_syslog_binding_cache_tls.certificate!>
+        cn: loggr_syslog_agent_tls
+        key: <!{credhub}:loggr_syslog_binding_cache_tls.private_key!>
+    release: loggregator-agent
+  - consumes:
+      nats:
+        deployment: base-test-cf
+        from: nats
+    name: route_registrar
+    properties:
+      route_registrar:
+        routes:
         - name: autoscaler_metrics_forwarder
           port: 6201
           registration_interval: 20s
@@ -823,62 +786,52 @@ instance_groups:
             component: autoscaler_metrics_forwarder
           uris:
           - autoscalermetrics.sys.test.cf.domain
+        - name: autoscaler_metrics_forwarder_mtls
+          port: 6201
+          registration_interval: 20s
+          tags:
+            component: autoscaler_metrics_forwarder
+          uris:
+          - app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
         - name: autoscaler_metricsforwarder_health
-          port: 6403
+          port: 6201
           registration_interval: 20s
           tags:
             component: autoscaler_metricsforwarder_health
           uris:
-          - autoscaler-metricsforwarder.sys.test.cf.domain
+          - app-autoscaler-metricsforwarder.sys.test.cf.domain
     release: routing
-  - consumes:
-      doppler:
-        deployment: base-test-cf
-        from: doppler
-    name: loggregator_agent
-    properties:
-      loggregator:
-        tls:
-          agent:
-            cert: test-loggregator-agent-cert
-            key: test-loggregator-agent-key
-          ca_cert: test-loggregator-ca
-      metrics:
-        ca_cert: <!{credhub}:loggregator_agent_metrics_tls.ca!>
-        cert: <!{credhub}:loggregator_agent_metrics_tls.certificate!>
-        key: <!{credhub}:loggregator_agent_metrics_tls.private_key!>
-        server_name: loggregator_agent_server
-    release: loggregator-agent
-  name: asapi
+  name: metricsforwarder
   networks:
   - name: test-core-network
   stemcell: default
-  update:
-    max_in_flight: 1
-    serial: true
   vm_type: minimal
 name: mysql-cf-app-autoscaler
+public_domains:
+  metricsforwarder: mysql-cf-app-autoscalermetrics.sys.test.cf.domain
+  metricsforwarder_mtls: mysql-cf-app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+  servicebroker: mysql-cf-app-autoscalerservicebroker.sys.test.cf.domain
 releases:
 - name: app-autoscaler
-  sha1: da4e71fceb23b747e1dd71346d1296575fe71669
-  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=10.0.5
-  version: 10.0.5
+  sha1: 26865030c459bc048739c60d3d3a1874e6bbad85
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=14.1.0
+  version: 14.1.0
 - name: bosh-dns-aliases
-  sha1: b0d0a0350ed87f1ded58b2ebb469acea0e026ccc
-  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.3
-  version: 0.0.3
+  sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
+  version: 0.0.4
 - name: routing
-  sha1: 0024f2d9f8bb3c624a162db4c3a5919388c6d800
-  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.237.0
-  version: 0.237.0
+  sha1: sha256:18df3f00881de9b82b6c3e9a6e96871a2330ed5c0ea595431cabe64782ba5035
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.285.0
+  version: 0.285.0
 - name: loggregator-agent
-  sha1: 02ec285cce8fef717ab7baee79a5ed9210a7391c
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=6.4.1
-  version: 6.4.1
+  sha1: sha256:4b7d5dd3eb2c4ed5d0a9f7957d5044c3da294a083ffdf395b5ddee2ff2360780
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=7.7.3
+  version: 7.7.3
 - name: bpm
-  sha1: 86675f90d66f7018c57f4ae0312f1b3834dd58c9
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.18
-  version: 1.1.18
+  sha1: sha256:14a2b83254ba5a833baf7fc2d297edfa2ad01452e9b9281785e1eb6b906e5d9c
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.2.13
+  version: 1.2.13
 stemcells:
 - alias: default
   os: ubuntu-jammy
@@ -886,6 +839,7 @@ stemcells:
 update:
   canaries: 1
   canary_watch_time: 1000-300000
-  max_in_flight: 1
+  max_in_flight: 3
+  serial: true
   update_watch_time: 1000-300000
 variables: []
