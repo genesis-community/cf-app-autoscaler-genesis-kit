@@ -125,6 +125,16 @@ instance_groups:
       nats:
         from: nats
         deployment: (( grab meta.cf.deployment_name ))
+  - name: golangapiserver
+    release: app-autoscaler
+    properties:
+      autoscaler:
+        apiserver:
+          broker:
+            broker_credentials:
+              - (( replace ))
+              - broker_username: 'autoscaler_service_broker_user'
+                broker_password: ((autoscaler_service_broker_password))
 
 
 - name: scheduler
@@ -251,3 +261,6 @@ variables:
     extended_key_usage:
     - client_auth
     - server_auth
+
+- name: autoscaler_service_broker_password
+  type: password
