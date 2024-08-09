@@ -238,10 +238,8 @@ instance_groups:
         apiserver:
           broker:
             broker_credentials:
-            - broker_password: <!{credhub}:service_broker_password!>
-              broker_username: autoscaler-broker-user
-            - broker_password: <!{credhub}:service_broker_password_blue!>
-              broker_username: autoscaler-broker-user-blue
+            - broker_password: <!{credhub}:autoscaler_service_broker_password!>
+              broker_username: autoscaler_service_broker_user
             server:
               catalog:
                 services:
