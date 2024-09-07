@@ -1,4 +1,0 @@
-/secret/exodus/base-test/cfv1:
-  system_domain: sys.test.cf.domain
-  core_network: test-core-network
-  kit_version: 1.10.5

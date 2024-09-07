@@ -48,6 +48,7 @@ do
   case "$want" in
     (ocfp)
       manifests+=(
+        "overlay/fix-upstream-db-opsfiles.yml"
         "upstream/operations/external-db.yml"
         "overlay/external_db/common.yml"
         "overlay/no-postgres.yml"
@@ -60,13 +61,16 @@ do
       : # Already handled above
       ;;
     (external-db)
-      manifests+=( \
+      manifests+=(
+        "overlay/fix-upstream-db-opsfiles.yml"
         "upstream/operations/external-db.yml"
         "overlay/external_db/common.yml"
         "overlay/no-postgres.yml"
       )
       if want_feature mysql ; then
-        manifests+=( "overlay/external_db/mysql.yml" )
+        manifests+=(
+          "overlay/external_db/mysql.yml"
+        )
       else
         manifests+=( "overlay/external_db/postgres.yml" )
       fi
@@ -77,6 +81,7 @@ do
     (mysql)
       if ! want_feature external-db ; then
         manifests+=(
+          "overlay/fix-upstream-db-opsfiles.yml"
           "upstream/operations/cf-mysql-db.yml"
           "overlay/no-postgres.yml"
         )

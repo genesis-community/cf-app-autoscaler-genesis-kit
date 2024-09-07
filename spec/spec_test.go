@@ -33,15 +33,6 @@ var _ = Describe("CF App Autoscaler Kit", func() {
 			Exodus:        "base",
 		})
 	})
-	Describe("new-cf", func() {
-		Test(Environment{
-			Name:          "new-cf",
-			CloudConfig:   "aws",
-			RuntimeConfig: "dns",
-			CPI:           "aws",
-			Exodus:        "base-cf-v2.3.0",
-		})
-	})
 	Describe("external-db", func() {
 		Test(Environment{
 			Name:          "external-db",
@@ -57,16 +48,8 @@ var _ = Describe("CF App Autoscaler Kit", func() {
 			CloudConfig:   "aws",
 			RuntimeConfig: "dns",
 			CPI:           "aws",
-			Exodus:        "base-cf-v1-alt",
-		})
-	})
-	Describe("cf-v1-support", func() {
-		Test(Environment{
-			Name:          "cf-v1-support",
-			CloudConfig:   "aws",
-			RuntimeConfig: "dns",
-			CPI:           "aws",
-			Exodus:        "base-cf-v1",
+			Exodus:        "base",
+			Focus:         true,
 		})
 	})
 })

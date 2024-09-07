@@ -7,7 +7,7 @@ addons:
         targets:
         - deployment: mysql-cf-app-autoscaler
           domain: bosh
-          instance_group: postgres_autoscaler
+          instance_group: postgres
           network: test-core-network
           query: '*'
       - domain: autoscaler.service.cf.internal
@@ -78,18 +78,6 @@ addons:
         - deployment: base-test-cf
           domain: bosh
           instance_group: log-cache
-          network: test-core-network
-          query: '*'
-      - domain: metricsgateway.service.cf.internal
-        targets:
-        - deployment: mysql-cf-app-autoscaler
-          instance_group: metricsforwarder
-          network: test-core-network
-          query: '*'
-      - domain: metricsserver.service.cf.internal
-        targets:
-        - deployment: mysql-cf-app-autoscaler
-          instance_group: metricsforwarder
           network: test-core-network
           query: '*'
       - domain: sql-db.service.cf.internal
@@ -208,11 +196,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_scalingengine_health
@@ -266,7 +259,7 @@ instance_groups:
             host: eventgenerator.service.cf.internal
           metrics_forwarder:
             host: autoscalermetrics.sys.test.cf.domain
-            mtls_host: app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+            mtls_host: autoscaler-metricsforwarder-mtls.sys.test.cf.domain
           public_api:
             server:
               port: 6101
@@ -325,11 +318,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: api_server
@@ -406,11 +404,16 @@ instance_groups:
             ca: <!mysql_server_certificate.ca!>
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_scheduler_health
@@ -532,11 +535,16 @@ instance_groups:
         scheduler.host: autoscalerscheduler.service.cf.internal
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_operator_health
@@ -589,9 +597,9 @@ instance_groups:
           logging:
             level: info
           metricscollector:
-            ca_cert: <!{credhub}:metricscollector_ca_cert.ca!>
-            client_cert: <!{credhub}:metricscollector_client.certificate!>
-            client_key: <!{credhub}:metricscollector_client.private_key!>
+            ca_cert: <!{credhub}:log_cache_ca.certificate!>
+            client_cert: <!{credhub}:log_cache_client_cert.certificate!>
+            client_key: <!{credhub}:log_cache_client_cert.private_key!>
             host: logcache
             port: 8080
           scaling_engine:
@@ -641,11 +649,16 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_eventgenerator_health
@@ -680,6 +693,9 @@ instance_groups:
               ca_cert: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.ca!>
               cert: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.certificate!>
               key: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.private_key!>
+          metricshandler:
+            tls:
+              ca_cert: <!{credhub}:diego_instance_identity_ca.certificate!>
           server:
             port: 6201
         policy_db:
@@ -770,11 +786,16 @@ instance_groups:
         key: <!{credhub}:loggr_syslog_binding_cache_tls.private_key!>
     release: loggregator-agent
   - consumes:
-      nats:
+      nats-tls:
         deployment: base-test-cf
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
+      nats:
+        tls:
+          client_cert: <!{credhub}:nats_client_cert.certificate!>
+          client_key: <!{credhub}:nats_client_cert.private_key!>
+          enabled: true
       route_registrar:
         routes:
         - name: autoscaler_metrics_forwarder
@@ -788,9 +809,9 @@ instance_groups:
           port: 6201
           registration_interval: 20s
           tags:
-            component: autoscaler_metrics_forwarder
+            component: autoscaler_metrics_forwarder_mtls
           uris:
-          - app-autoscaler-metricsforwarder-mtls.sys.test.cf.domain
+          - autoscaler-metricsforwarder-mtls.sys.test.cf.domain
         - name: autoscaler_metricsforwarder_health
           port: 6201
           registration_interval: 20s
@@ -819,17 +840,17 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
   version: 0.0.4
 - name: routing
-  sha1: sha256:18df3f00881de9b82b6c3e9a6e96871a2330ed5c0ea595431cabe64782ba5035
-  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.285.0
-  version: 0.285.0
+  sha1: 6dd63d1653bf333ea64fca061a3a16d9be2e750f
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.275.0
+  version: 0.275.0
 - name: loggregator-agent
-  sha1: sha256:4b7d5dd3eb2c4ed5d0a9f7957d5044c3da294a083ffdf395b5ddee2ff2360780
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=7.7.3
-  version: 7.7.3
+  sha1: 623e45f6c19a68d01c313a9a1a504dabc39ac1cf
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=7.2.1
+  version: 7.2.1
 - name: bpm
-  sha1: sha256:14a2b83254ba5a833baf7fc2d297edfa2ad01452e9b9281785e1eb6b906e5d9c
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.2.13
-  version: 1.2.13
+  sha1: 36299a55c00d28cfe54bbb4772ca617f52d76adb
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.2.1
+  version: 1.2.1
 stemcells:
 - alias: default
   os: ubuntu-jammy
