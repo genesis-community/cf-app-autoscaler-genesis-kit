@@ -49,7 +49,6 @@ var _ = Describe("CF App Autoscaler Kit", func() {
 			RuntimeConfig: "dns",
 			CPI:           "aws",
 			Exodus:        "base",
-			Focus:         true,
 		})
 	})
 })
