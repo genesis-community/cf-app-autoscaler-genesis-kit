@@ -4,6 +4,7 @@ kit:
 
 genesis:
   env: ci-vsphere-baseline
+  min_version: 3.0.9
 
 params:
   cf_deployment_env: rsat-bc-genesis-ci
