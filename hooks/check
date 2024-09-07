@@ -3,7 +3,7 @@
 set -u
 
 # Version check
-min_version="2.7.0"
+min_version="3.0.9-rc.1"
 genesis_version="$(genesis -v 2>&1 | grep '^Genesis v' | sed -e 's/Genesis v\(.*\) (.*$/\1/')"
 if ! [[ "$genesis_version" =~ -dev$ ]] && ! new_enough "$genesis_version" "$min_version" ; then
   describe >&2 "" "#R{[ERROR]} This kit needs Genesis $min_version.  Please upgrade before continuing" ""
@@ -11,13 +11,18 @@ if ! [[ "$genesis_version" =~ -dev$ ]] && ! new_enough "$genesis_version" "$min_
 fi
 set -e
 
+cf_env="$(jq -r '.params.cf_deployment_env//.genesis.env' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
+cf_type="$(jq -r '.params.cf_deployment_type//"cf"' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
+cf_exodus="$(lookup --exodus-for "${cf_env}/${cf_type}" .)"
+
 cc_ok=yes
 # Cloud Config checks
 if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
   if want_feature ocfp ; then
     _env_scale="$(lookup --partial meta.ocfp.env.scale)"
+    # FIXME: what about the postgres/mysql instance groups
     jobs=( as-apiserver as-scalingengine as-scheduler as-operator as-eventgenerator as-metricsforwarder )
-    for job in ${jobs[@]} ; do
+    for job in "${jobs[@]}" ; do
       _vm_type="${job}-${_env_scale}"
       _disk_type="${job}-${_env_scale}"
       _network="${GENESIS_ENVIRONMENT}-ocf"
@@ -58,6 +63,16 @@ if [[ "$runtime_ok" == "yes" ]]; then
   describe "  runtime config [#G{OK}]"
 else
   describe "  runtime config [#R{FAILED}]"
+fi
+
+cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
+[[ -n "$cf_kit_version" ]] || bail "#R{[ERROR]} Could not determine kit version with associated CF deployment"
+if new_enough "$cf_kit_version" 2.5.2 ; then
+  genesis_log "  target cf kit version [#G{OK}]"
+else
+  echo "" >&2
+  genesis_log @error "This version of autoscaler kit requires CF Kit 2.5.2 or greater to be deployed as its target CF." ""
+  exit 1
 fi
 
 env_ok=yes

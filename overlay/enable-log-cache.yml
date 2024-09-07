@@ -7,25 +7,8 @@ instance_groups:
       autoscaler:
         eventgenerator:
           metricscollector:
-            use_log_cache: true
-            host:          log-cache
+            host:          logcache
             port:          8080
-            ca_cert:       (( concat "((" meta.cf.credhub_path "log_cache.ca))" ))
-            client_cert:   (( concat "((" meta.cf.credhub_path "log_cache.certificate))" ))
-            client_key:    (( concat "((" meta.cf.credhub_path "log_cache.private_key))" ))
-
-addons:
-- name: bosh-dns-aliases
-  jobs:
-  - name: bosh-dns-aliases
-    properties:
-      aliases:
-      - (( merge on domain))
-      - domain: log-cache
-        targets:
-        - (( merge on query ))
-        - query: "*"
-          deployment: (( grab meta.cf.deployment_name ))
-          network:    (( grab params.cf_core_network ))
-          domain: bosh
-          instance_group: log-cache
+            ca_cert:       (( vault meta.cf.exodus ":log_cache_ca" ))
+            client_cert:   (( vault meta.cf.exodus ":log_cache_cert" ))
+            client_key:    (( vault meta.cf.exodus ":log_cache_key" ))

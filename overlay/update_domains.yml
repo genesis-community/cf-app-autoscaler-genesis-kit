@@ -22,16 +22,8 @@
 - type: replace
   path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).scalingengine.service.cf.internal/domain
   value: scalingengine.service.cf.internal
-
-- type: replace
-  path: /instance_groups/name=postgres/name
-  value: postgres_autoscaler
-
-- type: replace
-  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=autoscalerpostgres.service.cf.internal/targets/query=*/instance_group
-  value: postgres_autoscaler
-  
 ---
+
 # Update certificate configurations
 - type: replace
   path: /variables/name=apiserver_server_cert/options/alternative_names/0
@@ -75,7 +67,7 @@
 
 # Update instance group configurations
 - type: replace
-  path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/databases/address
+  path: /instance_groups/name=postgres/jobs/name=postgres/properties/databases/address
   value: autoscalerpostgres.service.cf.internal
 
 - type: replace

@@ -1,2 +1,5 @@
+instance_groups:
+  - (( delete "postgres" ))
+
 releases:
   - (( delete "postgres" ))

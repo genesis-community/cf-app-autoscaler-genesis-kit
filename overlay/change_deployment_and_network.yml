@@ -17,7 +17,7 @@ addons:
         targets:
         - (( merge on query ))
         - query: '*'
-          instance_group: postgres_autoscaler
+          instance_group: postgres
           deployment: ((deployment_name))
           network: (( grab params.network ))
       - domain: autoscaler.service.cf.internal
@@ -55,20 +55,6 @@ addons:
           deployment: ((deployment_name))
           network: (( grab params.network ))
           instance_group: scalingengine
-      - domain: metricsgateway.service.cf.internal
-        targets:
-        - (( merge on query ))
-        - query: '*'
-          deployment: ((deployment_name))
-          network: (( grab params.network ))
-          instance_group: metricsforwarder
-      - domain: metricsserver.service.cf.internal
-        targets:
-        - (( merge on query ))
-        - query: '*'
-          deployment: ((deployment_name))
-          network: (( grab params.network ))
-          instance_group: metricsforwarder
       - domain: nats.service.cf.internal
         targets:
         - (( merge on query ))
@@ -99,7 +85,7 @@ addons:
           instance_group: log-cache
 
 instance_groups:
-- name: postgres_autoscaler
+- name: postgres
   networks:
   - (( replace ))
   - name: (( grab params.network ))

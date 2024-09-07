@@ -1,109 +1,92 @@
 ---
-# routing api from certs
-# scalingengine
-- type: replace
-  path: /instance_groups/name=scalingengine/jobs/name=route_registrar/properties/nats?
-  value:
-    tls:
-      enabled: true
-      client_cert: (( concat "((" meta.cf.credhub_path "nats_client_cert.certificate))" ))
-      client_key: (( concat "((" meta.cf.credhub_path "nats_client_cert.private_key))" ))
 
-- type: remove
-  path: /instance_groups/name=scalingengine/jobs/name=route_registrar/consumes/nats
+instance_groups:
+- name: scalingengine
+  jobs:
+  - name: route_registrar
+    properties:
+      nats:
+        tls:
+          enabled: true
+          client_cert: (( vault meta.cf.exodus ":nats_client_cert" ))
+          client_key: (( vault meta.cf.exodus ":nats_client_key" ))
+    consumes:
+      nats: (( prune ))
+      nats-tls:
+        from: nats-tls
+        deployment: (( grab meta.cf.deployment_name ))
 
-- type: replace
-  path: /instance_groups/name=scalingengine/jobs/name=route_registrar/consumes/nats-tls?
-  value:
-    from: nats-tls
-    deployment: (( grab meta.cf.deployment_name ))
+- name: metricsforwarder
+  jobs:
+  - name: route_registrar
+    properties:
+      nats:
+        tls:
+          enabled: true
+          client_cert: (( vault meta.cf.exodus ":nats_client_cert" ))
+          client_key: (( vault meta.cf.exodus ":nats_client_key" ))
+    consumes:
+      nats: (( prune ))
+      nats-tls:
+        from: nats-tls
+        deployment: (( grab meta.cf.deployment_name ))
 
-# metricsforwarder
-- type: replace
-  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/properties/nats?
-  value:
-    tls:
-      enabled: true
-      client_cert: (( concat "((" meta.cf.credhub_path "nats_client_cert.certificate))" ))
-      client_key: (( concat "((" meta.cf.credhub_path "nats_client_cert.private_key))" ))
+- name: scheduler
+  jobs:
+  - name: route_registrar
+    properties:
+      nats:
+        tls:
+          enabled: true
+          client_cert: (( vault meta.cf.exodus ":nats_client_cert" ))
+          client_key: (( vault meta.cf.exodus ":nats_client_key" ))
+    consumes:
+      nats: (( prune ))
+      nats-tls:
+        from: nats-tls
+        deployment: (( grab meta.cf.deployment_name ))
 
-- type: remove
-  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/consumes/nats
+- name: operator
+  jobs:
+  - name: route_registrar
+    properties:
+      nats:
+        tls:
+          enabled: true
+          client_cert: (( vault meta.cf.exodus ":nats_client_cert" ))
+          client_key: (( vault meta.cf.exodus ":nats_client_key" ))
+    consumes:
+      nats: (( prune ))
+      nats-tls:
+        from: nats-tls
+        deployment: (( grab meta.cf.deployment_name ))
 
-- type: replace
-  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/consumes/nats-tls?
-  value:
-    from: nats-tls
-    deployment: (( grab meta.cf.deployment_name ))
+- name: apiserver
+  jobs:
+  - name: route_registrar
+    properties:
+      nats:
+        tls:
+          enabled: true
+          client_cert: (( vault meta.cf.exodus ":nats_client_cert" ))
+          client_key: (( vault meta.cf.exodus ":nats_client_key" ))
+    consumes:
+      nats: (( prune ))
+      nats-tls:
+        from: nats-tls
+        deployment: (( grab meta.cf.deployment_name ))
 
-# scheduler
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=route_registrar/properties/nats?
-  value:
-    tls:
-      enabled: true
-      client_cert: (( concat "((" meta.cf.credhub_path "nats_client_cert.certificate))" ))
-      client_key: (( concat "((" meta.cf.credhub_path "nats_client_cert.private_key))" ))
-
-- type: remove
-  path: /instance_groups/name=scheduler/jobs/name=route_registrar/consumes/nats
-
-- type: replace
-  path: /instance_groups/name=scheduler/jobs/name=route_registrar/consumes/nats-tls?
-  value:
-    from: nats-tls
-    deployment: (( grab meta.cf.deployment_name ))
-
-# operator
-- type: replace
-  path: /instance_groups/name=operator/jobs/name=route_registrar/properties/nats?
-  value:
-    tls:
-      enabled: true
-      client_cert: (( concat "((" meta.cf.credhub_path "nats_client_cert.certificate))" ))
-      client_key: (( concat "((" meta.cf.credhub_path "nats_client_cert.private_key))" ))
-
-- type: remove
-  path: /instance_groups/name=operator/jobs/name=route_registrar/consumes/nats
-
-- type: replace
-  path: /instance_groups/name=operator/jobs/name=route_registrar/consumes/nats-tls?
-  value:
-    from: nats-tls
-    deployment: (( grab meta.cf.deployment_name ))
-
-# apiserver + broker
-- type: replace
-  path: /instance_groups/name=apiserver/jobs/name=route_registrar/properties/nats?
-  value:
-    tls:
-      enabled: true
-      client_cert: (( concat "((" meta.cf.credhub_path "nats_client_cert.certificate))" ))
-      client_key: (( concat "((" meta.cf.credhub_path "nats_client_cert.private_key))" ))
-
-- type: remove
-  path: /instance_groups/name=apiserver/jobs/name=route_registrar/consumes/nats
-
-- type: replace
-  path: /instance_groups/name=apiserver/jobs/name=route_registrar/consumes/nats-tls?
-  value:
-    from: nats-tls
-    deployment: (( grab meta.cf.deployment_name ))
-
-# eventgenerator
-- type: replace
-  path: /instance_groups/name=eventgenerator/jobs/name=route_registrar/properties/nats?
-  value:
-    tls:
-      enabled: true
-      client_cert: (( concat "((" meta.cf.credhub_path "nats_client_cert.certificate))" ))
-      client_key: (( concat "((" meta.cf.credhub_path "nats_client_cert.private_key))" ))
-
-- type: remove
-  path: /instance_groups/name=eventgenerator/jobs/name=route_registrar/consumes/nats
-
-- type: replace
-  path: /instance_groups/name=eventgenerator/jobs/name=route_registrar/consumes/nats-tls?
-  value:
-    from: nats-tls
-    deployment: (( grab meta.cf.deployment_name ))
+- name: eventgenerator
+  jobs:
+  - name: route_registrar
+    properties:
+      nats:
+        tls:
+          enabled: true
+          client_cert: (( vault meta.cf.exodus ":nats_client_cert" ))
+          client_key: (( vault meta.cf.exodus ":nats_client_key" ))
+    consumes:
+      nats: (( prune ))
+      nats-tls:
+        from: nats-tls
+        deployment: (( grab meta.cf.deployment_name ))

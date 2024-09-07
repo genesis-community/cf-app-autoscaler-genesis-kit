@@ -19,6 +19,7 @@
       common_name: autoscalerpostgres.service.cf.internal
       alternative_names:
         - ((deployment_name)).autoscalerpostgres.service.cf.internal
+        - autoscalerpostgres.service.cf.internal
       extended_key_usage:
         - client_auth
         - server_auth
@@ -33,5 +34,6 @@
       common_name: autoscalerpostgres.service.cf.internal
       alternative_names:
         - ((deployment_name)).autoscalerpostgres.service.cf.internal
+        - autoscalerpostgres.service.cf.internal
       extended_key_usage:
         - client_auth

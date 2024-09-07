@@ -1,8 +1,0 @@
----
-- type: replace
-  path: /instance_groups/name=asapi/jobs/name=loggregator_agent/properties/metrics
-  value:
-    server_name: "metricsserver.service.cf.internal"
-    ca_cert:     (( grab meta.cf.loggregator.agent.ca ))
-    cert:        (( grab meta.cf.loggregator.agent.cert ))
-    key:         (( grab meta.cf.loggregator.agent.key ))

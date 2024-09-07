@@ -3,7 +3,6 @@ meta:
   cf:
     exodus:  (( concat $GENESIS_EXODUS_MOUNT params.cf_deployment_env "/" params.cf_deployment_type ))
     deployment_name: (( concat params.cf_deployment_env "-" params.cf_deployment_type ))
-    credhub_path: (( concat "/" params.cf_deployment_bosh_env "-" params.cf_deployment_bosh_type "/"  params.cf_deployment_env "-" params.cf_deployment_type "/" ))
 
 params:
   network:                 (( grab params.cf_core_network ))
@@ -14,18 +13,13 @@ params:
   cf_core_network:         (( vault meta.cf.exodus ":core_network" ))
   cf_system_domain:        (( vault meta.cf.exodus ":system_domain" ))
 
+# FIXME: Support params.availability_zones
+
 bosh-variables:
   deployment_name:  (( grab name ))
   system_domain:    (( grab params.cf_system_domain ))
   cf_client_id:     (( vault meta.cf.exodus ":app_autoscaler_client" ))
   cf_client_secret: (( vault meta.cf.exodus ":app_autoscaler_secret" ))
-
-  loggregator_ca:
-    certificate:    (( vault meta.cf.exodus ":loggregator_ca" ))
-  loggregator_tls_agent:
-    ca:             (( grab bosh-variables.loggregator_ca.certificate ))
-    certificate:    (( vault meta.cf.exodus ":loggregator_tls_agent_cert" ))
-    private_key:    (( vault meta.cf.exodus ":loggregator_tls_agent_key" ))
 
   skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
 
@@ -45,3 +39,8 @@ stemcells:
 - alias: default
   os: (( grab params.stemcell_os || "ubuntu-jammy" ))
   version: (( grab params.stemcell_version || "latest" ))
+
+instance_groups:
+- name: postgres
+  migrated_from:
+  - name: postgres_autoscaler

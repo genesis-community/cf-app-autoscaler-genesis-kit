@@ -35,10 +35,9 @@ cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
 [[ -n "$cf_kit_version" ]] || bail "#R{[ERROR]} Could not determine kit version with associated CF deployment"
 if new_enough "$cf_kit_version" 2.3.0 ; then
   manifests+=(
-    "overlay/enable-nats-tls.yml"
+    "overlay/enable-nats-tls.yml" # This explicitly disables non-TLS nats
     "overlay/enable-log-cache.yml"
     "overlay/instance-identity-cert-from-cf.yml"
-    "overlay/loggregator-certs-from-cf.yml"
     "overlay/releases/cf-kit-2.3.0-compatibility.yml"
   )
 fi
