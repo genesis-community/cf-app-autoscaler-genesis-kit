@@ -15,11 +15,6 @@ meta:
   cf:
     exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
     deployment_name: (( concat genesis.env "-cf" ))
-    loggregator:
-      agent:
-        ca:   (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_ca" ))
-        cert: (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_certificate" ))
-        key:  (( vault meta.cf.exodus ":loggregator_agent_metrics_tls_private_key" ))
 
   as:
     azs:
