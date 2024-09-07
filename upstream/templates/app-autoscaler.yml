@@ -682,7 +682,7 @@ variables:
   options:
     is_ca: true
     common_name: autoscalerCA
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: apiserver_server_cert
   type: certificate
@@ -695,7 +695,7 @@ variables:
     extended_key_usage:
     - client_auth
     - server_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: servicebroker_server_cert
   type: certificate
@@ -708,7 +708,7 @@ variables:
     extended_key_usage:
     - client_auth
     - server_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: scheduler_server_cert
   type: certificate
@@ -721,7 +721,7 @@ variables:
     extended_key_usage:
     - client_auth
     - server_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: scheduler_client_cert
   type: certificate
@@ -731,7 +731,7 @@ variables:
     common_name: scheduler_client
     extended_key_usage:
     - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: eventgenerator_server_cert
   type: certificate
@@ -744,7 +744,7 @@ variables:
     extended_key_usage:
     - client_auth
     - server_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: eventgenerator_client_cert
   type: certificate
@@ -754,7 +754,7 @@ variables:
     common_name: eventgenerator_client
     extended_key_usage:
     - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: scalingengine_server_cert
   type: certificate
@@ -767,7 +767,7 @@ variables:
     extended_key_usage:
     - client_auth
     - server_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: scalingengine_client_cert
   type: certificate
@@ -777,7 +777,7 @@ variables:
     common_name: scalingengine_client
     extended_key_usage:
     - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 
   # metricsforwarder loggregator certificates
@@ -792,7 +792,7 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 
   # loggr-syslog-agent certificates
@@ -808,7 +808,7 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: loggr_syslog_agent_metrics
   type: certificate
@@ -821,7 +821,7 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: loggr_syslog_agent_cache_tls
   type: certificate
@@ -834,7 +834,7 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 
   # loggr-syslog-agent-binding-cache certificates
@@ -849,7 +849,7 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: loggr_syslog_binding_cache_metrics
   type: certificate
@@ -862,7 +862,7 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
 - name: loggr_syslog_binding_cache_api_tls
   type: certificate
@@ -875,5 +875,5 @@ variables:
     extended_key_usage:
       - server_auth
       - client_auth
-    # key_length: 4096
+    key_length: 4096
     duration: 180
