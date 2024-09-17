@@ -8,12 +8,17 @@ image_resource:
     tag:        ((image/concourse_go.tag))
 
 inputs:
-  - name: git-ci
-  - name: git
-  - name: upstream
+- name: git
+- name: git-ci
+- name: bosh-release
 
 outputs:
-  - name: git
+- name: git
 
 run:
-  path: git-ci/ci/scripts/get-latest-upstream
+  path: git-ci/ci/scripts/update-release
+
+params:
+  RELEASE_NAME:
+  RELEASE_PATH:
+  BRANCH:

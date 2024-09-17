@@ -5,9 +5,9 @@ jobs:
   plan:
   - do:
     - in_parallel:
-      - { get: version,    passed: [deploy], params: {bump: final} } # add passed: upgrade when ready
-      - { get: spec-check, passed: [deploy] } # add passed: upgrade when ready
-      - { get: git,        passed: [deploy], trigger: true } # add passed: upgrade when ready
+      - { get: version,    passed: (( grab meta.blocking_tests )), params: {bump: final} }
+      - { get: spec-check, passed: (( grab meta.blocking_tests )) }
+      - { get: git,        passed: (( grab meta.blocking_tests )), trigger: true }
       - { get: git-ci }
       - { get: git-latest-tag }
       - { get: release-notes }

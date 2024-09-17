@@ -1,6 +1,8 @@
 ---
 kit:
   features: []
+  ci:
+    job: deploy
 
 genesis:
   env:       ci-gcp-baseline

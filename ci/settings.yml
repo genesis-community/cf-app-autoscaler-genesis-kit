@@ -13,12 +13,19 @@ meta:
   upstream:
     manifest:
       package: app-autoscaler
+      path:    upstream
+
     bosh_releases:
-    - name:       app-autoscaler-release
+    - name:       app-autoscaler
       type:       github-release
       repository: cloudfoundry/app-autoscaler-release
       path:       overlay/releases/app-autoscaler.yml
       access_token: ((github.access_token))
+
+    sections:
+    - name:  releases
+      label: Releases
+      default: true
 
   bosh:
     uri:      ((bosh.uri))
