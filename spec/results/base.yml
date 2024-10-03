@@ -938,9 +938,9 @@ public_domains:
   servicebroker: base-cf-app-autoscalerservicebroker.sys.test.cf.domain
 releases:
 - name: app-autoscaler
-  sha1: 6ce8dbf72e5c938318446ad6ac1d2f1c1b716acf
-  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v14.1.5/app-autoscaler-acceptance-tests-v14.1.5.tgz
-  version: 14.1.5
+  sha1: 88756912775eab90247e5aff9404371974c97639
+  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v14.2.0/app-autoscaler-acceptance-tests-v14.2.0.tgz
+  version: 14.2.0
 - name: postgres
   sha1: sha256:75ceb40c970c54a922768d499bee9102d7a2ae2f88e269cefecba2f1c195e70b
   url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=48
