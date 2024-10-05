@@ -18,7 +18,6 @@ meta:
   target:   (( param "Please identify the name of the target Concourse CI" ))
   url:      (( param "Please specify the full url of the target Concourse CI" ))
   pipeline: (( grab meta.name ))
-  blocking_tests: []
 
   upstream:
     manifest:
