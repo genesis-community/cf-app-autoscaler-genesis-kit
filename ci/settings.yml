@@ -11,7 +11,11 @@ meta:
   upstream:
     manifest:
       package: app-autoscaler
+      repo:    cloudfoundry/app-autoscaler-release
       path:    upstream
+      filter:
+      - templates/*
+      - operations/*
 
     bosh_releases:
     - name:       app-autoscaler

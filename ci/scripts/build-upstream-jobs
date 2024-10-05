@@ -39,6 +39,9 @@ jobs:
         GIT_NAME:         (( grab meta.git.name ))
         UPSTREAM_PATH:    (( grab meta.upstream.manifest.path ))
         UPSTREAM_REPO:    (( grab meta.upstream.manifest.repo ))
+        INCLUDE_FILTER:   (( join "|" meta.upstream.manifest.filter ))
+        EXCLUDE_FILTER:   (( join "|" meta.upstream.manifest.exclude ))
+
     - put: git
       params:
         merge: true

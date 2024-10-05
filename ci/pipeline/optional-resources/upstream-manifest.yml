@@ -1,8 +1,16 @@
+meta:
+  upstream:
+    manifest:
+      filter: ~
+      exclude: ~
+
 resources:
-  - name: upstream-manifest
-    type: git
-    check_every: 168h
-    source:
-      uri:    (( grab meta.upstream.manifest.url ))
-      branch: (( grab meta.upstream.manifest.branch || "main" ))
-      ignore_paths: [ci/*]
+- name: upstream-manifest
+  type: git
+  check_every: 168h
+  source:
+    uri:    (( grab meta.upstream.manifest.url ))
+    branch: (( grab meta.upstream.manifest.branch || "main" ))
+    private_key: (( grab meta.github.private_key ))
+    paths:       (( grab meta.upstream.manifest.filter ))
+    ignore_paths: (( grab meta.upstream.manifest.exclude ))
