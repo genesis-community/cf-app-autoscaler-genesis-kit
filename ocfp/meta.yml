@@ -32,7 +32,7 @@ bosh-variables:
     port:     (( vault meta.vault "/db/autoscaler:port"     ))
     scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
     name:     (( vault meta.vault "/db/autoscaler:database" ))
-    username: (( vault meta.vault "/db/autoscaler:username" ))
+    username: (( vault meta.vault "/db/autoscaler:user" ))
     password: (( vault meta.vault "/db/autoscaler:password" ))
     # TODO detect if we are using internal-db
     sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))

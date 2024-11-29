@@ -36,30 +36,30 @@ instance_groups:
   - name: apiserver
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( meta.vm.as-apiserver.vm_type ))
+    vm_type: (( grab meta.vm.apiserver.vm_type ))
     stemcell: default
   - name: scalingengine
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( meta.vm.as-scalingengine.vm_type ))
+    vm_type: (( grab meta.vm.scalingengine.vm_type ))
     stemcell: default
   - name: scheduler
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( meta.vm.as-scheduler.vm_type ))
+    vm_type: (( grab meta.vm.scheduler.vm_type ))
     stemcell: default
   - name: operator
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( meta.vm.as-operator.vm_type ))
+    vm_type: (( grab meta.vm.operator.vm_type ))
     stemcell: default
   - name: eventgenerator
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( meta.vm.as-eventgenerator.vm_type ))
+    vm_type: (( grab meta.vm.eventgenerator.vm_type ))
     stemcell: default
   - name: metricsforwarder
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( meta.vm.as-metricsforwarder.vm_type ))
+    vm_type: (( grab meta.vm.metricsforwarder.vm_type ))
     stemcell: default
