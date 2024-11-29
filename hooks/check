@@ -21,11 +21,12 @@ if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
   if want_feature ocfp ; then
     _env_scale="$(lookup --partial meta.ocfp.env.scale)"
     # FIXME: what about the postgres/mysql instance groups
-    jobs=( as-apiserver as-scalingengine as-scheduler as-operator as-eventgenerator as-metricsforwarder )
+    jobs=( apiserver scalingengine scheduler operator eventgenerator metricsforwarder )
     for job in "${jobs[@]}" ; do
-      _vm_type="${job}-${_env_scale}"
-      _disk_type="${job}-${_env_scale}"
-      _network="${GENESIS_ENVIRONMENT}-ocf"
+    # Dynamically construct resource names
+    _vm_type="${cf_env}.cf-app-autoscaler.vm-${job}"
+    _disk_type="${cf_env}.cf-app-autoscaler.disk-${job}"
+    _network="${cf_env}.cf-app-autoscaler.net-autoscaler"
 
       cloud_config_needs vm_type   "$(lookup params.vm_type   ${_vm_type})"
       cloud_config_needs network   "$(lookup params.network   ${_network})"

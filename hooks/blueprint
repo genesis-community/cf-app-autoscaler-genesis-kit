@@ -28,9 +28,22 @@ fi
 
 # Get CF deployment exodus data
 cf_env="$(jq -r '.params.cf_deployment_env//.genesis.env' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
+if [[ -z "$cf_env" ]]; then
+  bail "#R{[ERROR]} 'cf_env' is empty. Ensure 'params.cf_deployment_env' is set."
+fi
+
 cf_type="$(jq -r '.params.cf_deployment_type//"cf"' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
-cf_exodus="$(lookup --exodus-for "${cf_env}/${cf_type}" .)"
-echo "cf_env: ${cf_env}  cf_type: ${cf_type}  cf_exodus: ${cf_exodus}"
+if [[ -z "$cf_type" ]]; then
+  bail "#R{[ERROR]} 'cf_type' is empty. Ensure 'params.cf_deployment_type' is set."
+fi
+
+cf_exodus="$(lookup --exodus-for "${cf_env}/${cf_type}" . 2>&1)"
+if [[ $? -ne 0 ]]; then
+  bail "#R{[ERROR]} Failed to retrieve exodus data for ${cf_env}/${cf_type}. Output: $cf_exodus"
+elif [[ -z "$cf_exodus" ]]; then
+  bail "#R{[ERROR]} Exodus data is empty for ${cf_env}/${cf_type}. Check if the cf deployment is complete and exodus data is available."
+fi
+
 cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
 [[ -n "$cf_kit_version" ]] || bail "#R{[ERROR]} Could not determine kit version with associated CF deployment"
 if new_enough "$cf_kit_version" 2.3.0 ; then
