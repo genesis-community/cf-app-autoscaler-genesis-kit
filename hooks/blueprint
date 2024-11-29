@@ -30,7 +30,7 @@ fi
 cf_env="$(jq -r '.params.cf_deployment_env//.genesis.env' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
 cf_type="$(jq -r '.params.cf_deployment_type//"cf"' <<<"$GENESIS_ENVIRONMENT_PARAMS")"
 cf_exodus="$(lookup --exodus-for "${cf_env}/${cf_type}" .)"
-
+echo "cf_env: ${cf_env}  cf_type: ${cf_type}  cf_exodus: ${cf_exodus}"
 cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
 [[ -n "$cf_kit_version" ]] || bail "#R{[ERROR]} Could not determine kit version with associated CF deployment"
 if new_enough "$cf_kit_version" 2.3.0 ; then

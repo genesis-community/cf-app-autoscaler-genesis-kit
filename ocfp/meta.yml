@@ -5,16 +5,17 @@ meta:
       scale: (( grab params.ocfp_env_scale || "dev" ))
 
     vault:
-      tf: (( concat genesis.secrets_mount "tf/" genesis.vault_env ))
+      config_prefix: (( grab params.ocfp_vault_config_prefix || "config/" ))
+      config:        (( concat genesis.ocfp_config_mount genesis.ocfp_env ))
 
     certs:
       trusted:
         - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
         - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
 
-  cf:
-    exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
-    deployment_name: (( concat genesis.env "-cf" ))
+#  cf:
+#    exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
+#    deployment_name: (( concat genesis.env "-cf" ))
 
   as:
     azs:
@@ -33,7 +34,9 @@ bosh-variables:
     name:     (( vault meta.vault "/db/autoscaler:database" ))
     username: (( vault meta.vault "/db/autoscaler:username" ))
     password: (( vault meta.vault "/db/autoscaler:password" ))
-    sslmode:  "verify-ca"
+    # TODO detect if we are using internal-db
+    sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
+    # sslmode:  "verify-ca"
     tls:
       ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
 
