@@ -14,9 +14,9 @@ meta:
       vm_type:   (( concat genesis.env "." genesis.type ".vm-eventgenerator" ))
     metricsforwarder:
       vm_type:   (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
-    database:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-database" ))
-      disk_type: (( concat genesis.env "." genesis.type ".disk-database" ))
+    postgres:
+      vm_type:   (( concat genesis.env "." genesis.type ".vm-postgres" ))
+      disk_type: (( concat genesis.env "." genesis.type ".disk-postgres" ))
 
   ocfp:
     networks:

@@ -113,7 +113,7 @@ sub perform {
 					},
 				},
 			}),
-			$self->vm_type_definition('database', cloud_properties_for_iaas => {
+			$self->vm_type_definition('postgres', cloud_properties_for_iaas => {
 				openstack => {
 					'instance_type' => $self->for_scale({
 							dev => 'g1.2',
@@ -127,7 +127,7 @@ sub perform {
 			}),
 		],
 		'disk_types' => [
-			$self->disk_type_definition('database',
+			$self->disk_type_definition('postgres',
 				common => {
 					disk_size => $self->for_scale({
 						dev => gigabytes(25),
