@@ -62,9 +62,9 @@ do
     (ocfp)
       manifests+=(
         "overlay/fix-upstream-db-opsfiles.yml"
-        "upstream/operations/external-db.yml"
-        "overlay/external_db/common.yml"
-        "overlay/no-postgres.yml"
+#        "upstream/operations/external-db.yml"
+#        "overlay/external_db/common.yml"
+#        "overlay/no-postgres.yml"
         "ocfp/meta.yml"
         "ocfp/ocfp.yml"
         "ocfp/broker.yml"
