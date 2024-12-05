@@ -14,9 +14,9 @@ meta:
       vm_type:   (( concat genesis.env "." genesis.type ".vm-eventgenerator" ))
     metricsforwarder:
       vm_type:   (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
-    database:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-database" ))
-      disk_type: (( concat genesis.env "." genesis.type ".disk-database" ))
+    postgres:
+      vm_type:   (( concat genesis.env "." genesis.type ".vm-postgres" ))
+      disk_type: (( concat genesis.env "." genesis.type ".disk-postgres" ))
 
   ocfp:
     networks:
@@ -63,3 +63,11 @@ instance_groups:
     networks: (( grab meta.ocfp.networks ))
     vm_type: (( grab meta.vm.metricsforwarder.vm_type ))
     stemcell: default
+  - name: postgres
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.vm.postgres.vm_type ))
+    stemcell: default
+
+params:
+  db_disk_type: ((grab meta.vm.postgres.disk_type ))

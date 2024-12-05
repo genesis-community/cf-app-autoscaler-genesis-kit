@@ -6,9 +6,10 @@ bosh-variables:
     name:     autoscaler
     username: autoscaler
     password: ((autoscaler_database_password))
-    sslmode:  (( param "Specify SSL validation mode to use, expect one of disable, allow, prefer, require, verify-ca, verify-full (postgres), verify_identity (mysql)" ))
-    tls:
-      ca:     ((autoscaler_database_tls_ca))
+    sslmode: disable
+#    sslmode:  (( param "Specify SSL validation mode to use, expect one of disable, allow, prefer, require, verify-ca, verify-full (postgres), verify_identity (mysql)" ))
+#    tls:
+#      ca:     ((autoscaler_database_tls_ca))
 
 variables:
   - (( delete "database_password" ))
