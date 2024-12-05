@@ -63,3 +63,8 @@ instance_groups:
     networks: (( grab meta.ocfp.networks ))
     vm_type: (( grab meta.vm.metricsforwarder.vm_type ))
     stemcell: default
+  - name: postgres
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.vm.postgres.vm_type ))
+    stemcell: default
