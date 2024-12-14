@@ -1,70 +1,89 @@
 ---
 
 meta:
-  vm:
-    apiserver:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-apiserver" ))
-    scalingengine:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-scalingengine" ))
-    scheduler:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-scheduler" ))
-    operator:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-operator" ))
-    eventgenerator:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-eventgenerator" ))
-    metricsforwarder:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
-    postgres:
-      vm_type:   (( concat genesis.env "." genesis.type ".vm-postgres" ))
-      disk_type: (( concat genesis.env "." genesis.type ".disk-postgres" ))
-
   ocfp:
-    networks:
-      - (( replace ))
-      - name: (( concat genesis.env "." genesis.type ".net-autoscaler" ))
+    vault:
+      config_prefix: (( grab params.ocfp_vault_config_prefix || "config/" ))
+      config:        (( concat genesis.ocfp_config_mount genesis.ocfp_env ))
+
+    certs:
+      trusted:
+        - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
+        - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
+
     azs:
-      - (( concat genesis.env "-z1" ))
-      - (( concat genesis.env "-z2" ))
-      - (( concat genesis.env "-z3" ))
+      - (( concat params.cf_deployment_env "-z1" ))
+      - (( concat params.cf_deployment_env "-z2" ))
+      - (( concat params.cf_deployment_env "-z3" ))
+
+    networks:
+      - name: (( grab params.network ))
+
+    disk_types:
+      postgres:         (( concat genesis.env "." genesis.type ".disk-postgres"       ))
+
+    vm_types:
+      apiserver:        (( concat genesis.env "." genesis.type ".vm-apiserver"        ))
+      scalingengine:    (( concat genesis.env "." genesis.type ".vm-scalingengine"    ))
+      scheduler:        (( concat genesis.env "." genesis.type ".vm-scheduler"        ))
+      operator:         (( concat genesis.env "." genesis.type ".vm-operator"         ))
+      eventgenerator:   (( concat genesis.env "." genesis.type ".vm-eventgenerator"   ))
+      metricsforwarder: (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
+      postgres:         (( concat genesis.env "." genesis.type ".vm-postgres"         ))
 
 exodus:
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
+bosh-variables:
+  database:
+    host:     (( vault meta.vault "/db/autoscaler:hostname" ))
+    port:     (( vault meta.vault "/db/autoscaler:port"     ))
+    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
+    name:     (( vault meta.vault "/db/autoscaler:database" ))
+    username: (( vault meta.vault "/db/autoscaler:user" ))
+    password: (( vault meta.vault "/db/autoscaler:password" ))
+    # TODO detect if we are using internal-db
+    sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
+    # sslmode:  "verify-ca"
+    tls:
+      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
+
 instance_groups:
   - name: apiserver
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.apiserver.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.apiserver ))
     stemcell: default
   - name: scalingengine
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.scalingengine.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.scalingengine ))
     stemcell: default
   - name: scheduler
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.scheduler.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.scheduler ))
     stemcell: default
   - name: operator
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.operator.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.operator ))
     stemcell: default
   - name: eventgenerator
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.eventgenerator.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.eventgenerator ))
     stemcell: default
   - name: metricsforwarder
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.metricsforwarder.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.metricsforwarder ))
     stemcell: default
   - name: postgres
     azs: (( grab meta.ocfp.azs ))
     networks: (( grab meta.ocfp.networks ))
-    vm_type: (( grab meta.vm.postgres.vm_type ))
+    vm_type: (( grab meta.ocfp.vm_types.postgres ))
+    persistent_disk_type: (( grab meta.ocfp.disk_types.postgres ))
     stemcell: default

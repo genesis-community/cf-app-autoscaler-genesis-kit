@@ -25,21 +25,21 @@ sub perform {
 	return 1 if $self->completed;
 
 	my $config = $self->build_cloud_config({
-		'networks' => [
-			$self->network_definition('autoscaler', strategy => 'ocfp',
-				dynamic_subnets => {
-					allocation => {
-						size => 8,
-					},
-					cloud_properties_for_iaas => {
-						openstack => {
-							'net_id' => $self->network_reference('id'), # TODO: $self->subnet_reference('net_id'),
-							'security_groups' => ['default'] #$self->subnet_reference('sgs', 'get_security_groups'),
-						},
-					},
-				},
-			)
-		],
+#		'networks' => [
+#			$self->network_definition('autoscaler', strategy => 'ocfp',
+#				dynamic_subnets => {
+#					allocation => {
+#						size => 8,
+#					},
+#					cloud_properties_for_iaas => {
+#						openstack => {
+#							'net_id' => $self->network_reference('id'), # TODO: $self->subnet_reference('net_id'),
+#							'security_groups' => ['default'] #$self->subnet_reference('sgs', 'get_security_groups'),
+#						},
+#					},
+#				},
+#			)
+#		],
 		'vm_types' => [
 			$self->vm_type_definition('apiserver', cloud_properties_for_iaas => {
 				openstack => {

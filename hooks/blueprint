@@ -16,14 +16,14 @@ manifests=(
   "overlay/update_domains.yml"
   "overlay/add-postgress-variables.yml"
   "overlay/ten-year-ca-expiry.yml"
-#  "overlay/db-persistent-disk.yml"
+  #  "overlay/db-persistent-disk.yml"
   "overlay/upstream_version.yml"
   "overlay/change_deployment_and_network.yml"
   "overlay/releases/app-autoscaler.yml"
 )
 
 if (lookup --defined "params.subdomain_prefix" 2>/dev/null); then
-  manifests+=( "overlay/change_subdomain.yml" )
+  manifests+=("overlay/change_subdomain.yml")
 fi
 
 # Get CF deployment exodus data
@@ -46,7 +46,7 @@ fi
 
 cf_kit_version="$(jq -r .kit_version <(echo "$cf_exodus"))"
 [[ -n "$cf_kit_version" ]] || bail "#R{[ERROR]} Could not determine kit version with associated CF deployment"
-if new_enough "$cf_kit_version" 2.3.0 ; then
+if new_enough "$cf_kit_version" 2.3.0; then
   manifests+=(
     "overlay/enable-nats-tls.yml" # This explicitly disables non-TLS nats
     "overlay/enable-log-cache.yml"
@@ -56,73 +56,72 @@ if new_enough "$cf_kit_version" 2.3.0 ; then
 fi
 
 # Do features => opsfiles stuff here
-for want in $GENESIS_REQUESTED_FEATURES
-do
+for want in $GENESIS_REQUESTED_FEATURES; do
   case "$want" in
-    (ocfp)
+  ocfp)
+    manifests+=(
+      #        "overlay/fix-upstream-db-opsfiles.yml"
+      #        "upstream/operations/external-db.yml"
+      #        "overlay/external_db/common.yml"
+      #        "overlay/no-postgres.yml"
+      "ocfp/ocfp.yml"
+      "ocfp/broker.yml"
+    )
+    # FIXME:  Need to support external_db unless 'internal-db' is specified
+    ;;
+  override-subdomain)
+    : # Already handled above
+    ;;
+  external-db)
+    manifests+=(
+      "overlay/fix-upstream-db-opsfiles.yml"
+      "upstream/operations/external-db.yml"
+      "overlay/external_db/common.yml"
+      "overlay/no-postgres.yml"
+    )
+    if want_feature mysql; then
       manifests+=(
-#        "overlay/fix-upstream-db-opsfiles.yml"
-#        "upstream/operations/external-db.yml"
-#        "overlay/external_db/common.yml"
-#        "overlay/no-postgres.yml"
-        "ocfp/meta.yml"
-        "ocfp/ocfp.yml"
-        "ocfp/broker.yml"
+        "overlay/external_db/mysql.yml"
       )
-      ;;
-    (override-subdomain)
-      : # Already handled above
-      ;;
-    (external-db)
+    else
+      manifests+=("overlay/external_db/postgres.yml")
+    fi
+    ;;
+  postgres)
+    : # Default
+    ;;
+  mysql)
+    if ! want_feature external-db; then
       manifests+=(
         "overlay/fix-upstream-db-opsfiles.yml"
-        "upstream/operations/external-db.yml"
-        "overlay/external_db/common.yml"
+        "upstream/operations/cf-mysql-db.yml"
         "overlay/no-postgres.yml"
       )
-      if want_feature mysql ; then
-        manifests+=(
-          "overlay/external_db/mysql.yml"
-        )
+    fi
+    ;;
+  cf-v1-support)
+    if new_enough "$cf_kit_version" "2.3.0"; then
+      bail "Feature #C{cf-v1-support} is no longer supported by cf kit v2.3.0 or later"
+    fi
+    manifests+=("overlay/cf-v1-support.yml")
+    ;;
+  *)
+    if [[ $want =~ operations/.* ]]; then
+      if [[ -f "upstream/$want.yml" ]]; then
+        manifests+=("upstream/$want.yml")
       else
-        manifests+=( "overlay/external_db/postgres.yml" )
+        __bail "$GENSIS_KIT_ID does not support the $want feature"
       fi
-      ;;
-    (postgres)
-      : # Default
-      ;;
-    (mysql)
-      if ! want_feature external-db ; then
-        manifests+=(
-          "overlay/fix-upstream-db-opsfiles.yml"
-          "upstream/operations/cf-mysql-db.yml"
-          "overlay/no-postgres.yml"
-        )
-      fi
-      ;;
-    (cf-v1-support)
-      if new_enough "$cf_kit_version" "2.3.0" ; then
-        bail "Feature #C{cf-v1-support} is no longer supported by cf kit v2.3.0 or later"
-      fi
-      manifests+=( "overlay/cf-v1-support.yml" )
-      ;;
-    (*)
-      if [[ $want =~ operations/.* ]] ; then
-        if [[ -f "upstream/$want.yml" ]] ; then
-          manifests+=( "upstream/$want.yml" )
-        else
-          __bail "$GENSIS_KIT_ID does not support the $want feature"
-        fi
-      elif [[ -f "${GENESIS_ROOT}/ops/$want.yml" ]] ; then
-        mkdir -p "$(dirname "local_ops/$want.yml")"
-        cp "$GENESIS_ROOT/ops/$want.yml" "local_ops/$want.yml"
-        manifests+=( "local_ops/$want.yml" )
-      else
-        __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
-      fi
-      ;;
+    elif [[ -f "${GENESIS_ROOT}/ops/$want.yml" ]]; then
+      mkdir -p "$(dirname "local_ops/$want.yml")"
+      cp "$GENESIS_ROOT/ops/$want.yml" "local_ops/$want.yml"
+      manifests+=("local_ops/$want.yml")
+    else
+      __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
+    fi
+    ;;
   esac
 done
 
-echo "${manifests[@]}" > "/tmp/$GENESIS_ENVIRONMENT.yamls"
+echo "${manifests[@]}" >"/tmp/$GENESIS_ENVIRONMENT.yamls"
 echo "${manifests[@]}"
