@@ -1,7 +1,7 @@
 ---
 name: ((deployment_name))
 
-releases:
+releases: # FIXME: Use cf releases where applicable
 - name: app-autoscaler
   version: latest
 - name: postgres
@@ -15,18 +15,17 @@ releases:
 - name: bpm
   version: latest
 
-domains:
-  postgres: &postgres_domain ((deployment_name)).autoscalerpostgres.service.cf.internal
-  api: &api_domain ((deployment_name)).apiserver.service.cf.internal
-  scheduler: &scheduler_domain ((deployment_name)).autoscalerscheduler.service.cf.internal
-  servicebroker: &servicebroker_domain ((deployment_name)).servicebroker.service.cf.internal
-  eventgenerator: &eventgenerator_domain ((deployment_name)).eventgenerator.service.cf.internal
-  scalingengine: &scalingengine_domain ((deployment_name)).scalingengine.service.cf.internal
+bosh-variables:
+  postgres_domain: ((deployment_name)).autoscalerpostgres.service.cf.internal
+  api_domain: ((deployment_name)).apiserver.service.cf.internal
+  scheduler_domain: ((deployment_name)).autoscalerscheduler.service.cf.internal
+  servicebroker_domain: ((deployment_name)).servicebroker.service.cf.internal
+  eventgenerator_domain: ((deployment_name)).eventgenerator.service.cf.internal
+  scalingengine_domain: ((deployment_name)).scalingengine.service.cf.internal
 
-public_domains:
-  metricsforwarder: &metricsforwarder_public_domain ((deployment_name))metrics.((system_domain))
-  metricsforwarder_mtls: &metricsforwarder_mtls_public_domain ((deployment_name))-metricsforwarder-mtls.((system_domain))
-  servicebroker: &servicebroker_public_domain ((deployment_name))servicebroker.((system_domain))
+  metricsforwarder_public_domain: ((deployment_name))metrics.((system_domain))
+  metricsforwarder_mtls_public_domain: ((deployment_name))-metricsforwarder-mtls.((system_domain))
+  servicebroker_public_domain: ((deployment_name))servicebroker.((system_domain))
 
 features:
   use_dns_addresses: true
@@ -38,7 +37,7 @@ addons:
     release: bosh-dns-aliases
     properties:
       aliases:
-      - domain: *postgres_domain
+      - domain: ((postgres_domain))
         targets:
           - query: '*'
             instance_group: postgres
@@ -128,7 +127,7 @@ stemcells:
   version: latest
 
 instance_groups:
-# Postgres Instance Group
+  # Postgres Instance Group -- FIXME: do we need migrate_from? !FIXED in overlay/base.yml
 - name: postgres
   azs:
     - z1
@@ -137,6 +136,7 @@ instance_groups:
     serial: true
   stemcell: default
   vm_type: small
+  # FIXME: set persistent_disk_type in OCFP, use upstream/postgres_peristent_disk.yml otherwise.
   networks:
     - name: default
   jobs:
@@ -167,12 +167,12 @@ instance_groups:
 # Scalingengine Instance Group
 - name: scalingengine
   azs:
-    - z1
+    - z1 # FIXME: allow override azs
   instances: 1
-  vm_type: minimal
+  vm_type: minimal #FIXME: allow override vm_type (especially for OCFP)
   stemcell: default
   networks:
-    - name: default
+    - name: default #FIXME: allow override network
   jobs:
     - name: scalingengine
       release: app-autoscaler
@@ -185,6 +185,7 @@ instance_groups:
           policy_db: *database
           policy_db_connection_config: *databaseConnectionConfig
           cf: &cf_credentials
+          # FIXME: the cf values need to come from cf exodus data
             api: "https://api.((system_domain))"
             grant_type: client_credentials
             client_id: "((cf_client_id))"
@@ -203,7 +204,7 @@ instance_groups:
     - name: route_registrar
       release: routing
       consumes:
-        nats: { from: nats, deployment: cf }
+        nats: { from: nats, deployment: cf } # FIXME: override deployment name
       properties:
         route_registrar:
           routes:
@@ -213,7 +214,7 @@ instance_groups:
               tags:
                 component: autoscaler_scalingengine_health
               uris:
-                - ((deployment_name))-scalingengine.((system_domain))
+                - ((deployment_name))-scalingengine.((system_domain)) # FIXME: May need OCFP override?
 
   # APIServer Instance Group
 - name: apiserver
