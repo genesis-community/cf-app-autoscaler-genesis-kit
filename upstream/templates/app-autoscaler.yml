@@ -1,7 +1,7 @@
 ---
 name: ((deployment_name))
 
-releases: # FIXME: Use cf releases where applicable
+releases:
 - name: app-autoscaler
   version: latest
 - name: postgres
@@ -44,35 +44,35 @@ addons:
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: *api_domain
+      - domain: ((api_domain))
         targets:
           - query: '*'
             instance_group: apiserver
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: *scheduler_domain
+      - domain: ((scheduler_domain))
         targets:
           - query: '*'
             instance_group: scheduler
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: *servicebroker_domain
+      - domain: ((servicebroker_domain))
         targets:
           - query: '*'
             instance_group: apiserver
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: *eventgenerator_domain
+      - domain: ((eventgenerator_domain))
         targets:
           - query: '*'
             instance_group: eventgenerator
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: *scalingengine_domain
+      - domain: ((scalingengine_domain))
         targets:
           - query: '*'
             instance_group: scalingengine
