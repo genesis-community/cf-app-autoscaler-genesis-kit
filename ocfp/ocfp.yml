@@ -35,6 +35,9 @@ exodus: # This should be taken from the manifest, not constructed here (might al
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
+params:
+  network:  (( grab meta.ocfp.networks[0].name ))
+
 # Instance group OCFP overrides
 instance_groups:
   - name: apiserver

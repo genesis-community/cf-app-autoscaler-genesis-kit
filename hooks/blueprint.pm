@@ -22,7 +22,7 @@ sub perform {
   my ($blueprint) = @_; # $blueprint is '$self'
 
 # Get CF deployment exodus data
-	my $cf_env  = $blueprint->env->lookup(['params.cf_deployment_env', '.genesis.env']);
+	my $cf_env  = $blueprint->env->lookup(['params.cf_deployment_env', 'genesis.env']);
 	my $cf_type = $blueprint->env->lookup('params.cf_deployment_type', 'cf');
 	bail(
 		"Could not determine CF deployment environment"
@@ -60,7 +60,7 @@ sub perform {
 	}
 
 	# Validate features
-	my $invalid_features = ();
+	my $invalid_features = [];
 	for my $feature ($blueprint->features) {
 		if ($feature =~ /(ocfp)/) {
 			next; # always valid

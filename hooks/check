@@ -24,14 +24,14 @@ if [[ -n "$GENESIS_CLOUD_CONFIG" ]] ; then
     jobs=( apiserver scalingengine scheduler operator eventgenerator metricsforwarder )
     for job in "${jobs[@]}" ; do
     # Dynamically construct resource names
-    _vm_type="${cf_env}.cf-app-autoscaler.vm-${job}"
-    _disk_type="${cf_env}.cf-app-autoscaler.disk-${job}"
-    _network="${cf_env}.cf-app-autoscaler.net-autoscaler"
-
+      _vm_type="${cf_env}.cf-app-autoscaler.vm-${job}"
       cloud_config_needs vm_type   "$(lookup params.vm_type   ${_vm_type})"
-      cloud_config_needs network   "$(lookup params.network   ${_network})"
-      cloud_config_needs disk_type "$(lookup params.disk_pool ${_disk_type})"
     done
+
+    _disk_type="${cf_env}.cf-app-autoscaler.disk-postgres"
+    _network="${cf_env}.cf-app-autoscaler.net-autoscaler"
+    cloud_config_needs network   "$(lookup params.network   ${_network})"
+    cloud_config_needs disk_type "$(lookup params.disk_pool ${_disk_type})"
   else # Legacy was hard coded
     for t in minimal small; do
       cloud_config_needs vm_type "$t"

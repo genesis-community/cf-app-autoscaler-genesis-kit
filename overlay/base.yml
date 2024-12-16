@@ -15,7 +15,7 @@ params:
   cf_core_network:         (( vault meta.cf.exodus ":core_network" ))
   cf_system_domain:        (( vault meta.cf.exodus ":system_domain" ))
 
-  availability_zones:      (( grab params.availability_zones || meta.default_azs ))
+  availability_zones:      (( grab meta.default_azs ))
 
 bosh-variables:
   deployment_name:  (( grab name ))
@@ -28,9 +28,9 @@ bosh-variables:
   # CF Deployment values for autoscaler - kit v2.9.0-rc2 or later
   admin_username: (( vault meta.cf.exodus ":admin_username" ))
   admin_password: (( vault meta.cf.exodus ":admin_password" ))
-  log_cache_syslog_tls_ca: ((/bosh-autoscaler/cf/log_cache_syslog_tls.ca))
-  syslog_agent_log_cache_tls_certificate: ((/bosh-autoscaler/cf/syslog_agent_log_cache_tls.certificate))
-  syslog_agent_log_cache_tls_key: ((/bosh-autoscaler/cf/syslog_agent_log_cache_tls.private_key))
+  log_cache_syslog_tls_ca: (( vault meta.cf.exodus ":log_cache_syslog_tls_ca" ))
+  syslog_agent_log_cache_tls_certificate: (( vault meta.cf.exodus ":syslog_agent_log_cache_tls_certificate" ))
+  syslog_agent_log_cache_tls_key: (( vault meta.cf.exodus ":syslog_agent_log_cache_tls_key" ))
   metricscollector_ca_cert: (( vault meta.cf.exodus ":log_cache_ca" ))
   metricscollector_client_cert: (( vault meta.cf.exodus ":log_cache_cert" ))
   metricscollector_client_key: (( vault meta.cf.exodus ":log_cache_key" ))

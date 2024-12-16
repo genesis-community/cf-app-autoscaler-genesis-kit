@@ -25,21 +25,21 @@ sub perform {
 	return 1 if $self->completed;
 
 	my $config = $self->build_cloud_config({
-#		'networks' => [
-#			$self->network_definition('autoscaler', strategy => 'ocfp',
-#				dynamic_subnets => {
-#					allocation => {
-#						size => 8,
-#					},
-#					cloud_properties_for_iaas => {
-#						openstack => {
-#							'net_id' => $self->network_reference('id'), # TODO: $self->subnet_reference('net_id'),
-#							'security_groups' => ['default'] #$self->subnet_reference('sgs', 'get_security_groups'),
-#						},
-#					},
-#				},
-#			)
-#		],
+		'networks' => [
+			$self->network_definition('autoscaler', strategy => 'ocfp',
+				dynamic_subnets => {
+					allocation => {
+						size => 7,
+					},
+					cloud_properties_for_iaas => {
+						openstack => {
+							'net_id' => $self->network_reference('id'), # TODO: $self->subnet_reference('net_id'),
+							'security_groups' => ['default'] #$self->subnet_reference('sgs', 'get_security_groups'),
+						},
+					},
+				},
+			)
+		],
 		'vm_types' => [
 			$self->vm_type_definition('apiserver', cloud_properties_for_iaas => {
 				openstack => {
@@ -128,84 +128,6 @@ sub perform {
 		],
 		'disk_types' => [
 			$self->disk_type_definition('postgres',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
-			$self->disk_type_definition('metricsforwarder',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
-			$self->disk_type_definition('eventgenerator',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
-			$self->disk_type_definition('operator',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
-			$self->disk_type_definition('scheduler',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
-			$self->disk_type_definition('scalingengine',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
-			$self->disk_type_definition('apiserver',
 				common => {
 					disk_size => $self->for_scale({
 						dev => gigabytes(25),
