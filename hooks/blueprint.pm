@@ -8,7 +8,7 @@ use warnings;
 BEGIN {push @INC, $ENV{GENESIS_LIB} ? $ENV{GENESIS_LIB} : $ENV{HOME}.'/.genesis/lib'}
 use parent qw(Genesis::Hook::Blueprint);
 
-use Genesis qw/bail info warning error in_array new_enough/;
+use Genesis qw/bail info warning error in_array new_enough save_to_yaml_file/;
 
 sub init {
   my $class = shift;
@@ -27,7 +27,8 @@ sub perform {
 	bail(
 		"Could not determine CF deployment environment"
 	) unless $cf_env && $cf_type;
-	my $cf_exodus = $blueprint->env->exodus_lookup('.', "$cf_env/$cf_type");
+
+	my $cf_exodus = $blueprint->env->exodus_lookup('.', undef, "$cf_env/$cf_type");
 	bail(
 		"Failed to retrieve exodus data for $cf_env/$cf_type."
 	) unless $cf_exodus and ref($cf_exodus) eq 'HASH' and keys %$cf_exodus;
@@ -53,10 +54,11 @@ sub perform {
 	);
 
 	if (exists($cf_exodus->{releases})) {
-		save_to_yaml_file($cf_exodus->{releases}, "overlay/cf-releases.dynamic.yml");
+		save_to_yaml_file({releases => $cf_exodus->{releases}}, "$ENV{GENESIS_KIT_PATH}/overlay/cf-releases.dynamic.yml");
 		$blueprint->add_files(
 			"overlay/cf-releases.dynamic.yml",
 		);
+
 	}
 
 	# Validate features
