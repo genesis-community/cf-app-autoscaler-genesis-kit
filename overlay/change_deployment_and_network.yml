@@ -9,9 +9,9 @@ addons:
       - domain: reverse-log-proxy.service.cf.internal
         targets:
         - (( merge on query ))
-        - query: "*"
+        - query: _
           deployment: (( grab meta.cf.deployment_name ))
-          network: (( grab params.cf_core_network ))
+          network: (( grab meta.cf.core_network ))
           instance_group: log-api
       - domain: autoscalerpostgres.service.cf.internal
         targets:

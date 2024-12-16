@@ -1,5 +1,7 @@
 ---
 meta:
+  default_azs:
+  - z1
   cf:
     exodus:  (( concat $GENESIS_EXODUS_MOUNT params.cf_deployment_env "/" params.cf_deployment_type ))
     deployment_name: (( concat params.cf_deployment_env "-" params.cf_deployment_type ))
@@ -13,7 +15,7 @@ params:
   cf_core_network:         (( vault meta.cf.exodus ":core_network" ))
   cf_system_domain:        (( vault meta.cf.exodus ":system_domain" ))
 
-# FIXME: Support params.availability_zones
+  availability_zones:      (( grab params.availability_zones || meta.default_azs ))
 
 bosh-variables:
   deployment_name:  (( grab name ))
@@ -23,7 +25,17 @@ bosh-variables:
 
   skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
 
-exodus:
+  # CF Deployment values for autoscaler - kit v2.9.0-rc2 or later
+  admin_username: (( vault meta.cf.exodus ":admin_username" ))
+  admin_password: (( vault meta.cf.exodus ":admin_password" ))
+  log_cache_syslog_tls_ca: ((/bosh-autoscaler/cf/log_cache_syslog_tls.ca))
+  syslog_agent_log_cache_tls_certificate: ((/bosh-autoscaler/cf/syslog_agent_log_cache_tls.certificate))
+  syslog_agent_log_cache_tls_key: ((/bosh-autoscaler/cf/syslog_agent_log_cache_tls.private_key))
+  metricscollector_ca_cert: (( vault meta.cf.exodus ":log_cache_ca" ))
+  metricscollector_client_cert: (( vault meta.cf.exodus ":log_cache_cert" ))
+  metricscollector_client_key: (( vault meta.cf.exodus ":log_cache_key" ))
+
+exodus: # FIXME: Get these values from the manifest, not contructing them here
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
@@ -42,5 +54,39 @@ stemcells:
 
 instance_groups:
 - name: postgres
+  persistent_disk_type: (( grab params.db_disk_type || "10GB" ))
   migrated_from:
   - name: postgres_autoscaler
+
+variables:
+- name: app_autoscaler_ca_cert
+  options:
+    duration: 3650 # Ten year validity period
+
+- name: postgres_ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: postgresCA
+    duration: 3650 # Ten year validity period
+
+- name: postgres_server
+  type: certificate
+  options:
+    ca: postgres_ca
+    common_name: autoscalerpostgres.service.cf.internal
+    alternative_names:
+    - ((postgres_domain))
+    extended_key_usage:
+    - client_auth
+    - server_auth
+
+- name: postgres_client
+  type: certificate
+  options:
+    ca: postgres_ca
+    common_name: autoscalerpostgres.service.cf.internal
+    alternative_names:
+    - ((postgres_domain))
+    extended_key_usage:
+    - client_auth

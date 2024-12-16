@@ -1,3 +1,0 @@
-instance_groups:
-- name: postgres_autoscaler
-  purpose: "Upstream tries to delete this instance group, but it's not in the manifest"

@@ -1,5 +1,4 @@
 ---
-
 meta:
   ocfp:
     vault:
@@ -12,12 +11,12 @@ meta:
         - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
 
     azs:
-      - (( concat params.cf_deployment_env "-z1" ))
+      - (( concat params.cf_deployment_env "-z1" )) # FIXME: Should just be the base name
       - (( concat params.cf_deployment_env "-z2" ))
       - (( concat params.cf_deployment_env "-z3" ))
 
     networks:
-      - name: (( grab params.network ))
+      - name: (( grab params.network )) # FIXME: Isn't this hardcoded?
 
     disk_types:
       postgres:         (( concat genesis.env "." genesis.type ".disk-postgres"       ))
@@ -31,25 +30,12 @@ meta:
       metricsforwarder: (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
       postgres:         (( concat genesis.env "." genesis.type ".vm-postgres"         ))
 
-exodus:
+exodus: # This should be taken from the manifest, not constructed here (might already be done in base)
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
-bosh-variables:
-  database:
-    host:     (( vault meta.vault "/db/autoscaler:hostname" ))
-    port:     (( vault meta.vault "/db/autoscaler:port"     ))
-    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
-    name:     (( vault meta.vault "/db/autoscaler:database" ))
-    username: (( vault meta.vault "/db/autoscaler:user" ))
-    password: (( vault meta.vault "/db/autoscaler:password" ))
-    # TODO detect if we are using internal-db
-    sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
-    # sslmode:  "verify-ca"
-    tls:
-      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
-
+# Instance group OCFP overrides
 instance_groups:
   - name: apiserver
     azs: (( grab meta.ocfp.azs ))

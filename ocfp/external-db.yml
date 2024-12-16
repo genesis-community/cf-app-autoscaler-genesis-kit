@@ -1,0 +1,11 @@
+bosh-variables:
+  database:
+    host:     (( vault meta.vault "/db/autoscaler:hostname" ))
+    port:     (( vault meta.vault "/db/autoscaler:port"     ))
+    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
+    name:     (( vault meta.vault "/db/autoscaler:database" ))
+    username: (( vault meta.vault "/db/autoscaler:user" ))
+    password: (( vault meta.vault "/db/autoscaler:password" ))
+    sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
+    tls:
+      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
