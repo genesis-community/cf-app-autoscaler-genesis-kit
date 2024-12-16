@@ -1,18 +1,15 @@
 bosh-variables:
-  deployment_name:  (( grab name ))
-  system_domain:    (( grab params.cf_system_domain ))
-  cf_client_id:     (( vault meta.cf.exodus ":app_autoscaler_client" ))
-  cf_client_secret: (( vault meta.cf.exodus ":app_autoscaler_secret" ))
-
-  skip_ssl_validation: (( grab params.skip_ssl_validation || "true" ))
-
-  postgres_domain: &postgres_domain ((deployment_name)).autoscalerpostgres.service.cf.internal
-  api_domain: &api_domain ((deployment_name)).apiserver.service.cf.internal
-  scheduler_domain: &scheduler_domain ((deployment_name)).autoscalerscheduler.service.cf.internal
-  servicebroker_domain: &servicebroker_domain ((deployment_name)).servicebroker.service.cf.internal
-  eventgenerator_domain: &eventgenerator_domain ((deployment_name)).eventgenerator.service.cf.internal
-  scalingengine_domain: &scalingengine_domain ((deployment_name)).scalingengine.service.cf.internal
-
-  metricsforwarder_public_domain: &metricsforwarder_public_domain ((deployment_name))metrics.((system_domain))
-  metricsforwarder_mtls_public_domain: &metricsforwarder_mtls_public_domain ((deployment_name))-metricsforwarder-mtls.((system_domain))
-  servicebroker_public_domain: &servicebroker_public_domain ((deployment_name))servicebroker.((system_domain))
+  api_domain: ((deployment_name)).apiserver.service.cf.internal
+  base_public_domain: ((deployment_name)).((system_domain))
+  eventgenerator_domain: ((deployment_name)).eventgenerator.service.cf.internal
+  eventgenerator_public_domain: ((deployment_name))-eventgenerator.((system_domain))
+  metricsforwarder_mtls_public_domain: ((deployment_name))-metricsforwarder-mtls.((system_domain))
+  metricsforwarder_public_domain: ((deployment_name))metrics.((system_domain))
+  operator_public_domain: ((deployment_name))-operator.((system_domain))
+  postgres_domain: ((deployment_name)).autoscalerpostgres.service.cf.internal
+  scalingengine_domain: ((deployment_name)).scalingengine.service.cf.internal
+  scalingengine_public_domain: ((deployment_name))-scalingengine.((system_domain))
+  scheduler_domain: ((deployment_name)).autoscalerscheduler.service.cf.internal
+  scheduler_public_domain: ((deployment_name))-scheduler.((system_domain))
+  servicebroker_domain: ((deployment_name)).servicebroker.service.cf.internal
+  servicebroker_public_domain: ((deployment_name))servicebroker.((system_domain))

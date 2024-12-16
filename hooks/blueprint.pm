@@ -42,12 +42,10 @@ sub perform {
 
 	# Base manifest files
 	$blueprint->add_files(
-		"overlay/app-autoscaler.yml", # Will be replaced with processed version of upstream.
+		"overlay/app-autoscaler.yml", # This is the converted template from the upstream version
 		"overlay/base.yml",
-		"overlay/update_domains.yml", # May no longer be needed
-		"overlay/add-postgress-variables.yml", # Move to base.yml 
 		"overlay/upstream_version.yml",
-		"overlay/change_deployment_and_network.yml",
+		"overlay/change_network_details.yml",
 		"overlay/enable-nats-tls.yml", # This explicitly disables non-TLS nats
 		"overlay/enable-log-cache.yml",
 		"overlay/instance-identity-cert-from-cf.yml",
@@ -61,12 +59,39 @@ sub perform {
 		);
 	}
 
+	# Validate features
+	my $invalid_features = ();
+	for my $feature ($blueprint->features) {
+		if ($feature =~ /(ocfp)/) {
+			next; # always valid
+		} elsif ($feature =~ /(external-db|postgres|mysql|deployment-name-in-domains|override-subdomain)/) {
+			push @$invalid_features, "Cannot specify $feature and ocfp features together"
+			  if $blueprint->want_feature('ocfp');
+		} elsif ($feature =~ /(internal-db)/) {
+			push @$invalid_features, "Cannot specify $feature without ocfp feature"
+			  unless $blueprint->want_feature('ocfp');
+		} elsif ($feature =~ /(cf-v1-support)/) {
+			push @$invalid_features, "Feature $feature is no longer supported."
+		} elsif ($feature =~ /operations\/(.*)/) {
+			push @$invalid_features, "Feature $feature is not supported."
+			  unless -f "upstream/operations/$1.yml";
+		} else {
+			push @$invalid_features, "Feature $feature is not supported."
+			  unless -f "$ENV{GENESIS_ROOT}/ops/$feature.yml";
+		}
+	}
+	push @$invalid_features, "Cannot specify both postgres and mysql features"
+	  if $blueprint->want_feature('postgres') && $blueprint->want_feature('mysql');
+
+	bail(
+		"Invalid features specified: %s",
+		join("\n  - ", '', @$invalid_features
+	)) if @$invalid_features;
+
 	if ($blueprint->want_feature('ocfp')) {
 		# Validate OCFP-compatible features
-		$blueprint->validate_features(qw(ocfp internal-db));
 		$blueprint->add_files(
 			"ocfp/ocfp.yml",
-			"ocfp/broker.yml",
 		);
 		if (! $blueprint->want_feature('internal-db')) {
 			$blueprint->add_files(
@@ -77,18 +102,9 @@ sub perform {
 		}
 	} else {
 		# Validate generic features
-		$blueprint->validate_features(qw(
-			postgres mysql deployment-name-in-domains external-db
-			override-subdomain
-		));
-		bail(
-			"Cannot specify both postgres and mysql features"
-		) if $blueprint->want_feature('postgres') && $blueprint->want_feature('mysql');
-
-		
 		if ($blueprint->want_feature('deployment-name-in-domains')) {
 			$blueprint->add_files("overlay/deployment-name-in-domains.yml");
-		)
+		}
 		if ($blueprint->want_feature('external-db')) {
 			$blueprint->add_files(
 				"upstream/operations/external-db.yml",
@@ -102,118 +118,30 @@ sub perform {
 			}
 		} elsif ($blueprint->want_feature('mysql')) {
 			$blueprint->add_files(
-				"upstream/operations/cf-mysql-db.yml",
+				"upstream/operations/cf-mysql-db.yml", # Pretty sure this is very broken
 				"overlay/no-postgres.yml",
 			);
 		}
-		external-db)
-			manifests+=(
-				"overlay/fix-upstream-db-opsfiles.yml"
-				"upstream/operations/external-db.yml"
-				"overlay/external_db/common.yml"
-				"overlay/no-postgres.yml"
-			)
-			if want_feature mysql; then
-				manifests+=(
-					"overlay/external_db/mysql.yml"
-				)
-			else
-				manifests+=("overlay/external_db/postgres.yml")
-			fi
-			;;
-		postgres)
-			: # Default
-			;;
-		mysql)
-			if ! want_feature external-db; then
-				manifests+=(
-					"overlay/fix-upstream-db-opsfiles.yml"
-					"upstream/operations/cf-mysql-db.yml"
-					"overlay/no-postgres.yml"
-				)
-			fi
-			;;
+
 	}
 
-=tbd
-if (lookup --defined "params.subdomain_prefix" 2>/dev/null); then
-  manifests+=("overlay/change_subdomain.yml") # FIXME: Totally at odds with upstream domains
-fi
-=cut
+	for my $feature ($blueprint->features) {
+		if ($feature =~ /^(ocfp|external-db|postgres|mysql|deployment-name-in-domains|internal-db)$/) {
+			next; # already handled
+		} elsif ($feature eq 'override-subdomain') {
+			if ($blueprint->env->lookup('params.subdomain_prefix')) {
+				$blueprint->add_files("overlay/change_subdomain.yml");
+			} else {
+				bail("Cannot use override-subdomain feature without specifying params.subdomain_prefix");
+			}
+		} elsif ($feature =~ /operations\/(.*)/) {
+			$blueprint->add_files("upstream/operations/$1.yml");
+		} else {
+			$blueprint->add_files("$ENV{GENESIS_ROOT}/ops/$feature.yml");
+		}
+	}
 
+	$blueprint->done();
+}
 
-# Do features => opsfiles stuff here
-for want in $GENESIS_REQUESTED_FEATURES; do
-  case "$want" in
-  ocfp)
-    manifests+=(
-      "ocfp/ocfp.yml"
-      "ocfp/broker.yml"
-    )
-
-    # FIXME:  Need to support external_db unless 'internal-db' is specified
-    # ( added ocfp/extrnal-db.yml to support external-db)
-    #        "overlay/fix-upstream-db-opsfiles.yml"
-    #        "upstream/operations/external-db.yml"
-    #        "overlay/external_db/common.yml"
-    #        "overlay/no-postgres.yml"
-    ;;
-  override-subdomain) # Remove as a feature
-    : # Already handled above
-    ;;
-  deployment-name-in-domains) # FIXME: Implement this feature
-    :
-    ;;
-  external-db)
-    manifests+=(
-      "overlay/fix-upstream-db-opsfiles.yml"
-      "upstream/operations/external-db.yml"
-      "overlay/external_db/common.yml"
-      "overlay/no-postgres.yml"
-    )
-    if want_feature mysql; then
-      manifests+=(
-        "overlay/external_db/mysql.yml"
-      )
-    else
-      manifests+=("overlay/external_db/postgres.yml")
-    fi
-    ;;
-  postgres)
-    : # Default
-    ;;
-  mysql)
-    if ! want_feature external-db; then
-      manifests+=(
-        "overlay/fix-upstream-db-opsfiles.yml"
-        "upstream/operations/cf-mysql-db.yml"
-        "overlay/no-postgres.yml"
-      )
-    fi
-    ;;
-  cf-v1-support) # FIXME: Remove this feature
-    if new_enough "$cf_kit_version" "2.3.0"; then
-      bail "Feature #C{cf-v1-support} is no longer supported by cf kit v2.3.0 or later"
-    fi
-    manifests+=("overlay/cf-v1-support.yml")
-    ;;
-  *)
-    if [[ $want =~ operations/.* ]]; then
-      if [[ -f "upstream/$want.yml" ]]; then
-        manifests+=("upstream/$want.yml")
-      else
-        __bail "$GENSIS_KIT_ID does not support the $want feature"
-      fi
-    elif [[ -f "${GENESIS_ROOT}/ops/$want.yml" ]]; then
-      mkdir -p "$(dirname "local_ops/$want.yml")"
-      cp "$GENESIS_ROOT/ops/$want.yml" "local_ops/$want.yml"
-      manifests+=("local_ops/$want.yml")
-    else
-      __bail "$GENESIS_KIT_ID does not support the #c{$want} feature"
-    fi
-    ;;
-  esac
-done
-
-echo "${manifests[@]}" >"/tmp/$GENESIS_ENVIRONMENT.yamls"
-echo "${manifests[@]}"
+1;

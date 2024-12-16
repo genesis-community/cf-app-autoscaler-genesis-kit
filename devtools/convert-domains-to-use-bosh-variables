@@ -39,8 +39,7 @@ sub strip_deployment_name_prefix {
   # ((deployment_name)).
   # ((deployment_name))-
   # ((deployment_name))
-  $value =~ s/\(\(deployment_name\)\)[.-]//g;
-  $value =~ s/\(\(deployment_name\)\)//g;
+  $value =~ s/\(\(deployment_name\)\)[\.-]?//g;
 
   debug("Stripped prefixes from: $value", $hierarchy) if $debug;
   return $value;
@@ -148,7 +147,22 @@ sub process_deployment_name_value {
       debug("Replacing with bosh variable: $matching_bosh_variable", $hierarchy);
       return "(($matching_bosh_variable))";
     } else {
-      debug("No matching bosh variable found for: $stripped_value", $hierarchy);
+      if ($stripped_value =~ /^\(\(.*\)\)$/) {
+        # The stripped name is no longer differentiated from a base value -- use a generic app-autoscaler subdomain
+        my $old_stripped_value = $stripped_value;
+        $stripped_value = $value =~ s/\(\(deployment_name\)\)/app-autoscaler/gr;
+        $json->{'bosh-variables'}->{'base_public_domain'} = $stripped_value;
+        debug("replacing $value with $stripped_value, because $old_stripped_value is invalid.", $hierarchy);
+        return "((base_public_domain))";
+      } elsif ($stripped_value =~ /(.*)\.\(\(system_domain\)\)$/) {
+        # Give it a bosh variable name
+        my $var_name = "${1}_public_domain";
+        debug("Found new public domain: $var_name = $stripped_value", $hierarchy);
+        $json->{'bosh-variables'}->{$var_name} = $stripped_value;
+        return "(($var_name))";
+      } else {
+        debug("No matching bosh variable found for: $stripped_value", $hierarchy);
+      }
       return $stripped_value;
     }
   }
@@ -159,14 +173,7 @@ sub process_deployment_name_value {
 sub find_matching_bosh_variable {
   my ($stripped_value, $json, $hierarchy) = @_;
   return unless $stripped_value && exists $json->{'bosh-variables'};
-
-  while (my ($var_name, $var_value) = each %{$json->{'bosh-variables'}}) {
-    if ($var_value eq $stripped_value) {
-      debug("Found matching bosh variable: $var_name for value: $stripped_value", $hierarchy);
-      return $var_name;
-    }
-  }
-  return undef;
+  return (grep {$json->{'bosh-variables'}{$_} eq $stripped_value} keys %{$json->{'bosh-variables'}})[0];
 }
 
 # Process hash structures with hierarchy tracking
@@ -175,7 +182,7 @@ sub process_hash {
   $hierarchy = '/' unless $hierarchy;
   return unless ref($hash) eq 'HASH';
 
-  foreach my $key (keys %$hash) {
+  for my $key (sort keys %$hash) {
     my $value = $hash->{$key};
     my $current_path = $hierarchy eq '/' ? $key : "$hierarchy.$key";
 

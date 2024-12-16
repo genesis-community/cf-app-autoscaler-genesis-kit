@@ -11,12 +11,12 @@ meta:
         - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
 
     azs:
-      - (( concat params.cf_deployment_env "-z1" )) # FIXME: Should just be the base name
-      - (( concat params.cf_deployment_env "-z2" ))
-      - (( concat params.cf_deployment_env "-z3" ))
+      - (( concat genesis.env "-z1" )) # FIXME: Should just be the base name
+      - (( concat genesis.env "-z2" ))
+      - (( concat genesis.env "-z3" ))
 
     networks:
-      - name: (( grab params.network )) # FIXME: Isn't this hardcoded?
+      - name: (( concat genesis.env "." genesis.type ".net-autoscaler"       ))
 
     disk_types:
       postgres:         (( concat genesis.env "." genesis.type ".disk-postgres"       ))

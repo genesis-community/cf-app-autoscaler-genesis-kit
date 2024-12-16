@@ -15,17 +15,18 @@ releases:
 - name: bpm
   version: latest
 
-bosh-variables:
-  postgres_domain: ((deployment_name)).autoscalerpostgres.service.cf.internal
-  api_domain: ((deployment_name)).apiserver.service.cf.internal
-  scheduler_domain: ((deployment_name)).autoscalerscheduler.service.cf.internal
-  servicebroker_domain: ((deployment_name)).servicebroker.service.cf.internal
-  eventgenerator_domain: ((deployment_name)).eventgenerator.service.cf.internal
-  scalingengine_domain: ((deployment_name)).scalingengine.service.cf.internal
+domains:
+  postgres: &postgres_domain ((deployment_name)).autoscalerpostgres.service.cf.internal
+  api: &api_domain ((deployment_name)).apiserver.service.cf.internal
+  scheduler: &scheduler_domain ((deployment_name)).autoscalerscheduler.service.cf.internal
+  servicebroker: &servicebroker_domain ((deployment_name)).servicebroker.service.cf.internal
+  eventgenerator: &eventgenerator_domain ((deployment_name)).eventgenerator.service.cf.internal
+  scalingengine: &scalingengine_domain ((deployment_name)).scalingengine.service.cf.internal
 
-  metricsforwarder_public_domain: ((deployment_name))metrics.((system_domain))
-  metricsforwarder_mtls_public_domain: ((deployment_name))-metricsforwarder-mtls.((system_domain))
-  servicebroker_public_domain: ((deployment_name))servicebroker.((system_domain))
+public_domains:
+  metricsforwarder: &metricsforwarder_public_domain ((deployment_name))metrics.((system_domain))
+  metricsforwarder_mtls: &metricsforwarder_mtls_public_domain ((deployment_name))-metricsforwarder-mtls.((system_domain))
+  servicebroker: &servicebroker_public_domain ((deployment_name))servicebroker.((system_domain))
 
 features:
   use_dns_addresses: true
@@ -37,42 +38,42 @@ addons:
     release: bosh-dns-aliases
     properties:
       aliases:
-      - domain: ((postgres_domain))
+      - domain: *postgres_domain
         targets:
           - query: '*'
             instance_group: postgres
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: ((api_domain))
+      - domain: *api_domain
         targets:
           - query: '*'
             instance_group: apiserver
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: ((scheduler_domain))
+      - domain: *scheduler_domain
         targets:
           - query: '*'
             instance_group: scheduler
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: ((servicebroker_domain))
+      - domain: *servicebroker_domain
         targets:
           - query: '*'
             instance_group: apiserver
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: ((eventgenerator_domain))
+      - domain: *eventgenerator_domain
         targets:
           - query: '*'
             instance_group: eventgenerator
             deployment: ((deployment_name))
             network: default
             domain: bosh
-      - domain: ((scalingengine_domain))
+      - domain: *scalingengine_domain
         targets:
           - query: '*'
             instance_group: scalingengine
@@ -127,7 +128,7 @@ stemcells:
   version: latest
 
 instance_groups:
-  # Postgres Instance Group -- FIXME: do we need migrate_from? !FIXED in overlay/base.yml
+# Postgres Instance Group
 - name: postgres
   azs:
     - z1
@@ -136,7 +137,6 @@ instance_groups:
     serial: true
   stemcell: default
   vm_type: small
-  # FIXME: set persistent_disk_type in OCFP, use upstream/postgres_peristent_disk.yml otherwise.
   networks:
     - name: default
   jobs:
@@ -153,7 +153,7 @@ instance_groups:
             - name: autoscaler
               tag: default
           db_scheme: postgres
-          address: ((postgres_domain))
+          address: *postgres_domain
           port: 5432
           roles:
             - name: postgres
@@ -167,12 +167,12 @@ instance_groups:
 # Scalingengine Instance Group
 - name: scalingengine
   azs:
-    - z1 # FIXME: allow override azs
+    - z1
   instances: 1
-  vm_type: minimal #FIXME: allow override vm_type (especially for OCFP)
+  vm_type: minimal
   stemcell: default
   networks:
-    - name: default #FIXME: allow override network
+    - name: default
   jobs:
     - name: scalingengine
       release: app-autoscaler
@@ -185,7 +185,6 @@ instance_groups:
           policy_db: *database
           policy_db_connection_config: *databaseConnectionConfig
           cf: &cf_credentials
-          # FIXME: the cf values need to come from cf exodus data
             api: "https://api.((system_domain))"
             grant_type: client_credentials
             client_id: "((cf_client_id))"
@@ -204,7 +203,7 @@ instance_groups:
     - name: route_registrar
       release: routing
       consumes:
-        nats: { from: nats, deployment: cf } # FIXME: override deployment name
+        nats: { from: nats, deployment: cf }
       properties:
         route_registrar:
           routes:
@@ -214,7 +213,7 @@ instance_groups:
               tags:
                 component: autoscaler_scalingengine_health
               uris:
-                - ((deployment_name))-scalingengine.((system_domain)) # FIXME: May need OCFP override?
+                - ((deployment_name))-scalingengine.((system_domain))
 
   # APIServer Instance Group
 - name: apiserver
@@ -239,20 +238,20 @@ instance_groups:
             ca_cert: ((!scheduler_client_cert.ca))
             client_cert: ((!scheduler_client_cert.certificate))
             client_key: ((!scheduler_client_cert.private_key))
-            host: ((scheduler_domain))
+            host: *scheduler_domain
           scaling_engine:
             ca_cert: ((!scalingengine_client_cert.ca))
             client_cert: ((!scalingengine_client_cert.certificate))
             client_key: ((!scalingengine_client_cert.private_key))
-            host: ((scalingengine_domain))
+            host: *scalingengine_domain
           event_generator:
             ca_cert: ((!eventgenerator_client_cert.ca))
             client_cert: ((!eventgenerator_client_cert.certificate))
             client_key: ((!eventgenerator_client_cert.private_key))
-            host: ((eventgenerator_domain))
+            host: *eventgenerator_domain
           metrics_forwarder:
-            host: ((metricsforwarder_public_domain))
-            mtls_host: ((metricsforwarder_mtls_public_domain))
+            host: *metricsforwarder_public_domain
+            mtls_host: *metricsforwarder_mtls_public_domain
           broker:
             broker_credentials:
               - broker_username: 'autoscaler-broker-user'
@@ -301,7 +300,7 @@ instance_groups:
           tags:
             component: autoscaler_service_broker
           uris:
-            - ((servicebroker_public_domain))
+            - *servicebroker_public_domain
 
   # Scheduler Instance Group
 - name: scheduler
@@ -335,7 +334,7 @@ instance_groups:
             ca_cert: ((!scalingengine_client_cert.ca))
             client_cert: ((!scalingengine_client_cert.certificate))
             client_key: ((!scalingengine_client_cert.private_key))
-            host: ((scalingengine_domain))
+            host: *scalingengine_domain
   - name: route_registrar
     release: routing
     consumes:
@@ -374,7 +373,7 @@ instance_groups:
         lock_db: *database
         policy_db: *database
         policy_db_connection_config: *databaseConnectionConfig
-        scheduler.host: ((scheduler_domain))
+        scheduler.host: *scheduler_domain
         cf: *cf_credentials
         operator:
           enable_db_lock: true
@@ -386,12 +385,12 @@ instance_groups:
             ca_cert: ((!scalingengine_client_cert.ca))
             client_cert: ((!scalingengine_client_cert.certificate))
             client_key: ((!scalingengine_client_cert.private_key))
-            host: ((scalingengine_domain))
+            host: *scalingengine_domain
           scheduler:
             ca_cert: ((!scheduler_client_cert.ca))
             client_cert: ((!scheduler_client_cert.certificate))
             client_key: ((!scheduler_client_cert.private_key))
-            host: ((scheduler_domain))
+            host: *scheduler_domain
           logging:
             level: info
   - name: route_registrar
@@ -443,7 +442,7 @@ instance_groups:
             ca_cert: ((!scalingengine_client_cert.ca))
             client_cert: ((!scalingengine_client_cert.certificate))
             client_key: ((!scalingengine_client_cert.private_key))
-            host: ((scalingengine_domain))
+            host: *scalingengine_domain
           metricscollector:
             ca_cert: ((metricscollector_ca_cert))
             client_cert: ((metricscollector_client_cert))
@@ -563,14 +562,14 @@ instance_groups:
             tags:
               component: autoscaler_metrics_forwarder
             uris:
-              - ((metricsforwarder_public_domain))
+              - *metricsforwarder_public_domain
           - name: autoscaler_metrics_forwarder_mtls
             registration_interval: 20s
             port: *metricsforwarderServerPort
             tags:
               component: autoscaler_metrics_forwarder
             uris:
-              - ((metricsforwarder_mtls_public_domain))
+              - *metricsforwarder_mtls_public_domain
           - name: autoscaler_metricsforwarder_health
             registration_interval: 20s
             port: *metricsforwarderServerPort
@@ -692,9 +691,9 @@ variables:
   update_mode: converge
   options:
     ca: app_autoscaler_ca_cert
-    common_name: ((api_domain))
+    common_name: *api_domain
     alternative_names:
-    - ((api_domain))
+    - *api_domain
     extended_key_usage:
     - client_auth
     - server_auth
@@ -705,9 +704,9 @@ variables:
   update_mode: converge
   options:
     ca: app_autoscaler_ca_cert
-    common_name: ((servicebroker_domain))
+    common_name: *servicebroker_domain
     alternative_names:
-    - ((servicebroker_domain))
+    - *servicebroker_domain
     extended_key_usage:
     - client_auth
     - server_auth
@@ -718,9 +717,9 @@ variables:
   update_mode: converge
   options:
     ca: app_autoscaler_ca_cert
-    common_name: ((scheduler_domain))
+    common_name: *scheduler_domain
     alternative_names:
-    - ((scheduler_domain))
+    - *scheduler_domain
     extended_key_usage:
     - client_auth
     - server_auth
@@ -741,9 +740,9 @@ variables:
   update_mode: converge
   options:
     ca: app_autoscaler_ca_cert
-    common_name: ((eventgenerator_domain))
+    common_name: *eventgenerator_domain
     alternative_names:
-    - ((eventgenerator_domain))
+    - *eventgenerator_domain
     extended_key_usage:
     - client_auth
     - server_auth
@@ -764,9 +763,9 @@ variables:
   update_mode: converge
   options:
     ca: app_autoscaler_ca_cert
-    common_name: ((scalingengine_domain))
+    common_name: *scalingengine_domain
     alternative_names:
-    - ((scalingengine_domain))
+    - *scalingengine_domain
     extended_key_usage:
     - client_auth
     - server_auth
