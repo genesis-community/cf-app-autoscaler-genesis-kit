@@ -832,9 +832,9 @@ public_domains:
   servicebroker: mysql-cf-app-autoscalerservicebroker.sys.test.cf.domain
 releases:
 - name: app-autoscaler
-  sha1: 43bf85eb6bf9519bfb4808c69cbd433b36edd8d4
-  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v15.0.2/app-autoscaler-acceptance-tests-v15.0.2.tgz
-  version: 15.0.2
+  sha1: 4bd19e4fdef1399e8cff819c0b5a9de22f89da08
+  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v15.0.3/app-autoscaler-acceptance-tests-v15.0.3.tgz
+  version: 15.0.3
 - name: bosh-dns-aliases
   sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
