@@ -1,5 +1,5 @@
 releases:
 - name: app-autoscaler
-  version: 15.2.0
-  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v15.2.0/app-autoscaler-acceptance-tests-v15.2.0.tgz
-  sha1: f06a4b73f8cfe62b18c640f5832e86b86895db72
+  version: 15.3.0
+  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v15.3.0/app-autoscaler-acceptance-tests-v15.3.0.tgz
+  sha1: e4e566c09467e7b497ce6894569f140091ff3af3
