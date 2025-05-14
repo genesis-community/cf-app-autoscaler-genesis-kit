@@ -821,9 +821,9 @@ public_domains:
   servicebroker: external-db-cf-app-autoscalerservicebroker.sys.test.cf.domain
 releases:
 - name: app-autoscaler
-  sha1: e4e566c09467e7b497ce6894569f140091ff3af3
-  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v15.3.0/app-autoscaler-acceptance-tests-v15.3.0.tgz
-  version: 15.3.0
+  sha1: 74ed71d9a9b41dffc67d73461c24947ec517ae8d
+  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v15.3.1/app-autoscaler-acceptance-tests-v15.3.1.tgz
+  version: 15.3.1
 - name: bosh-dns-aliases
   sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
