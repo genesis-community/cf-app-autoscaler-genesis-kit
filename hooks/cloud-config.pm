@@ -32,118 +32,76 @@ sub perform {
 						size => 7,
 					},
 					cloud_properties_for_iaas => {
-						openstack => {
-							'net_id' => $self->network_reference('id'), # TODO: $self->subnet_reference('net_id'),
-							'security_groups' => ['default'] #$self->subnet_reference('sgs', 'get_security_groups'),
+						'openstack|stackit' => {
+							'net_id' => $self->network_reference('id'),
+							'security_groups' => $self->get_network_security_groups(),
 						},
 					},
 				},
 			)
 		],
 		'vm_types' => [
-			$self->vm_type_definition('apiserver', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-						dev => 'g1.2',
-						prod => 'g1.3'
-					}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
-			$self->vm_type_definition('scalingengine', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-							dev => 'g1.2',
-							prod => 'g1.3'
-						}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
-			$self->vm_type_definition('scheduler', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-						dev => 'g1.2',
-						prod => 'g1.3'
-					}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
-			$self->vm_type_definition('operator', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-							dev => 'g1.2',
-							prod => 'g1.3'
-						}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
-			$self->vm_type_definition('eventgenerator', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-						dev => 'g1.2',
-						prod => 'g1.3'
-					}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
-			$self->vm_type_definition('metricsforwarder', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-							dev => 'g1.2',
-							prod => 'g1.3'
-						}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
-			$self->vm_type_definition('postgres', cloud_properties_for_iaas => {
-				openstack => {
-					'instance_type' => $self->for_scale({
-							dev => 'g1.2',
-							prod => 'g1.3'
-						}, 'g1.2'),
-					'boot_from_volume' => $self->TRUE,
-					'root_disk' => {
-						'size' => 30
-					},
-				},
-			}),
+			$self->generic_vm_type('apiserver'),
+			$self->generic_vm_type('scalingengine'),
+			$self->generic_vm_type('scheduler'),
+			$self->generic_vm_type('operator'),
+			$self->generic_vm_type('eventgenerator'),
+			$self->generic_vm_type('metricsforwarder'),
 		],
 		'disk_types' => [
-			$self->disk_type_definition('postgres',
-				common => {
-					disk_size => $self->for_scale({
-						dev => gigabytes(25),
-						prod => gigabytes(50)
-					}, gigabytes(30))
-				},
-				cloud_properties_for_iaas => {
-					openstack => {
-						'type' => 'storage_premium_perf6',
-					},
-				},
-			),
+			$self->generic_disk_type('postgres'),
 		],
 	});
 
 	$self->done($config);
+}
+
+# All the vms use the same basic vm type, so keep it DRY.
+# TODO: Allow arguments to customize the vm type, which keeps it clear what
+# values differ
+sub generic_vm_type {
+	my ($self, $name) = @_;
+	return $self->{__generic_vm_type} //= $self->vm_type_definition($name,
+		cloud_properties_for_iaas => {
+			openstack => {
+				'instance_type' => $self->for_scale({
+					dev => 'g1.2',
+					prod => 'g1.3'
+				}, 'g1.2'),
+				'boot_from_volume' => $self->TRUE,
+				'root_disk' => {
+					'size' => 30
+				},
+			},
+			stackit => {
+				'instance_type' => $self->for_scale({
+					dev => 't2i.1',
+					prod => 'g2i.2'
+				}, 'g2i.1'),
+				'boot_from_volume' => $self->TRUE,
+				'root_disk' => {
+					'size' => 30 # in gigabytes
+				},
+			},
+		}
+	);
+}
+
+sub generic_disk_type {
+	my ($self,$name) = @_;
+	return $self->{__generic_disk_type} //= $self->disk_type_definition($name,
+		common => {
+			disk_size => $self->for_scale({
+				dev => gigabytes(25),
+				prod => gigabytes(50)
+			}, gigabytes(30))
+		},
+		cloud_properties_for_iaas => {
+			'openstack|stackit' => {
+				'type' => 'storage_premium_perf6',
+			},
+		},
+	);
 }
 
 1;
