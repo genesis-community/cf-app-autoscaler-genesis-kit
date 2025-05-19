@@ -10,6 +10,8 @@ It is based on the upstream [cloudfoundry/app-autoscaler-release][cfaar], and su
 
 This kit uses Credhub for its secrets management, with the exclusion of the Exodus deployment metadata, which like all Genesis Kits, uses a central vault. The credhub provided by BOSH is used for each environment it deploys.  The vault used for the metatadata is selected when you use `genesis init` to create the deployment repository, and can be changed with `genesis secrets-provider -i`.
 
+For information on supported infrastructure providers, see [Infrastructure Support](docs/infrastructure-support.md).
+
 ## General Usage Guidelines
 
 While theoretically you can attach this to any Cloud Foundry deployment, it is highly recommended that you use the [CF Genesis Kit](https://github.com/genesis-community/cf-genesis-kit) for the best results.

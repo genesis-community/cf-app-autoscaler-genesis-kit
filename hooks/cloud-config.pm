@@ -27,6 +27,8 @@ sub perform {
   my ($self) = @_;
   return 1 if $self->completed;
 
+  # Build cloud configuration with support for both OpenStack and STACKIT IaaS providers
+  # STACKIT configuration mirrors OpenStack but accounts for 1:1 network to subnet mapping
   my $config = $self->build_cloud_config({
     'networks' => [
       $self->network_definition('autoscaler', strategy => 'ocfp',
@@ -40,15 +42,30 @@ sub perform {
               'net_id' => $self->network_reference('id'),
               'security_groups' => ['default']
             },
+            # STACKIT IaaS configuration - similar to OpenStack but with 1:1 network to subnet mapping
+            stackit => {
+              'net_id' => $self->network_reference('id'),
+              'security_groups' => ['default']
+            },
           },
         },
       )
     ],
     'vm_types' => [
-      # VM types for each component
+      # VM types for each component - defined for both OpenStack and STACKIT with identical configurations
       $self->vm_type_definition('as-apiserver',
         cloud_properties_for_iaas => {
           openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
             'instance_type' => $self->for_scale({
               dev => 'm1.small',
               prod => 'm1.medium'
@@ -72,11 +89,31 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
         },
       ),
       $self->vm_type_definition('as-scheduler',
         cloud_properties_for_iaas => {
           openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
             'instance_type' => $self->for_scale({
               dev => 'm1.small',
               prod => 'm1.medium'
@@ -100,11 +137,31 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
         },
       ),
       $self->vm_type_definition('as-eventgenerator',
         cloud_properties_for_iaas => {
           openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
             'instance_type' => $self->for_scale({
               dev => 'm1.small',
               prod => 'm1.medium'
@@ -128,10 +185,21 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
         },
       ),
     ],
     'disk_types' => [
+      # Disk type configurations for both OpenStack and STACKIT
       $self->disk_type_definition('as-db',
         common => {
           disk_size => $self->for_scale({
@@ -141,6 +209,10 @@ sub perform {
         },
         cloud_properties_for_iaas => {
           openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          # STACKIT IaaS disk configuration - using same storage type as OpenStack
+          stackit => {
             'type' => 'storage_premium_perf1',
           },
         },
