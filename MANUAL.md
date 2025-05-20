@@ -1,176 +1,489 @@
 # CF App Autoscaler Genesis Kit Manual
 
-The **CF App Autoscaler Genesis Kit** allows you to create an App Autoscaler deployment to autoscale the apps in your existing Cloud Foundry.
+The **CF App Autoscaler Genesis Kit** allows you to create an App Autoscaler deployment to automatically scale applications in your existing Cloud Foundry based on predefined metrics and rules.
 
-It is based on the upstream [cloudfoundry/app-autoscaler-release][cfaar], and supports external postgres and mysql databases.  It expects to be integrated with a Cloud Foundry deployment created by cf-genesis-kit v2.0.0 or later, but there are provisions for pairing it with any existing CF deployment.
+It is based on the upstream [cloudfoundry/app-autoscaler-release][cfaar], and supports both integrated and external PostgreSQL and MySQL databases. It's designed to work seamlessly with Cloud Foundry deployments created by cf-genesis-kit v2.0.0 or later, with provisions for pairing with any existing CF deployment.
 
 [cfaar]: https://github.com/cloudfoundry/app-autoscaler-release
 
+## Table of Contents
+
+- [Requirements](#requirements)
+- [General Usage Guidelines](#general-usage-guidelines)
+- [Deployment Lifecycle](#deployment-lifecycle)
+- [Migration from CF Genesis Kit v1.x.x](#migration-from-cf-genesis-kit-v1xx)
+- [Base Parameters](#base-parameters)
+- [Features](#features)
+  - [ocfp](#ocfp)
+  - [external-db](#external-db)
+  - [subdomain_prefix](#subdomain_prefix)
+  - [postgres](#postgres)
+  - [mysql](#mysql)
+  - [cf-v1-support](#cf-v1-support)
+- [Upstream Features](#upstream-features)
+- [Custom Features](#custom-features)
+- [Post-Deployment Configuration](#post-deployment-configuration)
+- [Scaling and Performance Tuning](#scaling-and-performance-tuning)
+- [Troubleshooting](#troubleshooting)
+
 ## Requirements
 
-This kit uses Credhub for its secrets management, with the exclusion of the Exodus deployment metadata, which like all Genesis Kits, uses a central vault. The credhub provided by BOSH is used for each environment it deploys.  The vault used for the metatadata is selected when you use `genesis init` to create the deployment repository, and can be changed with `genesis secrets-provider -i`.
+### System Requirements
 
-For information on supported infrastructure providers, see [Infrastructure Support](docs/infrastructure-support.md).
+- **Genesis**: v2.8.5 or later
+- **BOSH Director**: With Credhub enabled
+- **Cloud Foundry**: Deployed via cf-genesis-kit v2.0.0 or later (recommended)
+- **Memory**: Minimum 4GB RAM for the deployment
+- **CPU**: Minimum 2 vCPUs for the deployment
+- **Disk Space**: Minimum 20GB for database storage
+
+### Credentials Management
+
+This kit uses two distinct secrets management systems:
+
+1. **Credhub**: For runtime secrets used by the deployment itself
+2. **Vault**: For Exodus deployment metadata, as with all Genesis Kits
+
+The Credhub provided by your BOSH director is used for each environment's secrets. The Vault used for metadata is configured when you run `genesis init` to create the deployment repository, and can be changed with `genesis secrets-provider -i`.
+
+### Infrastructure Support
+
+This kit supports deployment on multiple infrastructure providers. For details on VM types, networks, and other IaaS-specific configurations, see [Infrastructure Support](/docs/infrastructure-support.md).
 
 ## General Usage Guidelines
 
-While theoretically you can attach this to any Cloud Foundry deployment, it is highly recommended that you use the [CF Genesis Kit](https://github.com/genesis-community/cf-genesis-kit) for the best results.
+While you can theoretically attach this kit to any Cloud Foundry deployment, using the [CF Genesis Kit](https://github.com/genesis-community/cf-genesis-kit) is highly recommended for the best integration experience.
 
-As per usual with Genesis kits, you will need a Genesis deployment repository to contain your environment file.  If you don't already have one from a previous `cf-app-autoscaler` version, run `genesis init -k cf-app-autoscaler/<version>`, where <version> is replaced with the current cf-app-autoscaler genesis kit version.  If you have this already, you'll need to download the latest copy of this kit via `genesis fetch-kit` from within that directory.
+## Deployment Lifecycle
 
-Once in the Genesis `cf-app-autoscaler` deployment repository, and run `genesis new <env>` to create a new env file, replacing `<env>` with your desired env.  This will walk you through a wizard that will populate the desired features and the corresponding parameters.
+### Creating a New Deployment
 
-Once you have an env file, you may want to manually change parameters or features. The rest of this document covers how to modify your environment files to make use of provided features.
+1. **Create a Genesis deployment repository**:
+   ```bash
+   genesis init -k cf-app-autoscaler/4.1.2
+   ```
 
-## Supporting or Upgrading from cf-genesis-kit v1.x.x
+2. **Create a new environment file**:
+   ```bash
+   cd cf-app-autoscaler-deployments
+   genesis new my-env
+   ```
+   This will launch an interactive wizard to configure features and parameters.
 
-If you are upgrading from an existing cf-genesis-kit with a built-in app autoscaler feature, you will need to disable the feature in the CF kit and redeploy it.  If you are using external database, you can continue using those same tables for this kit, but if you are using the internal database, you will need to backup the tables first BEFORE you disable the feature, so they can be restored into the new deployment.
+3. **Review and modify the environment file** if needed:
+   ```bash
+   vim my-env.yml
+   ```
 
-Once disabled in the cf genesis kit, you can deploy this kit with the `cf-v1-support` feature.  This provides a way to specify the required configurations that would normally be made available (via Exodus data) from the cf v2.x kit.  You will need to specify the following values in your environment file:
+4. **Deploy**:
+   ```bash
+   genesis deploy my-env
+   ```
 
+### Updating an Existing Deployment
+
+1. **Update the kit** (if needed):
+   ```bash
+   genesis fetch-kit
+   ```
+
+2. **Modify environment features or parameters** if required:
+   ```bash
+   vim my-env.yml
+   ```
+
+3. **Deploy the updated configuration**:
+   ```bash
+   genesis deploy my-env
+   ```
+
+## Migration from CF Genesis Kit v1.x.x
+
+If you're upgrading from a CF Genesis Kit with the built-in app autoscaler feature, follow these steps:
+
+### Step 1: Backup Database (if using internal database)
+
+Before disabling the autoscaler feature in your CF deployment:
+
+```bash
+# Connect to your CF database VM
+bosh -d cf ssh postgres
+
+# For PostgreSQL
+pg_dump -U vcap autoscaler > /tmp/autoscaler_backup.sql
+
+# For MySQL
+mysqldump -u vcap -p autoscaler > /tmp/autoscaler_backup.sql
+
+# Download the backup file
+bosh -d cf scp postgres:/tmp/autoscaler_backup.sql ./
 ```
-bosh-variables:
-  cf_client_id:
-  cf_client_secret:
-  loggregator_ca:
-    certificate:
-  loggregator_tls_agent:
-    certificate:
-    private_key:
-  loggregator_tls_rlp:
-    certificate:
-    private_key:
 
+### Step 2: Disable Autoscaler in CF Deployment
+
+1. Remove the autoscaler feature from your CF environment file:
+   ```yaml
+   kit:
+     features:
+     # Remove or comment out the autoscaler feature
+     # - autoscaler
+   ```
+
+2. Deploy CF without the autoscaler:
+   ```bash
+   genesis deploy cf-env
+   ```
+
+### Step 3: Deploy Standalone Autoscaler
+
+1. Create a new autoscaler environment file with the `cf-v1-support` feature:
+   ```yaml
+   kit:
+     features:
+     - cf-v1-support
+     # Add other features as needed (mysql, external-db, etc.)
+
+   bosh-variables:
+     cf_client_id: (( vault meta.vault '/path/to/client_id' ))
+     cf_client_secret: (( vault meta.vault '/path/to/client_secret' ))
+     loggregator_ca:
+       certificate: (( vault meta.vault '/path/to/loggregator_ca.certificate' ))
+     loggregator_tls_agent:
+       certificate: (( vault meta.vault '/path/to/loggregator_tls_agent.certificate' ))
+       private_key: (( vault meta.vault '/path/to/loggregator_tls_agent.private_key' ))
+     loggregator_tls_rlp:
+       certificate: (( vault meta.vault '/path/to/loggregator_tls_rlp.certificate' ))
+       private_key: (( vault meta.vault '/path/to/loggregator_tls_rlp.private_key' ))
+   ```
+
+2. Deploy the standalone autoscaler:
+   ```bash
+   genesis deploy autoscaler-env
+   ```
+
+### Step 4: Restore Database (if needed)
+
+If using internal database and you need to restore data:
+
+```bash
+# For PostgreSQL
+bosh -d autoscaler-env ssh postgres
+psql -U vcap autoscaler < /tmp/autoscaler_backup.sql
+
+# For MySQL
+bosh -d autoscaler-env ssh mysql
+mysql -u vcap -p autoscaler < /tmp/autoscaler_backup.sql
 ```
 
-It is highly recommended that you make use of `(( vault meta.vault '/subpath/to/secret' ))` operator so you don't leak credentials into your repo.
+### Step 5: Future Migration to CF v2.x
 
-Once you upgrade to cf v2.x kit, you can remove the `cf-v1-support` feature and redeploy.
+Once you upgrade to CF Genesis Kit v2.x:
+
+1. Remove the `cf-v1-support` feature from your autoscaler environment file
+2. Redeploy the autoscaler:
+   ```bash
+   genesis deploy autoscaler-env
+   ```
 
 ## Base Parameters
 
-The following values can be specified in your environment file, under `params:`
+The following values can be specified in your environment file under `params:`:
 
-| Key | Description | Default |
-| --- | ----------- | ------- |
-| `cf_deployment_env`  | specify the name of the cf deployment environment | the cf-app-autoscaler environment name |
-| `cf_deployment_type` | override the type of deployment used for the CF deployment | `cf` |
-| `cf_core_network`    | name of the core CF network. | provided by Exodus data from your CF Genesis kit deployment |
-| `cf_system_domain`   | the system domain for your CF deployment. | provided by Exodus data from your CF Genesis kit deployment |
-| `skip_ssl_validation` | set to false to force ssl validation | true |
-| `db_disk_type`       | the name of the persistent disk type to use for the local postgres VM. | `10GB`
+| Key | Description | Default | Example |
+| --- | ----------- | ------- | ------- |
+| `cf_deployment_env` | Name of the CF deployment environment | The cf-app-autoscaler environment name | `production-cf` |
+| `cf_deployment_type` | Type of deployment used for the CF deployment | `cf` | `cf` |
+| `cf_core_network` | Name of the core CF network | Provided by Exodus data from CF Genesis kit | `cf-core` |
+| `cf_system_domain` | System domain for your CF deployment | Provided by Exodus data from CF Genesis kit | `system.example.com` |
+| `skip_ssl_validation` | Set to false to enforce SSL validation | `true` | `false` |
+| `db_disk_type` | Persistent disk type for the local database VM | `10GB` | `50GB` |
+| `subdomain_prefix` | Prefix for autoscaler subdomains | `autoscaler` | `aas` |
+
+### Example environment file with basic parameters:
+
+```yaml
+---
+kit:
+  name:    cf-app-autoscaler
+  version: 4.1.2
+  features:
+    - postgres
+
+params:
+  cf_deployment_env: prod-cf
+  skip_ssl_validation: false
+  db_disk_type: 20GB
+```
 
 ## Features
 
-In genesis kits features can be opted-in to on a per-environment bases by adding the `features` array to the environment file:
-```
+Features can be enabled in your environment file by adding them to the `features` array:
+
+```yaml
 kit:
   features:
   - feature-a
   - feature-b
 ```
 
-Using features is a way to configure the kit to suite the requirements of your specific deployment.
-
-## Features Provided by the Genesis Kit
-
 ### `ocfp`
 
 #### OCFP Reference Architecture
 
-This referene architecture requires using an external database, which has been provisioned externally from this kit (typically with terraform).
+This reference architecture requires using an external database provisioned externally (typically with Terraform).
 
-The new OCFP approach is: `terraform` -> `vault` -> `ocfp init pg`-> `ocfp init env`.
+The OCFP deployment workflow follows:
+1. **Terraform**: Computes values and places them in vault at contract-specified paths, e.g.: `secret/tf/{tf-env-path}/dbs/{bosh,credhub,uaa}`
+2. **Database Initialization**: The `ocfp init pg` script initializes the database and populates the environment's database values in vault according to the contract: `secret/{env-path}/db/cf-app-autoscaler:{hostname,ca,...}`
+3. **Environment Creation**: The `ocfp init env` script generates a Genesis BOSH kit environment file using a template that pulls values according to OCFP contracts
+4. **Deployment**: Enable required features and deploy
 
-The OCFP reference architecture approach 
-1. Terraform computes values and places them in vault at contract specified paths, ex: `secret/tf/{tf-env-path}/dbs/{bosh,credhub,uaa}`
-2. The `ocfp init pg` script initializes the database and then populates 
-the environment's database vaules in vault path according to the contract: 
-`secret/{env-path}/db/cf-app-autoscaler:{hostname,ca,...}`
-3. The `ocfp init env` script is run which generates a genesis bosh kit env
-file using a template which pulls values according to the OCFP contracts.
-3. Enable any required features and deploy.
-
-Note that the main differences with `ocfp` are that the following are specified according to contract, based off of environment name:
+The main differences with `ocfp` are that the following are specified according to contract, based on environment name:
 - `azs`
 - `networks`
-- `vm_types` based on env scale (`params.ocfp_env_scale`: `prod` or `dev`, with dev as default.)
-- location of external database and lb information in vault
-- org and db certificates locations in vault
+- `vm_types` based on env scale (`params.ocfp_env_scale`: `prod` or `dev`, with `dev` as default)
+- Location of external database and load balancer information in vault
+- Organization and database certificate locations in vault
 
+#### Example OCFP Configuration:
+
+```yaml
+kit:
+  features:
+  - ocfp
+
+params:
+  ocfp_env_scale: prod
+```
 
 ### `external-db`
 
-Use this feature to use an external database instead of creating an internal one.  It supports the following parameters set under `bosh_variables:` in your environment.
+Use this feature to connect to an externally managed database instead of deploying one with the kit.
 
-| Key                 | Description                                                  | Default                                                    |
-| ------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
-| `database.host`     | Required, the FQDN or IP for your database server            |                                                            |
-| `database.port`     | The port the database server is listening on                 | 3306 for mysql, 5432 for postgres                          |
-| `database.scheme`   | `postgres` or `mysql`                                        | `postgres`, or `mysql` if the `mysql` feature is specified |
-| `database.name`     | Name of the database                                         | `autoscaler`                                               |
-| `database.username` | Database authentication user name                            | `autoscaler`                                               |
-| `database.password` | Database authentication password                             | Pulls from Credhub location `autoscaler_database_password` |
-| `database.sslmode`  | Specifies the SSL validation mode to use; expect one of `disable`, `allow`, `prefer`, `require`, `verify-ca`, `verify-full` (*postgres*), `verify_identity` (*mysql*) | `verify-ca`                                                |
-| `database.tls.ca`   | CA for the database server, set to "" if not using TLS       | Pulls from Credhub location `autoscaler_database_tls_ca`   |
+#### Configuration Parameters
 
-It requires the following credhub values:
+Add these parameters under `bosh_variables:` in your environment file:
+
+| Key | Description | Default | Example |
+| --- | ----------- | ------- | ------- |
+| `database.host` | FQDN or IP of your database server (required) | | `db.example.com` |
+| `database.port` | Database server port | 3306 for MySQL, 5432 for PostgreSQL | `5432` |
+| `database.scheme` | Database type: `postgres` or `mysql` | `postgres`, or `mysql` if the `mysql` feature is specified | `postgres` |
+| `database.name` | Database name | `autoscaler` | `cf_autoscaler` |
+| `database.username` | Database authentication username | `autoscaler` | `autoscaler_user` |
+| `database.password` | Database authentication password | From Credhub: `autoscaler_database_password` | |
+| `database.sslmode` | SSL validation mode | `verify-ca` | `require` |
+| `database.tls.ca` | CA certificate for database server | From Credhub: `autoscaler_database_tls_ca` | |
+
+#### Required Credhub Values:
 
 * `autoscaler_database_password` (password)
 * `autoscaler_database_tls_ca` (certificate)
 
+#### Example External PostgreSQL Configuration:
+
+```yaml
+kit:
+  features:
+  - external-db
+  - postgres
+
+bosh_variables:
+  database:
+    host: postgres.example.com
+    port: 5432
+    name: cf_autoscaler
+    username: autoscaler_admin
+    password: (( vault meta.vault '/databases/postgres/autoscaler:password' ))
+    sslmode: verify-ca
+    tls:
+      ca: (( vault meta.vault '/databases/postgres/autoscaler:ca' ))
+```
+
+#### Example External MySQL Configuration:
+
+```yaml
+kit:
+  features:
+  - external-db
+  - mysql
+
+bosh_variables:
+  database:
+    host: mysql.example.com
+    port: 3306
+    scheme: mysql
+    name: cf_autoscaler
+    username: autoscaler_admin
+    password: (( vault meta.vault '/databases/mysql/autoscaler:password' ))
+    sslmode: verify_identity
+    tls:
+      ca: (( vault meta.vault '/databases/mysql/autoscaler:ca' ))
+```
+
 ### `subdomain_prefix`
 
-By default the subdomain prefix is `autoscaler`, and therefore we would have these urls:
+By default, the subdomain prefix is `autoscaler`, resulting in these URLs:
 * `autoscaler.${system_domain}`
 * `autoscalermetrics.${system_domain}`
 * `autoscalerservicebroker.${system_domain}`
 
-This can be overridden in the environment file as follows, let's say you wanted it
-to be `aas` short for "app auto scaler":
+You can override this prefix in the environment file:
+
 ```yaml
 params:
   subdomain_prefix: "aas"
 ```
-This would result in the following urls:
+
+This would create the following URLs:
 * `aas.${system_domain}`
 * `aasmetrics.${system_domain}`
 * `aasservicebroker.${system_domain}`
 
 ### `postgres`
 
-This is the default database type, but can be explicitly stated.
+This is the default database type but can be explicitly specified. When used without `external-db`, a PostgreSQL server will be deployed as part of your BOSH deployment.
+
+```yaml
+kit:
+  features:
+  - postgres
+```
 
 ### `mysql`
 
-Use MySQL instead of PostgreSQL.
+Use MySQL instead of PostgreSQL. When used without `external-db`, a MySQL server will be deployed as part of your BOSH deployment.
+
+```yaml
+kit:
+  features:
+  - mysql
+```
 
 ### `cf-v1-support`
 
-Allows this kit to be applied to v1.x series of CF Genesis Kit.  See [Supporting or Upgrading from cf-genesis-kit v1.x.x](#supporting-or-upgrading-from-cf-genesis-kit-v1-x-x)
+Allows this kit to be applied to the v1.x series of CF Genesis Kit. See [Migration from CF Genesis Kit v1.x.x](#migration-from-cf-genesis-kit-v1xx) for details.
 
-## Features Provided by `cf-app-autoscaler`
+## Upstream Features
 
-In addition to the bundled features that this kit exposes you can also include any ops files contained in the upstream [cf-app-autoscaler][cfaar] by referencing them via:
-```
+In addition to the bundled features, you can include ops files from the upstream [cf-app-autoscaler][cfaar] release:
+
+```yaml
 kit:
   features:
   - operations/<operation> # omit .yml suffix
 ```
 
-Caveat: Not all features are compatible with this kit and features are applied in order, so ordering may matter.  At the time of this writing, there is only cf-mysql-db and external-db, which have more complete first-class Genesis features that should be used instead.
+**Note**: Not all upstream features are compatible with this kit, and features are applied in order, so ordering matters. Currently, most upstream features have more complete first-class Genesis features that should be used instead.
 
-## Providing your Own Features
+## Custom Features
 
-If you would like to apply additional ops-files for unsupported features you can do so by adding them under:
-```
-./ops/<feature-name>.yml
+You can add custom ops files for features not directly supported by the kit:
+
+1. Create a custom ops file in your deployment repository:
+   ```bash
+   mkdir -p ops
+   vim ops/my-custom-feature.yml
+   ```
+
+2. Reference it in your environment file:
+   ```yaml
+   kit:
+     features:
+     - my-custom-feature
+   ```
+
+## Post-Deployment Configuration
+
+After deployment, complete the setup with these addon commands:
+
+### Install the CF CLI Plugin
+
+```bash
+genesis do my-env setup-cf-plugin
 ```
 
-and reference them in your environment file via:
-```
-kit:
-  features:
-  - <feature-name>
+### Bind Autoscaler Service Broker to CF
+
+```bash
+genesis do my-env bind-autoscaler
 ```
 
+### Create Autoscaling Policies
+
+Use the interactive configuration tool:
+
+```bash
+genesis do my-env config-autoscaler
+```
+
+For more details on configuring autoscaling policies, see [Autoscaler Configuration](/docs/config-autoscaler.md).
+
+## Scaling and Performance Tuning
+
+### Database Sizing
+
+For production environments, adjust the database disk size according to your needs:
+
+```yaml
+params:
+  db_disk_type: 50GB
+```
+
+### Resource Allocation
+
+For high-load environments, consider adjusting VM types in your cloud config for better performance.
+
+### Service Instance Counts
+
+The default instance count for the service is 1. For production environments, consider increasing this:
+
+```yaml
+instance_groups:
+- name: api
+  instances: 2
+- name: scheduler
+  instances: 2
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Service Broker Registration Failure
+
+If the service broker registration fails, check:
+- CF API accessibility
+- Credentials correctness
+- Network connectivity between CF and Autoscaler
+
+Debug with:
+```bash
+genesis do my-env test-bind-autoscaler
+```
+
+#### Database Connection Issues
+
+If you encounter database connection problems:
+1. Verify database credentials are correct
+2. Check network connectivity to the database
+3. Ensure firewall rules allow traffic on the database port
+4. Verify TLS certificates if using secure connections
+
+#### Scaling Doesn't Work
+
+If applications don't scale as expected:
+1. Verify the policy is correctly applied: `cf autoscaling-policy APP_NAME`
+2. Check metrics collection: `cf autoscaling-metrics APP_NAME`
+3. Examine logs: `bosh -d my-env-cf-app-autoscaler logs`
+
+### Getting Help
+
+If you encounter persistent issues:
+1. Check the [GitHub repository](https://github.com/genesis-community/cf-app-autoscaler-genesis-kit) for known issues
+2. Review the [upstream documentation](https://github.com/cloudfoundry/app-autoscaler-release)
+3. Reach out to the Genesis community for assistance
+
+---
+
+[cfaar]: https://github.com/cloudfoundry/app-autoscaler-release
