@@ -27,8 +27,9 @@ sub perform {
   my ($self) = @_;
   return 1 if $self->completed;
 
-  # Build cloud configuration with support for both OpenStack and STACKIT IaaS providers
+  # Build cloud configuration with support for OpenStack, STACKIT, and AWS IaaS providers
   # STACKIT configuration mirrors OpenStack but accounts for 1:1 network to subnet mapping
+  # AWS configuration based on extracted cloud config with encrypted disks and appropriate instance types
   my $config = $self->build_cloud_config({
     'networks' => [
       $self->network_definition('autoscaler', strategy => 'ocfp',
@@ -47,12 +48,186 @@ sub perform {
               'net_id' => $self->network_reference('id'),
               'security_groups' => ['default']
             },
+            # AWS IaaS configuration
+            aws => {
+              'subnet' => $self->network_reference('id'),
+              'security_groups' => ['default']
+            },
           },
         },
       )
     ],
     'vm_types' => [
-      # VM types for each component - defined for both OpenStack and STACKIT with identical configurations
+      # VM types for each component - defined for OpenStack, STACKIT, and AWS
+      # AWS specific configuration follows the aws-cloud-config.yml implementation
+      $self->vm_type_definition('as-api',
+        cloud_properties_for_iaas => {
+          openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration for API component
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.large'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
+        },
+      ),
+      $self->vm_type_definition('as-actors',
+        cloud_properties_for_iaas => {
+          openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration for actors component
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.large'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
+        },
+      ),
+      $self->vm_type_definition('as-metrics',
+        cloud_properties_for_iaas => {
+          openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration for metrics component
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.xlarge'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
+        },
+      ),
+      $self->vm_type_definition('as-nozzle',
+        cloud_properties_for_iaas => {
+          openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.small',
+              prod => 'm1.medium'
+            }, 'm1.small'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration for nozzle component
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.xlarge'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
+        },
+      ),
       $self->vm_type_definition('as-apiserver',
         cloud_properties_for_iaas => {
           openstack => {
@@ -73,6 +248,24 @@ sub perform {
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.large'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
             },
           },
         },
@@ -99,6 +292,24 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          # AWS IaaS VM configuration
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.large'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
         },
       ),
       $self->vm_type_definition('as-scheduler',
@@ -121,6 +332,24 @@ sub perform {
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration - scheduler uses m6i.xlarge for prod
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.xlarge'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
             },
           },
         },
@@ -147,6 +376,24 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          # AWS IaaS VM configuration - operator uses m6i.xlarge for prod
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.xlarge'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
         },
       ),
       $self->vm_type_definition('as-eventgenerator',
@@ -169,6 +416,24 @@ sub perform {
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
+            },
+          },
+          # AWS IaaS VM configuration - eventgenerator uses m6i.xlarge for prod
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.xlarge'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
             },
           },
         },
@@ -195,11 +460,231 @@ sub perform {
               'size' => 20 # in gigabytes
             },
           },
+          # AWS IaaS VM configuration - metricsforwarder uses m6i.xlarge for prod
+          aws => {
+            'instance_type' => $self->for_scale({
+              dev => 't3.medium',
+              prod => 'm6i.xlarge'
+            }, 't3.medium'),
+            'ephemeral_disk' => {
+              'size' => $self->for_scale({
+                dev => 4096,
+                prod => 16384
+              }, 4096),
+              'type' => 'gp3',
+              'encrypted' => $self->TRUE
+            },
+            'metadata_options' => {
+              'http_tokens' => 'required'
+            },
+          },
         },
       ),
     ],
     'disk_types' => [
-      # Disk type configurations for both OpenStack and STACKIT
+      # Disk type configurations for OpenStack, STACKIT, and AWS
+      # Following the aws-cloud-config.yml implementation with separate disk types for components
+      $self->disk_type_definition('as-api',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-actors',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-metrics',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-nozzle',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-apiserver',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-scalingengine',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-scheduler',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-operator',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-metricsforwarder',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      $self->disk_type_definition('as-eventgenerator',
+        common => {
+          disk_size => $self->for_scale({
+            dev => gigabytes(32),
+            prod => gigabytes(64)
+          }, gigabytes(32)),
+        },
+        cloud_properties_for_iaas => {
+          openstack => {
+            'type' => 'storage_premium_perf1',
+          },
+          stackit => {
+            'type' => 'storage_premium_perf1',
+          },
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
+          },
+        },
+      ),
+      # Keep the as-db for backward compatibility
       $self->disk_type_definition('as-db',
         common => {
           disk_size => $self->for_scale({
@@ -214,6 +699,11 @@ sub perform {
           # STACKIT IaaS disk configuration - using same storage type as OpenStack
           stackit => {
             'type' => 'storage_premium_perf1',
+          },
+          # AWS IaaS disk configuration
+          aws => {
+            'type' => 'gp3',
+            'encrypted' => $self->TRUE,
           },
         },
       ),
