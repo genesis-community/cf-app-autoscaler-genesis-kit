@@ -1,10 +1,8 @@
-#!/usr/bin/env perl
-# vim: set ts=2 sw=2 sts=2 foldmethod=marker
-package Genesis::Hook::Addon::AppAutoscaler::ConfigAutoscaler v4.0.0;
+# vim: set ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1:
+package Genesis::Hook::Addon::AppAutoscaler::ConfigAutoscaler;
 
-use strict;
-use warnings;
 use v5.20;
+use warnings;
 use File::Path qw(make_path);
 
 # Only needed for development

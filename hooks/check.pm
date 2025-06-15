@@ -1,16 +1,14 @@
-#!/usr/bin/env perl
-# vim: set ts=2 sw=2 sts=2 et:
-package Genesis::Hook::Check::AppAutoscaler v4.0.0;
+# vim: set ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1:
+package Genesis::Hook::Check::AppAutoscaler;
 
-use strict;
-use warnings;
 use v5.20;
+use warnings;
 
 # Only needed for development
 BEGIN {push @INC, $ENV{GENESIS_LIB} ? $ENV{GENESIS_LIB} : $ENV{HOME}.'/.genesis/lib'}
 
 # Parent class inheritance
-use parent qw(Genesis::Hook);
+use parent qw(Genesis::Hook::Check);
 
 # Import required functions
 use Genesis qw/info bail new_enough run/;
@@ -61,7 +59,7 @@ sub perform {
   if (new_enough($cf_kit_version, "2.5.2")) {
     info("  target cf kit version [#G{OK}]");
   } else {
-    info("\n@error This version of autoscaler kit requires CF Kit 2.5.2 or greater to be deployed as its target CF.\n");
+    info("\n#R{[ERROR]} This version of autoscaler kit requires CF Kit 2.5.2 or greater to be deployed as its target CF.\n");
     return $self->done(0);
   }
 
