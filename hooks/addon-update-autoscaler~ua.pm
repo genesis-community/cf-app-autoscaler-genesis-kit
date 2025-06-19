@@ -1,4 +1,3 @@
-# vim: set ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1:
 package Genesis::Hook::Addon::AppAutoscaler::UpdateAutoscaler;
 
 use v5.20;
@@ -71,3 +70,4 @@ sub cf_login {
 }
 
 1;
+# vim: set ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1:
