@@ -33,7 +33,7 @@ sub perform {
       $self->network_definition('autoscaler', strategy => 'ocfp',
         dynamic_subnets => {
           allocation => {
-            size => 0,
+            size => 3,
             statics => 0,
           },
           cloud_properties_for_iaas => {
@@ -44,7 +44,7 @@ sub perform {
             # STACKIT IaaS configuration - similar to OpenStack but with 1:1 network to subnet mapping
             stackit => {
               'net_id' => $self->network_reference('id'),
-              'security_groups' => ['default']
+	      'security_groups' => $self->network_reference('sgs', 'get_sgs_by_names', 'ocfp', 'default')
             },
             # AWS IaaS configuration
             aws => {
@@ -712,6 +712,13 @@ sub perform {
 
 	return 1;
 
+}
+
+sub get_sgs_by_names {
+	my ($self, $subnet_data, $ref, @names) = @_;
+	my @ids = map {$subnet_data->{$ref}{$_}{id}} @names;
+	# TODO: Error checking
+	return \@ids
 }
 
 1;

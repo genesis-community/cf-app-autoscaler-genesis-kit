@@ -7,11 +7,6 @@ meta:
     vault:
       tf: (( concat genesis.secrets_mount "tf/" genesis.vault_env ))
 
-    certs:
-      trusted:
-        - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
-        - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
-
   cf:
     exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
     deployment_name: (( concat genesis.env "-cf" ))
@@ -24,16 +19,4 @@ meta:
 
     networks:
       - name: (( concat genesis.env "-ocf" ))
-
-bosh-variables:
-  database:
-    host:     (( vault meta.vault "/db/autoscaler:hostname" ))
-    port:     (( vault meta.vault "/db/autoscaler:port"     ))
-    scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
-    name:     (( vault meta.vault "/db/autoscaler:database" ))
-    username: (( vault meta.vault "/db/autoscaler:username" ))
-    password: (( vault meta.vault "/db/autoscaler:password" ))
-    sslmode:  "verify-ca"
-    tls:
-      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
 

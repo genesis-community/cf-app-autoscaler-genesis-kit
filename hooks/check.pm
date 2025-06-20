@@ -1,50 +1,68 @@
-# vim: set ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1:
-package Genesis::Hook::Check::AppAutoscaler;
+package Genesis::Hook::AppAutoscaler::Check;
+
 
 use v5.20;
-use warnings;
-
+use warnings; # Genesis min perl version is 5.20
+use Genesis qw/info error bail new_enough/;
 # Only needed for development
-BEGIN {push @INC, $ENV{GENESIS_LIB} ? $ENV{GENESIS_LIB} : $ENV{HOME}.'/.genesis/lib'}
+BEGIN {push @INC, $ENV{GENESIS_LIB} ? $ENV{GENESIS_LIB} : $ENV{HOME}.'./.genesis/lib'}
 
-# Parent class inheritance
 use parent qw(Genesis::Hook::Check);
-
-# Import required functions
-use Genesis qw/info bail new_enough run/;
-
 sub init {
-  my ($class, %ops) = @_;
-  my $obj = $class->SUPER::init(%ops);
-  $obj->{ok} = 1; # Start assuming all checks will pass
-  $obj->check_minimum_genesis_version('3.1.0-rc.20');
-  return $obj;
+	my $class = shift;
+	my $obj = $class->SUPER::init(@_);
+	$obj->check_minimum_genesis_version('3.1.0-rc.20');
+	return $obj;
 }
 
 sub perform {
+	my ($self) = @_;
+
+  my $ok = 1;
+	# Run all component checks
+  $ok = 0 unless $self->check_cf_version_compatibility();
+	$ok = 0 unless $self->check_cloud_config();
+	$ok = 0 unless $self->check_runtime_config();
+
+	return $self->done($ok);
+}
+
+sub check_cloud_config {
+	my ($self) = @_;
+
+	# For now, we're just going to check that there is a cloud config, but
+	# ideally we should check that the cloud config contains all the required
+	# properties for this deployment.
+	#
+	# DISCUSS: Since we now generate the cloud config from the kit, and genesis
+	# is responsible for uploading it at deployment time, do we even need to
+	# check for the cloud config or validate its contents?
+
+  $self->start_check('cloud-config');
+  return $self->check_result('cloud-config','skipped','OCFP env manages its own cloud-config') if $self->is_ocfp;
+  return $self->check_result('cloud-config','failed', 'no cloud config found') unless  $self->env->has_config('cloud');
+  return $self->check_result('cloud-config');
+}
+
+sub check_runtime_config {
+	my ($self) = @_;
+
+  $self->start_check('runtime-config');
+
+  return $self->check_result('runtime-config','failed', 'no runtime config found') unless $self->env->has_config('runtime');
+
+  $self->has_entry('runtime-config','job','bosh-dns');
+
+  #FIXME: Need to ensure the job is for the target stemcell os
+  return $self->check_result('runtime-config');
+}
+
+# TODO: How to handle not yet deployed?
+sub check_cf_version_compatibility {
   my ($self) = @_;
 
-  # Runtime config checks
-  my $runtime_ok = 'yes';
-
-  # Check for BOSH DNS
-  my ($out, $rc) = run("rcq -e '.addons[] | .name | select(. == \"bosh-dns\")' &>/dev/null");
-  if ($rc != 0) {
-    $runtime_ok = 'no';
-    info(
-      "\n#R{Errors were found} in your runtime-config:".
-      "\n\t- #R{BOSH DNS is not in the runtime-config, which is required. Refer to}".
-      "\n\t\t#R{'genesis man $ENV{GENESIS_ENVIRONMENT}' for more info.}\n"
-       );
-  }
-
-  # Output runtime config check results
-  if ($runtime_ok eq "yes") {
-    info("\truntime config [#G{OK}]");
-  } else {
-    info("\truntime config [#R{FAILED}]");
-  }
-
+  $self->start_check('version upgrade compatibility');
+ 
   # Get CF deployment exodus data
   my $cf_env = $self->env->lookup('params.cf_deployment_env', $self->env->name);
   my $cf_type = $self->env->lookup('params.cf_deployment_type', 'cf');
@@ -59,21 +77,12 @@ sub perform {
   if (new_enough($cf_kit_version, "2.5.2")) {
     info("  target cf kit version [#G{OK}]");
   } else {
-    info("\n#R{[ERROR]} This version of autoscaler kit requires CF Kit 2.5.2 or greater to be deployed as its target CF.\n");
-    return $self->done(0);
+    bail("\n#R{[ERROR]} This version of autoscaler kit requires CF Kit 2.5.2 or greater to be deployed as its target CF.\n");
   }
-
-  # Environment checks
-  my $env_ok = 'yes';
-  # Environment parameter checks can be added here if needed
-
-  if ($env_ok eq "yes") {
-    info("\tenvironment files [#G{OK}]");
-  } else {
-    info("\tenvironment files [#R{FAILED}]");
-  }
-
-  return $self->done($env_ok eq "yes" && $runtime_ok eq "yes");
+  return 1;
 }
 
+
 1;
+
+# vim: set ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1:
