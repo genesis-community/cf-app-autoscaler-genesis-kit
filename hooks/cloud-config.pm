@@ -62,9 +62,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -72,9 +72,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -104,9 +104,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -114,9 +114,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -146,9 +146,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -156,9 +156,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -188,9 +188,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -198,9 +198,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -230,9 +230,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -240,9 +240,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -272,9 +272,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -282,9 +282,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -314,9 +314,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -324,9 +324,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -356,9 +356,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -366,9 +366,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -398,9 +398,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -408,9 +408,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -440,9 +440,9 @@ sub perform {
         cloud_properties_for_iaas => {
           openstack => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -450,9 +450,9 @@ sub perform {
           },
           stackit => {
             'instance_type' => $self->for_scale({
-              dev => 'm1.small',
-              prod => 'm1.medium'
-            }, 'm1.small'),
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
             'boot_from_volume' => $self->TRUE,
             'root_disk' => {
               'size' => 20 # in gigabytes
@@ -477,6 +477,30 @@ sub perform {
             },
           },
         },
+      ),
+      $self->vm_type_definition('as-db',
+        cloud_properties_for_iaas => {
+          openstack => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+          stackit => {
+            'instance_type' => $self->for_scale({
+              dev => 'm1.2',
+              prod => 'm1.3'
+            }, 'm1.2'),
+            'boot_from_volume' => $self->TRUE,
+            'root_disk' => {
+              'size' => 20 # in gigabytes
+            },
+          },
+        }, # AWS uses RDS only so no VM type set
       ),
     ],
     'disk_types' => [
@@ -692,11 +716,11 @@ sub perform {
         },
         cloud_properties_for_iaas => {
           openstack => {
-            'type' => 'storage_premium_perf1',
+            'type' => 'storage_premium_perf8',
           },
           # STACKIT IaaS disk configuration - using same storage type as OpenStack
           stackit => {
-            'type' => 'storage_premium_perf1',
+            'type' => 'storage_premium_perf8',
           },
           # AWS IaaS disk configuration
           aws => {

@@ -68,13 +68,13 @@ sub perform {
   foreach my $feature ($self->features) {
     if ($feature eq 'ocfp') {
       $self->add_files(
-        "overlay/fix-upstream-db-opsfiles.yml",
         "ocfp/meta.yml",
         "ocfp/ocfp.yml",
         "ocfp/broker.yml"
       );
       if ($self->iaas eq 'aws') {
       $self->add_files(
+        "overlay/fix-upstream-db-opsfiles.yml",
         "upstream/operations/external-db.yml",
         "overlay/external_db/common.yml",
         "overlay/no-postgres.yml",

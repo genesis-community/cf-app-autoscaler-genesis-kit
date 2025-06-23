@@ -1,11 +1,9 @@
 ---
 meta:
   ocfp:
-    env:
-      scale: (( grab params.ocfp_env_scale || "dev" ))
-
     vault:
-      tf: (( concat genesis.secrets_mount "tf/" genesis.vault_env ))
+      config_prefix: (( grab params.ocfp_vault_config_prefix || "config/" ))
+      config: (( concat genesis.ocfp_config_mount genesis.ocfp_env ))        
 
   cf:
     exodus:          (( concat $GENESIS_EXODUS_MOUNT genesis.env "/cf" ))
@@ -17,6 +15,7 @@ meta:
       - (( concat genesis.env "-z2" ))
       - (( concat genesis.env "-z3" ))
 
+    network:    (( concat genesis.env ".cf-app-autoscaler.net-autoscaler" ))      
     networks:
-      - name: (( concat genesis.env "-ocf" ))
+      - name: (( grab meta.as.network ))
 

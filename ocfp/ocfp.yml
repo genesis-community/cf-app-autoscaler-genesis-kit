@@ -1,4 +1,14 @@
 ---
+meta:
+  ocfp:
+    env:
+      cloud: (( concat genesis.env "." genesis.type "." ))
+
+#params:
+#  as_network:       (( concat meta.ocfp.env.cloud "net-as" ))
+#  as_vm_type:       (( concat meta.ocfp.env.cloud "vm-as" ))
+#  as_disk_type:     (( concat meta.ocfp.env.cloud "disk-as" ))
+
 exodus:
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
@@ -8,30 +18,30 @@ instance_groups:
   - name: apiserver
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-apiserver-" meta.ocfp.env.scale ))
+    vm_type: (( concat meta.ocfp.env.cloud "vm-as-apiserver" ))
     stemcell: default
   - name: scalingengine
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-scalingengine-" meta.ocfp.env.scale ))
+    vm_type: (( concat meta.ocfp.env.cloud "vm-as-scalingengine" ))
     stemcell: default
   - name: scheduler
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-scheduler-" meta.ocfp.env.scale ))
+    vm_type: (( concat meta.ocfp.env.cloud "vm-as-scheduler" ))
     stemcell: default
   - name: operator
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-operator-" meta.ocfp.env.scale ))
+    vm_type: (( concat meta.ocfp.env.cloud "vm-as-operator" ))
     stemcell: default
   - name: eventgenerator
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-eventgenerator-" meta.ocfp.env.scale ))
+    vm_type: (( concat meta.ocfp.env.cloud "vm-as-eventgenerator" ))
     stemcell: default
   - name: metricsforwarder
     azs: (( grab meta.as.azs ))
     networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-metricsforwarder-" meta.ocfp.env.scale ))
+    vm_type: (( concat meta.ocfp.env.cloud "vm-as-metricsforwarder" ))
     stemcell: default
