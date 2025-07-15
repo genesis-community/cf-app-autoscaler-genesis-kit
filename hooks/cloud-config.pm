@@ -36,6 +36,10 @@ sub perform {
 							'net_id' => $self->network_reference('id'),
 							'security_groups' => $self->get_network_security_groups(),
 						},
+						'aws' => {
+							'subnet' => $self->network_reference('id'),
+							'security_groups' => $self->get_network_security_groups(),
+						},
 					},
 				},
 			)
@@ -49,6 +53,7 @@ sub perform {
 			$self->generic_vm_type('metricsforwarder'),
 		],
 		'disk_types' => [
+			# The local DB is the only persistent disk type needed
 			$self->generic_disk_type('postgres'),
 		],
 	});
@@ -83,6 +88,23 @@ sub generic_vm_type {
 					'size' => 30 # in gigabytes
 				},
 			},
+			aws => {
+				'instance_type' => $self->for_scale({
+					dev => 't3.medium',
+					prod => 'm6i.large'
+				}, 't3.medium'),
+				'ephemeral_disk' => {
+					'size' => $self->for_scale({
+						dev => 4096,
+						prod => 16384
+					}, 4096),
+					'type' => 'gp3',
+					'encrypted' => $self->TRUE
+				},
+				'metadata_options' => {
+					'http_tokens' => 'required'
+				},
+			},
 		}
 	);
 }
@@ -92,13 +114,17 @@ sub generic_disk_type {
 	return $self->{__generic_disk_type} //= $self->disk_type_definition($name,
 		common => {
 			disk_size => $self->for_scale({
-				dev => gigabytes(25),
-				prod => gigabytes(50)
-			}, gigabytes(30))
+				dev => gigabytes(32),
+				prod => gigabytes(64)
+			}, gigabytes(32))
 		},
 		cloud_properties_for_iaas => {
 			'openstack|stackit' => {
 				'type' => 'storage_premium_perf6',
+			},
+			aws => {
+				'type' => 'gp3',
+				'encrypted' => $self->TRUE,
 			},
 		},
 	);
