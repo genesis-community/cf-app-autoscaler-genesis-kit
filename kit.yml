@@ -6,8 +6,13 @@ author:  Dennis Bell <dennis.j.bell@gmail.com>
 docs:    https://github.com/cloudfoundry/app-autoscaler-release
 code:    https://github.com/genesis-community/cf-app-autoscaler-genesis-kit
 
-# 2.6.0 was our last big feature bump
-genesis_version_min: 3.1.0-rc.9 #TODO: Change to 2.8.6 once released for ocfp feature
+supports:
+- aws
+- openstack
+- stackit
+
+genesis_version_min: 3.1.0
+
 exclude_paths:
   - docs
   - files
