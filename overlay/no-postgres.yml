@@ -3,3 +3,8 @@ instance_groups:
 
 releases:
   - (( delete "postgres" ))
+
+variables:
+  - (( delete "postgres_ca" ))
+  - (( delete "postgres_server" ))
+  - (( delete "postgres_client" ))
