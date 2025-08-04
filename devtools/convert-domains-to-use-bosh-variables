@@ -1,0 +1,282 @@
+#!/usr/bin/env perl
+# Use 2 spaces no tabs!
+# vim: set ts=2 sw=2 expandtab:
+use strict;
+use warnings;
+use JSON::PP;
+use Getopt::Long;
+use Try::Tiny;
+use File::Basename;
+use IPC::Open2;
+use Data::Dumper;
+
+# Command line options
+my $input_file;
+my $output_file;
+my $debug = 0;
+my $help = 0;
+
+GetOptions(
+  "output|o=s" => \$output_file,
+  "debug|d"    => \$debug,
+  "help|h"     => \$help
+) or die "Error in command line arguments\n";
+
+if ($help) {
+  print_usage();
+  exit 0;
+}
+
+# If input file not specified via option, take first argument
+$input_file = $ARGV[0] or die print_usage();
+
+# Helper function to strip deployment prefixes
+sub strip_deployment_name_prefix {
+  my ($value, $hierarchy) = @_;
+  return $value unless defined $value;
+
+  # Handle all prefix patterns:
+  # ((deployment_name)).
+  # ((deployment_name))-
+  # ((deployment_name))
+  $value =~ s/\(\(deployment_name\)\)[\.-]?//g;
+
+  debug("Stripped prefixes from: $value", $hierarchy) if $debug;
+  return $value;
+}
+
+# Enhanced debug function with hierarchy support
+sub debug {
+  my ($msg, $hierarchy) = @_;
+
+  if ($debug) {
+    my $prefix = $hierarchy ? ".$hierarchy => " : "";
+    print STDERR "DEBUG: ${prefix}$msg\n";
+  }
+}
+
+# Print usage information
+sub print_usage {
+  print STDERR "Usage: convert-domains-to-use-bosh-variables [options] <input_file>\n";
+  print STDERR "Options:\n";
+  print STDERR "  -o, --output=FILE    Write output to FILE instead of STDOUT\n";
+  print STDERR "  -d, --debug          Enable debug output\n";
+  print STDERR "  -h, --help           Display this help message\n";
+  return 1;
+}
+
+# Run command and return its output
+sub run_command {
+  my ($cmd) = @_;
+  debug("Running command: $cmd");
+
+  my $output = `$cmd`;
+  die "Command failed: $cmd (exit code: $?)" if $?;
+
+  return $output;
+}
+
+# Helper function to validate JSON structure
+sub validate_json {
+  my ($json) = @_;
+  die "Invalid JSON: Empty document\n" unless $json;
+  die "Invalid JSON: Not a hash reference\n" unless ref($json) eq 'HASH';
+}
+
+# Helper function to clean domain values
+sub clean_domain_value {
+  my ($value, $hierarchy) = @_;
+  $value =~ s/&\w+\s+//;  # Remove anchor
+  $value =~ s/^\s+|\s+$//g;  # Trim whitespace
+  # Strip deployment prefixes from the value
+  $value = strip_deployment_name_prefix($value, $hierarchy);
+  return $value;
+}
+
+my %known_variables;
+
+# Process domain sections and create bosh variables
+sub build_bosh_variables {
+  my ($json) = @_;
+
+  # Initialize bosh-variables section if it doesn't exist
+  $json->{'bosh-variables'} ||= {};
+
+  # Process regular domains
+  if (exists $json->{domains}) {
+    debug("Processing 'domains' section", "domains");
+    while (my ($key, $value) = each %{$json->{domains}}) {
+      my $var_name = "${key}_domain";
+      my $cleaned_value = clean_domain_value($value, "domains");
+      $json->{'bosh-variables'}->{$var_name} = $cleaned_value;
+      $known_variables{$var_name} = 1;
+      debug("Added domain: $var_name = $cleaned_value", "domains.$key");
+    }
+    delete $json->{domains};
+  }
+
+  # Process public domains
+  if (exists $json->{'public_domains'}) {
+    debug("Processing 'public_domains' section", "public_domains");
+    while (my ($key, $value) = each %{$json->{'public_domains'}}) {
+      my $var_name = "${key}_public_domain";
+      my $cleaned_value = clean_domain_value($value, "public_domains");
+      $json->{'bosh-variables'}->{$var_name} = $cleaned_value;
+      $known_variables{$var_name} = 1;
+      debug("Added public domain: $var_name = $cleaned_value", "public_domains.$key");
+    }
+    delete $json->{'public_domains'};
+  }
+
+  debug("bosh-variables: " . Dumper($json->{'bosh-variables'}), "./bosh-variables") if $debug;
+}
+
+# Helper function to process deployment name values
+sub process_deployment_name_value {
+  my ($value, $json, $hierarchy) = @_;
+  return $value unless defined $value && !ref($value);
+
+  # if value is exactly '((deployment_name))', return it as is
+  return $value if $value eq '((deployment_name))';
+
+  # otherwise, if value contains deployment_name prefix
+  if ($value =~ /\(\(deployment_name\)\)/) {
+    my $stripped_value = strip_deployment_name_prefix($value, $hierarchy);
+    my $matching_bosh_variable = find_matching_bosh_variable($stripped_value, $json, $hierarchy);
+    if ($matching_bosh_variable) {
+      debug("Replacing with bosh variable: $matching_bosh_variable", $hierarchy);
+      return "(($matching_bosh_variable))";
+    } else {
+      if ($stripped_value =~ /^\(\(.*\)\)$/) {
+        # The stripped name is no longer differentiated from a base value -- use a generic app-autoscaler subdomain
+        my $old_stripped_value = $stripped_value;
+        $stripped_value = $value =~ s/\(\(deployment_name\)\)/app-autoscaler/gr;
+        $json->{'bosh-variables'}->{'base_public_domain'} = $stripped_value;
+        debug("replacing $value with $stripped_value, because $old_stripped_value is invalid.", $hierarchy);
+        return "((base_public_domain))";
+      } elsif ($stripped_value =~ /(.*)\.\(\(system_domain\)\)$/) {
+        # Give it a bosh variable name
+        my $var_name = "${1}_public_domain";
+        debug("Found new public domain: $var_name = $stripped_value", $hierarchy);
+        $json->{'bosh-variables'}->{$var_name} = $stripped_value;
+        return "(($var_name))";
+      } else {
+        debug("No matching bosh variable found for: $stripped_value", $hierarchy);
+      }
+      return $stripped_value;
+    }
+  }
+  return $value;
+}
+
+# Helper function to find matching bosh variable
+sub find_matching_bosh_variable {
+  my ($stripped_value, $json, $hierarchy) = @_;
+  return unless $stripped_value && exists $json->{'bosh-variables'};
+  return (grep {$json->{'bosh-variables'}{$_} eq $stripped_value} keys %{$json->{'bosh-variables'}})[0];
+}
+
+# Process hash structures with hierarchy tracking
+sub process_hash {
+  my ($hash, $json, $hierarchy) = @_;
+  $hierarchy = '/' unless $hierarchy;
+  return unless ref($hash) eq 'HASH';
+
+  for my $key (sort keys %$hash) {
+    my $value = $hash->{$key};
+    my $current_path = $hierarchy eq '/' ? $key : "$hierarchy.$key";
+
+    next if $key eq 'bosh-variables';
+
+    if (ref($value) eq 'HASH') {
+      debug("Entering hash", $current_path);
+      process_hash($value, $json, $current_path);
+    } elsif (ref($value) eq 'ARRAY') {
+      debug("Entering array", $current_path);
+      process_array($value, $json, $current_path);
+    } else {
+      next if $value eq '((deployment_name))';
+      my $old_value = $value;
+      $hash->{$key} = process_deployment_name_value($value, $json, $current_path);
+      if ($old_value ne $hash->{$key}) {
+        debug("Modified value: $old_value -> $hash->{$key}", $current_path);
+      }
+    }
+  }
+}
+
+# Process array structures with hierarchy tracking
+sub process_array {
+  my ($array, $json, $hierarchy) = @_;
+  return unless ref($array) eq 'ARRAY';
+
+  for my $i (0..$#$array) {
+    my $value = $array->[$i];
+    my $current_path = "${hierarchy}[$i]";
+
+    if (ref($value) eq 'HASH') {
+      debug("Entering array element $i as a (hash)", $current_path);
+      process_hash($value, $json, $current_path);
+    } elsif (ref($value) eq 'ARRAY') {
+      debug("Entering array element $i as an (array)", $current_path);
+      process_array($value, $json, $current_path);
+    } else {
+      my $old_value = $value;
+      $array->[$i] = process_deployment_name_value($value, $json, $current_path);
+      if ($old_value ne $array->[$i]) {
+        debug("Modified array element $i: $old_value -> $array->[$i]", $current_path);
+      }
+    }
+  }
+}
+
+# Main execution
+try {
+  debug("Converting YAML to JSON using spruce...", ".");
+  my $json_str = run_command("spruce json $input_file");
+
+  debug("Parsing JSON...", ".");
+  my $json = JSON::PP->new->utf8->decode($json_str);
+
+  validate_json($json);
+
+  debug("Processing domain sections", ".");
+  build_bosh_variables($json);
+
+  debug("Processing JSON structure for deployment_name and domain references", ".");
+  process_hash($json, $json);
+
+  debug("Converting back to YAML using spruce...", ".");
+
+  # Open pipe to spruce merge --skip-eval
+  my ($reader, $writer);
+  my $pid = open2($reader, $writer, 'spruce merge --skip-eval -');
+  die "Failed to open pipe to spruce" unless $pid;
+
+  # Send JSON to spruce
+  print $writer JSON::PP->new->utf8->encode($json);
+  close $writer;
+
+  # Read YAML output from spruce
+  my $output = do { local $/; <$reader> };
+  close $reader;
+
+  # Wait for spruce to finish
+  waitpid($pid, 0);
+  die "spruce merge failed" if $?;
+
+  if ($output_file) {
+    debug("Writing output to file: $output_file", "root");
+    open(my $fh, '>', $output_file) or die "Cannot open output file: $!\n";
+    print $fh $output;
+    close($fh);
+    print STDERR "Successfully converted YAML. Output written to: $output_file\n";
+  } else {
+    debug("Writing output to STDOUT", "root");
+    print $output;
+  }
+} catch {
+  die "Error processing file: $_\n";
+};
+
+__END__

@@ -1,0 +1,133 @@
+---
+addons:
+- name: bosh-dns-aliases
+  jobs:
+  - name: bosh-dns-aliases
+    properties:
+      aliases:
+      - (( merge on domain ))
+      - domain: ((postgres_domain))
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          network: (( grab params.network ))
+      - domain: ((api_domain))
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          network: (( grab params.network ))
+      - domain: ((scheduler_domain))
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          network: (( grab params.network ))
+      - domain: ((servicebroker_domain))
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          network: (( grab params.network ))
+      - domain: ((eventgenerator_domain))
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          network: (( grab params.network ))
+      - domain: ((scalingengine_domain))
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          network: (( grab params.network ))
+      - domain: nats.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+      - domain: reverse-log-proxy.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+      - domain: _.nats.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '_'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+      - domain: logcache
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+      - domain: log-cache.service.cf.internal
+        targets:
+        - (( merge on query ))
+        - query: '*'
+          deployment: (( grab meta.cf.deployment_name ))
+          network: (( grab params.cf_core_network ))
+
+instance_groups:
+- name: postgres
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: scalingengine
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: apiserver
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+  jobs:
+  - name: golangapiserver
+    release: app-autoscaler
+    properties:
+      autoscaler:
+        apiserver:
+          broker:
+            broker_credentials:
+            - (( replace ))
+            - broker_username: ((autoscaler_service_broker_username))
+              broker_password: ((autoscaler_service_broker_password))
+
+
+- name: scheduler
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: operator
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: eventgenerator
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+
+- name: metricsforwarder
+  azs: (( grab params.availability_zones ))
+  networks:
+  - (( replace ))
+  - name: (( grab params.network ))
+  jobs:
+  - name: loggr-syslog-binding-cache
+    consumes:
+      cloud_controller: { from: cloud_controller, deployment: (( grab meta.cf.deployment_name )) }
+
+variables:
+- name: autoscaler_service_broker_username
+  type: password
+- name: autoscaler_service_broker_password
+  type: password

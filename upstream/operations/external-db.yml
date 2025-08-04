@@ -1,6 +1,6 @@
 
 - type: remove
-  path: /instance_groups/name=postgres_autoscaler
+  path: /instance_groups/name=postgres
 
 # scalingengine/scalingengine
 - type: replace
@@ -128,4 +128,11 @@
   value: *external_database
 - type: replace
   path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/storedprocedure_db_connection_config?
+  value: *databaseConnectionConfig
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/binding_db
+  value: *external_database
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/binding_db_connection_config?
   value: *databaseConnectionConfig

@@ -1,37 +1,78 @@
 ---
-exodus:
+meta:
+  ocfp:
+    vault:
+      config_prefix: (( grab params.ocfp_vault_config_prefix || "config/" ))
+      config:        (( concat genesis.ocfp_config_mount genesis.ocfp_env ))
+
+    certs:
+      trusted:
+        - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
+        - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
+
+    azs:
+      - (( concat genesis.env "-z1" )) # FIXME: Should just be the base name
+      - (( concat genesis.env "-z2" ))
+      - (( concat genesis.env "-z3" ))
+
+    networks:
+      - name: (( concat genesis.env "." genesis.type ".net-autoscaler"       ))
+
+    disk_types:
+      postgres:         (( concat genesis.env "." genesis.type ".disk-postgres"       ))
+
+    vm_types:
+      apiserver:        (( concat genesis.env "." genesis.type ".vm-apiserver"        ))
+      scalingengine:    (( concat genesis.env "." genesis.type ".vm-scalingengine"    ))
+      scheduler:        (( concat genesis.env "." genesis.type ".vm-scheduler"        ))
+      operator:         (( concat genesis.env "." genesis.type ".vm-operator"         ))
+      eventgenerator:   (( concat genesis.env "." genesis.type ".vm-eventgenerator"   ))
+      metricsforwarder: (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
+      postgres:         (( concat genesis.env "." genesis.type ".vm-postgres"         ))
+
+exodus: # This should be taken from the manifest, not constructed here (might already be done in base)
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
+params:
+  network:  (( grab meta.ocfp.networks[0].name ))
+
+# Instance group OCFP overrides
 instance_groups:
   - name: apiserver
-    azs: (( grab meta.as.azs ))
-    networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-apiserver-" meta.ocfp.env.scale ))
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.apiserver ))
     stemcell: default
   - name: scalingengine
-    azs: (( grab meta.as.azs ))
-    networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-scalingengine-" meta.ocfp.env.scale ))
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.scalingengine ))
     stemcell: default
   - name: scheduler
-    azs: (( grab meta.as.azs ))
-    networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-scheduler-" meta.ocfp.env.scale ))
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.scheduler ))
     stemcell: default
   - name: operator
-    azs: (( grab meta.as.azs ))
-    networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-operator-" meta.ocfp.env.scale ))
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.operator ))
     stemcell: default
   - name: eventgenerator
-    azs: (( grab meta.as.azs ))
-    networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-eventgenerator-" meta.ocfp.env.scale ))
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.eventgenerator ))
     stemcell: default
   - name: metricsforwarder
-    azs: (( grab meta.as.azs ))
-    networks: (( grab meta.as.networks ))
-    vm_type: (( concat "as-metricsforwarder-" meta.ocfp.env.scale ))
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.metricsforwarder ))
+    stemcell: default
+  - name: postgres
+    azs: (( grab meta.ocfp.azs ))
+    networks: (( grab meta.ocfp.networks ))
+    vm_type: (( grab meta.ocfp.vm_types.postgres ))
+    persistent_disk_type: (( grab meta.ocfp.disk_types.postgres ))
     stemcell: default
