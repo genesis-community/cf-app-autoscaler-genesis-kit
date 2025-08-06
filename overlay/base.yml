@@ -28,9 +28,9 @@ bosh-variables:
   # CF Deployment values for autoscaler - kit v2.9.0-rc2 or later
   admin_username: (( vault meta.cf.exodus ":admin_username" ))
   admin_password: (( vault meta.cf.exodus ":admin_password" ))
-  log_cache_syslog_tls_ca: (( vault meta.cf.exodus ":log_cache_syslog_tls_ca" ))
-  syslog_agent_log_cache_tls_certificate: (( vault meta.cf.exodus ":syslog_agent_log_cache_tls_certificate" ))
-  syslog_agent_log_cache_tls_key: (( vault meta.cf.exodus ":syslog_agent_log_cache_tls_key" ))
+  log_cache_syslog_tls_ca: (( vault meta.cf.exodus ":log_cache_ca" ))
+  syslog_agent_log_cache_tls_certificate: (( vault meta.cf.exodus ":log_cache_cert" ))
+  syslog_agent_log_cache_tls_key: (( vault meta.cf.exodus ":log_cache_key" ))
   metricscollector_ca_cert: (( vault meta.cf.exodus ":log_cache_ca" ))
   metricscollector_client_cert: (( vault meta.cf.exodus ":log_cache_cert" ))
   metricscollector_client_key: (( vault meta.cf.exodus ":log_cache_key" ))

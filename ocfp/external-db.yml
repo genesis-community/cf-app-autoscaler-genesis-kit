@@ -4,7 +4,7 @@ bosh-variables:
     port:     (( vault meta.vault "/db/autoscaler:port"     ))
     scheme:   (( vault meta.vault "/db/autoscaler:scheme"   ))
     name:     (( vault meta.vault "/db/autoscaler:database" ))
-    username: (( vault meta.vault "/db/autoscaler:user" ))
+    username: (( vault meta.vault "/db/autoscaler:username" ))
     password: (( vault meta.vault "/db/autoscaler:password" ))
     sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
     tls:
