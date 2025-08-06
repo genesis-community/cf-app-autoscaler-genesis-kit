@@ -294,7 +294,6 @@ sub process_database_configuration {
 		) if $db eq 'mysql';
 	} else {
 		$self->add_files(
-			"overlay/fix-upstream-db-opsfiles.yml",
 			"upstream/operations/external-db.yml",
 			"overlay/external_db/common.yml",
 			"overlay/no-postgres.yml",
