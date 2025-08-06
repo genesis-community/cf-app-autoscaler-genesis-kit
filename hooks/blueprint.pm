@@ -141,7 +141,6 @@ sub process_ocfp_features {
 
 	# Base OCFP configuration - these are automatically included
 	$self->add_files(
-		"ocfp/meta.yml",
 		"ocfp/ocfp.yml"
 	);
 
