@@ -239,9 +239,9 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: (( grab meta.cf.deployment_name ))
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
       route_registrar:
@@ -366,9 +366,9 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: (( grab meta.cf.deployment_name ))
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
       route_registrar:
@@ -459,9 +459,9 @@ instance_groups:
             private_key: ((postgres_server.private_key))
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: (( grab meta.cf.deployment_name ))
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
       route_registrar:
@@ -605,9 +605,9 @@ instance_groups:
         scheduler.host: ((scheduler_domain))
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: (( grab meta.cf.deployment_name ))
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
       route_registrar:
@@ -726,9 +726,9 @@ instance_groups:
           max_open_connections: 100
     release: app-autoscaler
   - consumes:
-      nats:
+      nats-tls:
         deployment: (( grab meta.cf.deployment_name ))
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
       route_registrar:
@@ -885,9 +885,9 @@ instance_groups:
         key: ((!loggr_syslog_binding_cache_tls.private_key))
     release: loggregator-agent
   - consumes:
-      nats:
+      nats-tls:
         deployment: (( grab meta.cf.deployment_name ))
-        from: nats
+        from: nats-tls
     name: route_registrar
     properties:
       route_registrar:
