@@ -18,7 +18,7 @@ instance_groups:
           databases:
             roles:
               - name: postgres
-                password: ((bosh-variables.database.password))
+                password: (( grab bosh-variables.database.password ))
 
   - name: scalingengine
     jobs:
@@ -28,15 +28,15 @@ instance_groups:
             policy_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             scalingengine_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             scheduler_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
 
   - name: apiserver
     jobs:
@@ -46,11 +46,11 @@ instance_groups:
             binding_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             policy_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
 
   - name: scheduler
     jobs:
@@ -60,11 +60,11 @@ instance_groups:
             policy_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             scheduler_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
 
   - name: operator
     jobs:
@@ -74,19 +74,19 @@ instance_groups:
             appmetrics_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             lock_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             policy_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             scalingengine_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
 
   - name: eventgenerator
     jobs:
@@ -96,15 +96,15 @@ instance_groups:
             appmetrics_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             lock_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             policy_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
 
   - name: metricsforwarder
     jobs:
@@ -114,15 +114,15 @@ instance_groups:
             binding_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             policy_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
             storedprocedure_db:
               roles:
                 - name: postgres
-                  password: ((bosh-variables.database.password))
+                  password: (( grab bosh-variables.database.password ))
 
 variables:
   - name: database_password
