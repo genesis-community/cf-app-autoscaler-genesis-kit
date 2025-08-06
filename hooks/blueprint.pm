@@ -147,6 +147,8 @@ sub process_ocfp_features {
 		"ocfp/broker.yml"
 	);
 
+	$self->add_files( "ocfp/trusted-certs.yml") if ($self->iaas eq "aws");
+
 	# Process database configuration for OCFP
 	$self->process_ocfp_database_configuration();
 

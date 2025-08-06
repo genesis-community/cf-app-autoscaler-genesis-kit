@@ -5,11 +5,6 @@ meta:
       config_prefix: (( grab params.ocfp_vault_config_prefix || "config/" ))
       config:        (( concat genesis.ocfp_config_mount genesis.ocfp_env ))
 
-    certs:
-      trusted:
-        - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
-        - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
-
     azs:
       - (( concat genesis.env "-z1" )) # FIXME: Should just be the base name
       - (( concat genesis.env "-z2" ))
