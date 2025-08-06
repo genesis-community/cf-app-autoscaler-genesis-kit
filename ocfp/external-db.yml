@@ -10,6 +10,9 @@ bosh-variables:
     tls:
       ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
 
+variables:
+  - (( delete "database_password" ))
+
 instance_groups:
   - name: postgres
     jobs:
