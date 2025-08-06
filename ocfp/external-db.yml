@@ -14,15 +14,6 @@ variables:
   - (( delete "database_password" ))
 
 instance_groups:
-  - name: postgres
-    jobs:
-      - name: postgres
-        properties:
-          databases:
-            roles:
-              - name: postgres
-                password: (( grab bosh-variables.database.password ))
-
   - name: scalingengine
     jobs:
       - name: scalingengine
