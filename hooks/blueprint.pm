@@ -143,7 +143,8 @@ sub process_ocfp_features {
 
 	# Base OCFP configuration - these are automatically included
 	$self->add_files(
-		"ocfp/ocfp.yml"
+		"ocfp/ocfp.yml",
+		"ocfp/broker.yml"
 	);
 
 	# Process database configuration for OCFP
@@ -227,11 +228,13 @@ sub add_base_manifest_files {
 		"overlay/app-autoscaler.yml",
 		"upstream/operations/add-releases.yml",
 		"overlay/base.yml",
-		"upstream/operations/add-postgres-variables.yml",
-		"upstream/operations/postgres-persistent-disk.yml",
+		"overlay/update_domains.yml",
+		"overlay/add-postgres-variables.yml",
+		"overlay/ten-year-ca-expiry.yml",
+		"overlay/db-persistent-disk.yml",
 		"overlay/upstream_version.yml",
 		"overlay/change_network_details.yml",
-		"overlay/releases/app-autoscaler.yml"
+		"overlay/releases/app-autoscaler.yml",
 	);
 }
 
@@ -311,8 +314,10 @@ sub process_ocfp_database_configuration {
 
 	if (! $self->want_feature('internal-db')) {
 		$self->add_files(
+			"overlay/fix-upstream-db-opsfiles.yml",
 			"upstream/operations/external-db.yml",
 			"overlay/external_db/common.yml",
+			"overlay/no-postgres.yml",
 			"ocfp/external-db.yml"
 		);
 	}

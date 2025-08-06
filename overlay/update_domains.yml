@@ -1,0 +1,236 @@
+---
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).autoscalerpostgres.service.cf.internal/domain
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).apiserver.service.cf.internal/domain
+  value: autoscaler.service.cf.internal
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).autoscalerscheduler.service.cf.internal/domain
+  value: autoscalerscheduler.service.cf.internal
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).servicebroker.service.cf.internal/domain
+  value: servicebroker.service.cf.internal
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).eventgenerator.service.cf.internal/domain
+  value: eventgenerator.service.cf.internal
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=((deployment_name)).scalingengine.service.cf.internal/domain
+  value: scalingengine.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=postgres/name
+  value: postgres_autoscaler
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=autoscalerpostgres.service.cf.internal/targets/query=*/instance_group
+  value: postgres_autoscaler
+  
+---
+# Update certificate configurations
+- type: replace
+  path: /variables/name=apiserver_server_cert/options/alternative_names/0
+  value: autoscaler.service.cf.internal
+
+- type: replace
+  path: /variables/name=apiserver_server_cert/options/common_name
+  value: autoscaler.service.cf.internal
+
+- type: replace
+  path: /variables/name=servicebroker_server_cert/options/alternative_names/0
+  value: servicebroker.service.cf.internal
+
+- type: replace
+  path: /variables/name=servicebroker_server_cert/options/common_name
+  value: servicebroker.service.cf.internal
+
+- type: replace
+  path: /variables/name=scheduler_server_cert/options/alternative_names/0
+  value: autoscalerscheduler.service.cf.internal
+
+- type: replace
+  path: /variables/name=scheduler_server_cert/options/common_name
+  value: autoscalerscheduler.service.cf.internal
+
+- type: replace
+  path: /variables/name=eventgenerator_server_cert/options/alternative_names/0
+  value: eventgenerator.service.cf.internal
+
+- type: replace
+  path: /variables/name=eventgenerator_server_cert/options/common_name
+  value: eventgenerator.service.cf.internal
+
+- type: replace
+  path: /variables/name=scalingengine_server_cert/options/alternative_names/0
+  value: scalingengine.service.cf.internal
+
+- type: replace
+  path: /variables/name=scalingengine_server_cert/options/common_name
+  value: scalingengine.service.cf.internal
+
+# Update instance group configurations
+- type: replace
+  path: /instance_groups/name=postgres_autoscaler/jobs/name=postgres/properties/databases/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=scalingengine/jobs/name=scalingengine/properties/autoscaler/policy_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=scalingengine/jobs/name=scalingengine/properties/autoscaler/scalingengine_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=scalingengine/jobs/name=scalingengine/properties/autoscaler/scheduler_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/event_generator/host
+  value: eventgenerator.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/scaling_engine/host
+  value: scalingengine.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/scheduler/host
+  value: autoscalerscheduler.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/binding_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/policy_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/autoscaler/policy_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/autoscaler/scheduler/scaling_engine/host
+  value: scalingengine.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=scheduler/properties/autoscaler/scheduler_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/appmetrics_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/lock_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/operator/scaling_engine/host
+  value: scalingengine.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/operator/scheduler/host
+  value: autoscalerscheduler.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/policy_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/scalingengine_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=operator/properties/autoscaler/scheduler.host
+  value: autoscalerscheduler.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=eventgenerator/jobs/name=eventgenerator/properties/autoscaler/appmetrics_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=eventgenerator/jobs/name=eventgenerator/properties/autoscaler/eventgenerator/scaling_engine/host
+  value: scalingengine.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=eventgenerator/jobs/name=eventgenerator/properties/autoscaler/lock_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=eventgenerator/jobs/name=eventgenerator/properties/autoscaler/policy_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/policy_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=metricsforwarder/properties/autoscaler/storedprocedure_db/address
+  value: autoscalerpostgres.service.cf.internal
+
+# Update service name in catalog
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/broker/server/catalog/services/0/name
+  value: app-autoscaler
+
+# Update metrics forwarder URI
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_metrics_forwarder/uris/0
+  value: autoscalermetrics.((system_domain))
+
+# Update apiserver metrics forwarder host
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/host
+  value: autoscalermetrics.((system_domain))
+
+# Update metrics forwarder MTLS host
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=golangapiserver/properties/autoscaler/apiserver/metrics_forwarder/mtls_host
+  value: app-autoscaler-metricsforwarder-mtls.((system_domain))
+
+# Update service broker URI
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_service_broker/uris/0
+  value: autoscalerservicebroker.((system_domain))
+
+# Update metrics forwarder MTLS URI
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_metrics_forwarder_mtls/uris/0
+  value: app-autoscaler-metricsforwarder-mtls.((system_domain))
+
+# Update api_server route URI
+- type: replace
+  path: /instance_groups/name=apiserver/jobs/name=route_registrar/properties/route_registrar/routes/name=api_server/uris/0
+  value: autoscaler.((system_domain))
+
+# Update autoscaler_scheduler_health route URI
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_scheduler_health/uris/0
+  value: app-autoscaler-scheduler.((system_domain))
+
+# Update autoscaler_operator_health route URI
+- type: replace
+  path: /instance_groups/name=operator/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_operator_health/uris/0
+  value: app-autoscaler-operator.((system_domain))
+
+# Update autoscaler_eventgenerator_health route URI
+- type: replace
+  path: /instance_groups/name=eventgenerator/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_eventgenerator_health/uris/0
+  value: app-autoscaler-eventgenerator.((system_domain))
+
+# Update autoscaler_metricsforwarder_health route URI
+- type: replace
+  path: /instance_groups/name=metricsforwarder/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_metricsforwarder_health/uris/0
+  value: app-autoscaler-metricsforwarder.((system_domain))
+
+# Update autoscaler_scalingengine_health route URI
+- type: replace
+  path: /instance_groups/name=scalingengine/jobs/name=route_registrar/properties/route_registrar/routes/name=autoscaler_scalingengine_health/uris
+  value:
+    - app-autoscaler-scalingengine.((system_domain))
