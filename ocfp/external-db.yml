@@ -9,3 +9,94 @@ bosh-variables:
     sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
     tls:
       ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
+
+# Override the password references directly to avoid BOSH variable interpolation
+instance_groups:
+  - name: scalingengine
+    jobs:
+      - name: scalingengine
+        properties:
+          autoscaler:
+            scalingengine_db:
+              roles:
+                - password: (( grab bosh-variables.database.password ))
+            scheduler_db:
+              roles:
+                - password: (( grab bosh-variables.database.password ))
+            policy_db:
+              roles:
+                - password: (( grab bosh-variables.database.password ))
+
+  - name: apiserver
+    jobs:
+      - name: golangapiserver
+        properties:
+          autoscaler:
+            apiserver:
+              db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              scaling_rules_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+
+  - name: scheduler
+    jobs:
+      - name: scheduler
+        properties:
+          autoscaler:
+            scheduler:
+              db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              scaling_engine_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+
+  - name: operator
+    jobs:
+      - name: operator
+        properties:
+          autoscaler:
+            operator:
+              scaling_engine_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              scheduler_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              policy_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+
+  - name: eventgenerator
+    jobs:
+      - name: eventgenerator
+        properties:
+          autoscaler:
+            eventgenerator:
+              scaling_engine_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              policy_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              app_metrics_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+
+  - name: metricsforwarder
+    jobs:
+      - name: metricsforwarder
+        properties:
+          autoscaler:
+            metricsforwarder:
+              db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              policy_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
+              storedprocedure_db:
+                roles:
+                  - password: (( grab bosh-variables.database.password ))
