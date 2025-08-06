@@ -321,8 +321,8 @@ sub process_ocfp_database_configuration {
 
 	if (! $self->want_feature('internal-db')) {
 		$self->add_files(
-			"overlay/fix-upstream-db-opsfiles.yml",
-			"upstream/operations/external-db.yml",
+			"overlay/no-postgres.yml", # clears all internal postgres configuration
+			# The next two files configure the external database connection
 			"overlay/external_db/common.yml",
 			"ocfp/external-db.yml"
 		);
