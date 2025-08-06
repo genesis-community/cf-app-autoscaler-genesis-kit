@@ -10,6 +10,120 @@ bosh-variables:
     tls:
       ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
 
+instance_groups:
+  - name: postgres
+    jobs:
+      - name: postgres
+        properties:
+          databases:
+            roles:
+              - name: postgres
+                password: ((bosh-variables.database.password))
+
+  - name: scalingengine
+    jobs:
+      - name: scalingengine
+        properties:
+          autoscaler:
+            policy_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            scalingengine_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            scheduler_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+
+  - name: apiserver
+    jobs:
+      - name: golangapiserver
+        properties:
+          autoscaler:
+            binding_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            policy_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+
+  - name: scheduler
+    jobs:
+      - name: scheduler
+        properties:
+          autoscaler:
+            policy_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            scheduler_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+
+  - name: operator
+    jobs:
+      - name: operator
+        properties:
+          autoscaler:
+            appmetrics_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            lock_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            policy_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            scalingengine_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+
+  - name: eventgenerator
+    jobs:
+      - name: eventgenerator
+        properties:
+          autoscaler:
+            appmetrics_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            lock_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            policy_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+
+  - name: metricsforwarder
+    jobs:
+      - name: metricsforwarder
+        properties:
+          autoscaler:
+            binding_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            policy_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+            storedprocedure_db:
+              roles:
+                - name: postgres
+                  password: ((bosh-variables.database.password))
+
 variables:
   - name: database_password
     type: password
