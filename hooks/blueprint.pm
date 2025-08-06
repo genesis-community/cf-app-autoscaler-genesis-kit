@@ -38,7 +38,7 @@ sub perform {
 	# Version compatibility and upgrade checking
 	$self->check_upgrade_compatibility();
 
-	$self->add_files("upstream/templates/app-autoscaler.yml")
+	$self->add_files("upstream/templates/app-autoscaler.yml");
 
 	# Process the features
 	if ($self->want_feature('ocfp')) {
