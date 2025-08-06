@@ -251,9 +251,11 @@ sub process_cf_compatibility_files {
 	my ($self) = @_;
 	my $cf_kit_version = $self->{_cf_exodus}{kit_version} // '0.0.0';
 
+	# all cf deployments should only use nats-tls now.
+	$self->add_files("overlay/enable-nats-tls.yml");
+
 	# Add compatibility files for newer CF kit versions
 	$self->add_files(
-		"overlay/enable-nats-tls.yml",
 		"overlay/enable-log-cache.yml",
 		"overlay/instance-identity-cert-from-cf.yml",
 	) if (new_enough($cf_kit_version, "2.3.0"));
