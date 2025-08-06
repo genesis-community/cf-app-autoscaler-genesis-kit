@@ -76,16 +76,12 @@ sub check_cf_kit_version {
 
 	my $cf_env = $self->env->lookup('params.cf_deployment_env') // $self->env->name;
 	my $cf_type = $self->env->lookup('params.cf_deployment_type') // 'cf';
+	my $cf_kit_version = $self->env->exodus_lookup('kit_version', undef, "$cf_env/$cf_type");
 
-	my $cf_exodus;
-	eval {
-		$cf_exodus = $self->env->top->exodus_for("$cf_env/$cf_type");
-	};
 	return $self->check_result('target cf kit version', 'failed',
 		'Could not determine exodus data for associated CF deployment')
-		unless $cf_exodus;
+		unless $cf_kit_version;
 
-	my $cf_kit_version = $cf_exodus->{kit_version};
 	return $self->check_result('target cf kit version', 'failed',
 		'Could not determine kit version with associated CF deployment')
 		unless $cf_kit_version;
