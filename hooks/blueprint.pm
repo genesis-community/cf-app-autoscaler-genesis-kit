@@ -115,7 +115,7 @@ sub process_classic_features {
 	# Process features
 	for my $feature ($self->features) {
 		if ($feature eq 'deployment-name-in-domains') {
-			$self->add_files("overlay/deployment-name-in-domains.yml");
+			$self->add_files("overlay/deployment_name_in_domains.yml");
 		} elsif ($feature eq 'override-subdomain') {
 			$self->add_files("overlay/change_subdomain.yml");
 		} elsif ($feature =~ /operations\/(.*)/) {
@@ -142,8 +142,7 @@ sub process_ocfp_features {
 	# Base OCFP configuration - these are automatically included
 	$self->add_files(
 		"ocfp/meta.yml",
-		"ocfp/ocfp.yml",
-		"ocfp/broker.yml"
+		"ocfp/ocfp.yml"
 	);
 
 	# Process database configuration for OCFP
@@ -206,12 +205,12 @@ sub check_version_compatibility {
 		) unless by_semver($overlay_version,$upstream_version) == 0;
 	} elsif ($overlay_version eq 'unknown') {
 		warning(
-			"Unable to determine overlay version from overlay/app-autoscaler.yml - ",
+			"Unable to determine overlay version from overlay/app-autoscaler.yml - " .
 			"please ensure meta.overlay_version is set correctly"
 		);
 	} elsif ($upstream_version eq 'unknown') {
 		warning(
-			"Unable to determine upstream version from overlay/upstream_version.yml - ",
+			"Unable to determine upstream version from overlay/upstream_version.yml - " .
 			"please ensure exodus.app-autoscaler-release-version is set correctly"
 		);
 	}
@@ -227,10 +226,8 @@ sub add_base_manifest_files {
 		"overlay/app-autoscaler.yml",
 		"upstream/operations/add-releases.yml",
 		"overlay/base.yml",
-		"overlay/update_domains.yml",
-		"overlay/add-postgress-variables.yml",
-		"overlay/ten-year-ca-expiry.yml",
-		"overlay/db-persistent-disk.yml",
+		"upstream/operations/add-postgres-variables.yml",
+		"upstream/operations/postgres-persistent-disk.yml",
 		"overlay/upstream_version.yml",
 		"overlay/change_network_details.yml",
 		"overlay/releases/app-autoscaler.yml"
@@ -318,7 +315,7 @@ sub process_ocfp_database_configuration {
 			"upstream/operations/external-db.yml",
 			"overlay/external_db/common.yml",
 			"overlay/no-postgres.yml",
-			"ocfp/ocfp-external-db.yml"
+			"ocfp/external-db.yml"
 		);
 	}
 }
