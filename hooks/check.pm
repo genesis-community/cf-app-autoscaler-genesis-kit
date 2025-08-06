@@ -25,16 +25,9 @@ sub perform {
 	my ($self) = @_;
 	my $ok = 1;
 
-	# Cloud Config checks
 	$ok = 0 unless $self->check_cloud_config();
-
-	# Runtime Config checks
 	$ok = 0 unless $self->check_runtime_config();
-
-	# CF kit version compatibility check
 	$ok = 0 unless $self->check_cf_kit_version();
-
-	# Environment parameter checks
 	$ok = 0 unless $self->check_environment();
 
 	return $self->done($ok);
@@ -48,34 +41,12 @@ sub check_cloud_config {
 
 	$self->start_check('cloud-config');
 
-	return $self->check_result('cloud-config', 'skipped', 'no cloud config specified')
-		unless $ENV{GENESIS_CLOUD_CONFIG};
+	return $self->check_result('cloud-config', 'skipped', "OCFP env manages its own cloud-config") if $self->is_ocfp;
+	return $self->check_result('cloud-config', 'failed', "no cloud config found") unless $self->env->has_config('cloud');
 
-	if ($self->want_feature('ocfp')) {
-		my $cf_env = $self->env->lookup('params.cf_deployment_env') // $self->env->name;
-		my @jobs = qw(apiserver scalingengine scheduler operator eventgenerator metricsforwarder);
-
-		# Check VM types for each job
-		for my $job (@jobs) {
-			my $vm_type_key = "${cf_env}.$ENV{GENESIS_TYPE}.vm-${job}";
-			my $vm_type = $self->env->lookup("params.vm_type") // $vm_type_key;
-			$self->has_entry('cloud-config', 'vm_type', $vm_type);
-		}
-
-		# Check network and disk type
-		my $network_key = "${cf_env}.$ENV{GENESIS_TYPE}.net-autoscaler";
-		my $network = $self->env->lookup("params.network") // $network_key;
-		$self->has_entry('cloud-config', 'network', $network);
-
-		my $disk_type_key = "${cf_env}.$ENV{GENESIS_TYPE}.disk-postgres";
-		my $disk_type = $self->env->lookup("params.disk_pool") // $disk_type_key;
-		$self->has_entry('cloud-config', 'disk_type', $disk_type);
-
-	} else {
-		# Legacy hard-coded checks
-		for my $vm_type (qw(minimal small)) {
-			$self->has_entry('cloud-config', 'vm_type', $vm_type);
-		}
+	# Legacy hard-coded checks
+	for my $vm_type (qw(minimal small)) {
+		$self->has_entry('cloud-config', 'vm_type', $vm_type);
 	}
 
 	return $self->check_result('cloud-config');
