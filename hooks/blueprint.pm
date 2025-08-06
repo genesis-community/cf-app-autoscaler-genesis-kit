@@ -38,6 +38,8 @@ sub perform {
 	# Version compatibility and upgrade checking
 	$self->check_upgrade_compatibility();
 
+	$self->add_files("upstream/templates/app-autoscaler.yml")
+
 	# Process the features
 	if ($self->want_feature('ocfp')) {
 		$self->validate_ocfp_features();
@@ -65,7 +67,9 @@ sub validate_classic_features {
 
 	$self->validate_features(
 		valid_features      => [
-			'external-db', 'mysql', 'postgres',
+			'external-db',
+			'mysql',
+			'postgres',
 			'deployment-name-in-domains',
 			'override-subdomain'
 		],
