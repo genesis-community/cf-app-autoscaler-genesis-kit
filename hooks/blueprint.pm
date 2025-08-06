@@ -228,7 +228,13 @@ sub add_base_manifest_files {
 		"overlay/app-autoscaler.yml",
 		"upstream/operations/add-releases.yml",
 		"overlay/base.yml",
-		"overlay/update_domains.yml",
+	);
+
+	# Only include update_domains.yml when using internal database
+	$self->add_files("overlay/update_domains.yml")
+	  if ($self->want_feature('internal-db'));
+
+	$self->add_files(
 		"overlay/add-postgres-variables.yml",
 		"overlay/ten-year-ca-expiry.yml",
 		"overlay/db-persistent-disk.yml",
@@ -236,6 +242,7 @@ sub add_base_manifest_files {
 		"overlay/change_network_details.yml",
 		"overlay/releases/app-autoscaler.yml",
 	);
+
 }
 
 # }}}
