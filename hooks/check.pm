@@ -59,22 +59,22 @@ sub check_cloud_config {
 		for my $job (@jobs) {
 			my $vm_type_key = "${cf_env}.$ENV{GENESIS_TYPE}.vm-${job}";
 			my $vm_type = $self->env->lookup("params.vm_type") // $vm_type_key;
-			$self->check_cloud_config_type('vm_type', $vm_type);
+			$self->has_entry('cloud-config', 'vm_type', $vm_type);
 		}
 
 		# Check network and disk type
 		my $network_key = "${cf_env}.$ENV{GENESIS_TYPE}.net-autoscaler";
 		my $network = $self->env->lookup("params.network") // $network_key;
-		$self->check_cloud_config_type('network', $network);
+		$self->has_entry('cloud-config', 'network', $network);
 
 		my $disk_type_key = "${cf_env}.$ENV{GENESIS_TYPE}.disk-postgres";
 		my $disk_type = $self->env->lookup("params.disk_pool") // $disk_type_key;
-		$self->check_cloud_config_type('disk_type', $disk_type);
+		$self->has_entry('cloud-config', 'disk_type', $disk_type);
 
 	} else {
 		# Legacy hard-coded checks
 		for my $vm_type (qw(minimal small)) {
-			$self->check_cloud_config_type('vm_type', $vm_type);
+			$self->has_entry('cloud-config', 'vm_type', $vm_type);
 		}
 	}
 
@@ -90,7 +90,7 @@ sub check_runtime_config {
 	$self->start_check('runtime-config');
 
 	# Check for BOSH DNS addon
-	$self->check_runtime_config_addon('bosh-dns');
+	$self->has_entry('runtime-config', 'job', 'bosh-dns');
 
 	return $self->check_result('runtime-config');
 }

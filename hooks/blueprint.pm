@@ -72,6 +72,9 @@ sub validate_classic_features {
 		deprecated_features => {
 			'cf-v1-support' => undef
 		},
+		mutually_exclusive_features => {
+			'database' => [qw/mysql postgres/]
+		},
 		warnings            => \@warnings,
 		errors              => \@errors
 	);
@@ -83,8 +86,9 @@ sub validate_ocfp_features {
 	my ($self) = @_;
 
 	$self->validate_features(
-		valid_features              => ['ocfp', 'internal-db'],
-		mutually_exclusive_features => {database => [qw(postgres mysql)]},
+		valid_features => ['ocfp', 'internal-db']
+		# No mutually exclusive features needed for OCFP mode
+		# internal-db is a toggle, not mutually exclusive with anything
 	);
 }
 
