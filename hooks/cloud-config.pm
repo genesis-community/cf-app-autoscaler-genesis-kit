@@ -37,7 +37,7 @@ sub perform {
 							'security_groups' => $self->get_network_security_groups(),
 						},
 						'aws' => {
-							'subnet' => $self->network_reference('id'),
+							'subnet' => $self->subnet_reference('id'),
 							'security_groups' => $self->get_network_security_groups(),
 						},
 					},
@@ -66,7 +66,7 @@ sub perform {
 # values differ
 sub generic_vm_type {
 	my ($self, $name) = @_;
-	return $self->{__generic_vm_type} //= $self->vm_type_definition($name,
+	return $self->vm_type_definition($name,
 		cloud_properties_for_iaas => {
 			openstack => {
 				'instance_type' => $self->for_scale({
@@ -111,7 +111,7 @@ sub generic_vm_type {
 
 sub generic_disk_type {
 	my ($self,$name) = @_;
-	return $self->{__generic_disk_type} //= $self->disk_type_definition($name,
+	return $self->disk_type_definition($name,
 		common => {
 			disk_size => $self->for_scale({
 				dev => gigabytes(32),
