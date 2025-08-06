@@ -324,7 +324,6 @@ sub process_ocfp_database_configuration {
 			"overlay/fix-upstream-db-opsfiles.yml",
 			"upstream/operations/external-db.yml",
 			"overlay/external_db/common.yml",
-			"overlay/no-postgres.yml",
 			"ocfp/external-db.yml"
 		);
 	}
