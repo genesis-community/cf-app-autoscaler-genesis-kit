@@ -315,7 +315,6 @@ sub process_ocfp_database_configuration {
 		$self->add_files(
 			"upstream/operations/external-db.yml",
 			"overlay/external_db/common.yml",
-			"overlay/no-postgres.yml",
 			"ocfp/external-db.yml"
 		);
 	}
