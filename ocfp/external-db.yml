@@ -124,11 +124,3 @@ instance_groups:
                 - name: postgres
                   password: (( grab bosh-variables.database.password ))
 
-variables:
-  - name: database_password
-    type: password
-    value: (( vault meta.vault "/db/autoscaler:password" ))
-
-  - name: autoscaler_database_password
-    type: password
-    value: (( vault meta.vault "/db/autoscaler:password" ))
