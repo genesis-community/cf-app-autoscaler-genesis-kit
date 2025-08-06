@@ -1,0 +1,23 @@
+--- # Add required DNS aliases for NATS service discovery
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: nats.service.cf.internal
+    targets:
+    - deployment: (( grab meta.cf.deployment_name ))
+      domain: bosh
+      instance_group: nats
+      network: (( grab meta.cf.core_network || "default" ))
+      query: '*'
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: _.nats.service.cf.internal
+    targets:
+    - deployment: (( grab meta.cf.deployment_name ))
+      domain: bosh
+      instance_group: nats
+      network: (( grab meta.cf.core_network || "default" ))
+      query: _

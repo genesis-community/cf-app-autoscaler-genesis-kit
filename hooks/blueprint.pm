@@ -144,6 +144,7 @@ sub process_ocfp_features {
 	# Base OCFP configuration - these are automatically included
 	$self->add_files(
 		"ocfp/ocfp.yml",
+		"ocfp/add-nats-dns.yml",
 		"ocfp/broker.yml"
 	);
 
