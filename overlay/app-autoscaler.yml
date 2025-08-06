@@ -51,35 +51,35 @@ addons:
           query: '*'
       - domain: nats.service.cf.internal
         targets:
-        - deployment: cf
+        - deployment: (( grab meta.cf.deployment_name ))
           domain: bosh
           instance_group: nats
           network: default
           query: '*'
       - domain: reverse-log-proxy.service.cf.internal
         targets:
-        - deployment: cf
+        - deployment: (( grab meta.cf.deployment_name ))
           domain: bosh
           instance_group: log-api
           network: default
           query: '*'
       - domain: _.nats.service.cf.internal
         targets:
-        - deployment: cf
+        - deployment: (( grab meta.cf.deployment_name ))
           domain: bosh
           instance_group: nats
           network: default
           query: _
       - domain: logcache
         targets:
-        - deployment: cf
+        - deployment: (( grab meta.cf.deployment_name ))
           domain: bosh
           instance_group: log-cache
           network: default
           query: '*'
       - domain: log-cache.service.cf.internal
         targets:
-        - deployment: cf
+        - deployment: (( grab meta.cf.deployment_name ))
           domain: bosh
           instance_group: log-cache
           network: default
@@ -240,7 +240,7 @@ instance_groups:
     release: app-autoscaler
   - consumes:
       nats:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: nats
     name: route_registrar
     properties:
@@ -367,7 +367,7 @@ instance_groups:
     release: app-autoscaler
   - consumes:
       nats:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: nats
     name: route_registrar
     properties:
@@ -460,7 +460,7 @@ instance_groups:
     release: app-autoscaler
   - consumes:
       nats:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: nats
     name: route_registrar
     properties:
@@ -606,7 +606,7 @@ instance_groups:
     release: app-autoscaler
   - consumes:
       nats:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: nats
     name: route_registrar
     properties:
@@ -727,7 +727,7 @@ instance_groups:
     release: app-autoscaler
   - consumes:
       nats:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: nats
     name: route_registrar
     properties:
@@ -856,7 +856,7 @@ instance_groups:
     release: loggregator-agent
   - consumes:
       cloud_controller:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: cloud_controller
     name: loggr-syslog-binding-cache
     properties:
@@ -886,7 +886,7 @@ instance_groups:
     release: loggregator-agent
   - consumes:
       nats:
-        deployment: cf
+        deployment: (( grab meta.cf.deployment_name ))
         from: nats
     name: route_registrar
     properties:
