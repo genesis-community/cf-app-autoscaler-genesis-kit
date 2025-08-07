@@ -236,8 +236,11 @@ sub add_base_manifest_files {
 	$self->add_files("overlay/update_domains.yml")
 	  if ($self->want_feature('internal-db'));
 
+	# TODO: for internal-db, we need to compare and resolve the base.yml vs overlay/add-postgres-variables.yml
+	#       for external-db... perhaps we don't need these?
+	$self->add_files("overlay/add-postgres-variables.yml") unless $self->want_feature('internal-db');
+
 	$self->add_files(
-		"overlay/add-postgres-variables.yml",
 		"overlay/ten-year-ca-expiry.yml",
 		"overlay/db-persistent-disk.yml",
 		"overlay/upstream_version.yml",
