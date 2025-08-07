@@ -1,6 +1,5 @@
 instance_groups:
   - (( delete "postgres" ))
-  - (( delete "postgres_autoscaler" ))
 
 releases:
   - (( delete "postgres" ))

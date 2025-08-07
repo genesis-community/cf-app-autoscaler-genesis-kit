@@ -1,5 +1,3 @@
 instance_groups:
 - name: postgres
   purpose: "Dummy instance group to be removed by upstream external-db.yml"
-- name: postgres_autoscaler
-  purpose: "Upstream tries to delete this instance group, but it's not in the manifest"
