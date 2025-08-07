@@ -16,7 +16,6 @@ variables:
   - (( delete "database_password" ))
 
 instance_groups:
-  - (( delete "postgres" ))
   - name: scalingengine
     jobs:
       - name: scalingengine
