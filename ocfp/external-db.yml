@@ -29,7 +29,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -46,7 +46,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -63,7 +63,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -86,7 +86,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -103,7 +103,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -126,7 +126,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -143,7 +143,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -166,7 +166,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -183,7 +183,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -200,7 +200,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -217,7 +217,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -240,7 +240,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -257,7 +257,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -274,7 +274,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -297,7 +297,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -314,7 +314,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
@@ -331,7 +331,7 @@ instance_groups:
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
-                - (( delete "postgres" ))
+                - (( replace ))
                 - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
                   tag: default
