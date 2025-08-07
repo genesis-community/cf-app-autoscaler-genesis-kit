@@ -8,29 +8,68 @@ bosh-variables:
     password: (( vault meta.vault "/db/autoscaler:password" ))
     sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
     tls:
-      ca:     (( vault meta.vault "/db/autoscaler:ca"       ))
+      ca:          (( vault meta.vault "/db/autoscaler:ca"          ))
+      #certificate: (( vault meta.vault "/db/autoscaler:certificate" ))
+      #private_key: (( vault meta.vault "/db/autoscaler:private_key" ))
 
 variables:
   - (( delete "database_password" ))
 
 instance_groups:
+  - (( delete "postgres" ))
   - name: scalingengine
     jobs:
       - name: scalingengine
         properties:
           autoscaler:
             policy_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             scalingengine_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             scheduler_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: apiserver
     jobs:
@@ -38,13 +77,37 @@ instance_groups:
         properties:
           autoscaler:
             binding_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: scheduler
     jobs:
@@ -52,13 +115,37 @@ instance_groups:
         properties:
           autoscaler:
             policy_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             scheduler_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: operator
     jobs:
@@ -66,21 +153,69 @@ instance_groups:
         properties:
           autoscaler:
             appmetrics_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             lock_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             scalingengine_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: eventgenerator
     jobs:
@@ -88,17 +223,53 @@ instance_groups:
         properties:
           autoscaler:
             appmetrics_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             lock_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: metricsforwarder
     jobs:
@@ -106,15 +277,51 @@ instance_groups:
         properties:
           autoscaler:
             binding_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
             storedprocedure_db:
+              address: (( grab bosh-variables.database.host ))
+              port: (( grab bosh-variables.database.port ))
+              db_scheme: (( grab bosh-variables.database.scheme ))
+              databases:
+                - name: (( grab bosh-variables.database.name ))
+                  tag: default
               roles:
-                - name: postgres
+                - name: (( grab bosh-variables.database.username ))
                   password: (( grab bosh-variables.database.password ))
+                  tag: default
+              sslmode: (( grab bosh-variables.database.sslmode ))
+              tls:
+                ca: (( grab bosh-variables.database.tls.ca ))
+                certificate: (( grab bosh-variables.database.tls.certificate ))
+                private_key: (( grab bosh-variables.database.tls.private_key ))
 
