@@ -35,8 +35,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             scalingengine_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -51,8 +51,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             scheduler_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -67,8 +67,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: apiserver
     jobs:
@@ -89,8 +89,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -105,8 +105,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: scheduler
     jobs:
@@ -127,8 +127,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             scheduler_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -143,8 +143,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: operator
     jobs:
@@ -165,8 +165,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             lock_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -181,8 +181,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -197,8 +197,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             scalingengine_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -213,8 +213,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: eventgenerator
     jobs:
@@ -235,8 +235,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             lock_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -251,8 +251,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -267,8 +267,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
 
   - name: metricsforwarder
     jobs:
@@ -289,8 +289,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             policy_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -305,8 +305,8 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
             storedprocedure_db:
               address: (( grab bosh-variables.database.host ))
               port: (( grab bosh-variables.database.port ))
@@ -321,6 +321,6 @@ instance_groups:
               sslmode: (( grab bosh-variables.database.sslmode ))
               tls:
                 ca: (( grab bosh-variables.database.tls.ca ))
-                certificate: (( grab bosh-variables.database.tls.certificate ))
-                private_key: (( grab bosh-variables.database.tls.private_key ))
+                #certificate: (( grab bosh-variables.database.tls.certificate ))
+                #private_key: (( grab bosh-variables.database.tls.private_key ))
 
