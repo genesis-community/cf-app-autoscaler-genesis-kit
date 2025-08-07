@@ -32,12 +32,16 @@ sub perform {
 						size => 7,
 					},
 					cloud_properties_for_iaas => {
-						'openstack|stackit' => {
+						'openstack' => {
 							'net_id' => $self->network_reference('id'),
 							'security_groups' => $self->get_network_security_groups(),
 						},
 						'aws' => {
 							'subnet' => $self->subnet_reference('id'),
+							'security_groups' => $self->get_network_security_groups(),
+						},
+						'stackit' => {
+							'net_id' => $self->network_reference('id'),
 							'security_groups' => $self->get_network_security_groups(),
 						},
 					},
