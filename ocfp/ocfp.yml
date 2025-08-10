@@ -14,16 +14,16 @@ meta:
       - name: (( concat genesis.env "." genesis.type ".net-autoscaler"       ))
 
     disk_types:
-      postgres:         (( concat genesis.env "." genesis.type ".disk-postgres"       ))
+      postgres:         (( concat genesis.env "." genesis.type ".disk-as-postgres"       ))
 
     vm_types:
-      apiserver:        (( concat genesis.env "." genesis.type ".vm-apiserver"        ))
-      scalingengine:    (( concat genesis.env "." genesis.type ".vm-scalingengine"    ))
-      scheduler:        (( concat genesis.env "." genesis.type ".vm-scheduler"        ))
-      operator:         (( concat genesis.env "." genesis.type ".vm-operator"         ))
-      eventgenerator:   (( concat genesis.env "." genesis.type ".vm-eventgenerator"   ))
-      metricsforwarder: (( concat genesis.env "." genesis.type ".vm-metricsforwarder" ))
-      postgres:         (( concat genesis.env "." genesis.type ".vm-postgres"         ))
+      apiserver:        (( concat genesis.env "." genesis.type ".vm-as-apiserver"        ))
+      scalingengine:    (( concat genesis.env "." genesis.type ".vm-as-scalingengine"    ))
+      scheduler:        (( concat genesis.env "." genesis.type ".vm-as-scheduler"        ))
+      operator:         (( concat genesis.env "." genesis.type ".vm-as-operator"         ))
+      eventgenerator:   (( concat genesis.env "." genesis.type ".vm-as-eventgenerator"   ))
+      metricsforwarder: (( concat genesis.env "." genesis.type ".vm-as-metricsforwarder" ))
+      postgres:         (( concat genesis.env "." genesis.type ".vm-as-postgres"         ))
 
 exodus: # This should be taken from the manifest, not constructed here (might already be done in base)
   autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))

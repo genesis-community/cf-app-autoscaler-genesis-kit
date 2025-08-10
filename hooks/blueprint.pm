@@ -149,6 +149,9 @@ sub process_ocfp_features {
 
 	$self->add_files( "ocfp/trusted-certs.yml") if ($self->iaas eq "aws");
 
+	if ($self->env->ocfp_config_lookup('net.topology', 'v2') eq 'v1') {
+    	$self->add_files("ocfp/network-v1.yml");
+    }
 	# Process database configuration for OCFP
 	$self->process_ocfp_database_configuration();
 

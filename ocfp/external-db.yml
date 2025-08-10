@@ -26,6 +26,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -43,6 +44,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -60,6 +62,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -83,6 +86,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -100,6 +104,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -123,6 +128,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -140,6 +146,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -163,6 +170,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -180,6 +188,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -197,6 +206,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -214,6 +224,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -237,6 +248,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -254,6 +266,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -271,6 +284,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -294,6 +308,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -311,6 +326,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
@@ -328,6 +344,7 @@ instance_groups:
               port: (( grab bosh-variables.database.port ))
               db_scheme: (( grab bosh-variables.database.scheme ))
               databases:
+                - (( replace ))
                 - name: (( grab bosh-variables.database.name ))
                   tag: default
               roles:
