@@ -25,6 +25,7 @@ sub perform {
 
 	# Log in to CF and get service broker credentials
 	$self->cf_login();
+
 	my ($sb_username, $sb_password, $sb_url) = $self->get_service_broker_credentials();
 
 	# Create and enable service broker
