@@ -10,6 +10,16 @@ sub init {
 	my $class = shift;
 	my $obj = $class->SUPER::init(@_);
 	$obj->check_minimum_genesis_version('3.1.0');
+
+	# Get CF deployment info from primary exodus
+	my $cf_deployment_env = $self->exodus_data->{cf_deployment_env} # Getting key from structure
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $self->env->name);
+	my $cf_deployment_type = $self->exodus_data->{cf_deployment_type}
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $self->env->name);
+
+	# Get all CF credentials from the CF deployment's exodus data
+  $obj->{cf_target} = "${cf_deployment_env}/${cf_deployment_type}";
+	$obj->{cf_exodus} = $self->env->exodus_lookup('.', {}, $obj->{cf_target});
 	return $obj;
 }
 
@@ -17,22 +27,12 @@ sub init {
 sub cf_login {
 	my ($self) = @_;
 
-	# Get CF deployment info from primary exodus
-	my $cf_deployment_env = $self->exodus_data->{cf_deployment_env}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $self->env->name);
-	my $cf_deployment_type = $self->exodus_data->{cf_deployment_type}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $self->env->name);
-
-	# Get all CF credentials from the CF deployment's exodus data
-	my $cf_target = "${cf_deployment_env}/${cf_deployment_type}";
-	my $cf_exodus = $self->env->exodus_lookup('.', {}, $cf_target);
-
-	my $system_domain = $cf_exodus->{system_domain}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'system_domain', $cf_target);
+	my $system_domain = $self->{cf_exodus}{system_domain}
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'system_domain', $self->{cf_target});
 	my $username = $cf_exodus->{admin_username}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_username', $cf_target);
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_username', $self->{cf_target});
 	my $password = $cf_exodus->{admin_password}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_password', $cf_target);
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_password', $self->{cf_target});
 
 	my $api_url = "https://api.$system_domain";
 
@@ -63,15 +63,16 @@ sub cf_login {
 sub get_service_broker_credentials {
 	my ($self) = @_;
 
-	my @needed = qw/service_broker_username service_broker_password service_broker_domain/;
-	my @sb_data = $self->exodus_data(@needed);
-	my @missing = map {$needed[$_]} grep {!defined $sb_data[$_]} 0 .. $#needed;
-	bail(
-		"Required service broker credentials not found in exodus data: %s",
-		sentence_join(', ', @missing)
-	) if @missing;
+	$self->exodus_data(".", undef, "")
+	my $app_autoscaler_client = $self->{cf_exodus}{app_autoscaler_client};
+	my $app_autoscaler_secret = $self->{cf_exodus}{app_autoscaler_secret};
+	my $autoscaler_api_domain = $self->exodus_data("autoscaler_api_domain"); # exodus_data is cached, convenience function call method
 
-	return ($sb_data[0], $sb_data[1], 'https://'.$sb_data[2]);
+	bail(
+		"Required service broker credentials not found in exodus data: cf/app_autoscaler_client,app_autoscaler_secret and/or cf-app-autoscaler/autoscaler_api_domain"
+	) unless ( $app_autoscaler_secret && $app_autoscaler_client && $autoscaler_api_domain );
+
+	return ( $app_autoscaler_client, $app_autoscaler_secret, 'https://'.$autoscaler_api_domain );
 }
 
 1;
