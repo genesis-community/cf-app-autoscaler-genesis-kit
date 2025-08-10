@@ -29,6 +29,7 @@ sub perform {
 	my ($sb_username, $sb_password, $sb_url) = $self->get_service_broker_credentials();
 
 	# Create and enable service broker
+	info("\ncf create-service-broker autoscaler $sb_username $sb_password $sb_url")
 	my ($out, $rc) = run(
 		qw/cf create-service-broker autoscaler/, $sb_username, $sb_password, $sb_url
 	);
