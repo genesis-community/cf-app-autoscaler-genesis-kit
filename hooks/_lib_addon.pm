@@ -20,6 +20,7 @@ sub init {
 	# Get all CF credentials from the CF deployment's exodus data
   $obj->{cf_target} = "${cf_deployment_env}/${cf_deployment_type}";
 	$obj->{cf_exodus} = $self->env->exodus_lookup('.', {}, $obj->{cf_target});
+
 	return $obj;
 }
 
@@ -63,7 +64,7 @@ sub cf_login {
 sub get_service_broker_credentials {
 	my ($self) = @_;
 
-	$self->exodus_data(".", undef, "")
+	$self->exodus_data(".", undef, "");
 	my $app_autoscaler_client = $self->{cf_exodus}{app_autoscaler_client};
 	my $app_autoscaler_secret = $self->{cf_exodus}{app_autoscaler_secret};
 	my $autoscaler_api_domain = $self->exodus_data("autoscaler_api_domain"); # exodus_data is cached, convenience function call method
