@@ -12,13 +12,13 @@ sub init {
 	$obj->check_minimum_genesis_version('3.1.0');
 
 	# Get CF deployment info from primary exodus
-	my $cf_deployment_env = $obj->exodus_data->{cf_deployment_env} # Getting key from structure
+	$obj->{cf_deployment_env} = $obj->exodus_data->{cf_deployment_env} # Getting key from structure
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $obj->env->name);
-	my $cf_deployment_type = $obj->exodus_data->{cf_deployment_type}
+	$obj->{cf_deployment_type} = $obj->exodus_data->{cf_deployment_type}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $obj->env->name);
 
 	# Get all CF credentials from the CF deployment's exodus data
-  $obj->{cf_target} = "${cf_deployment_env}/${cf_deployment_type}";
+  $obj->{cf_target} = "$obj->{cf_deployment_env}/$obj->{cf_deployment_type}";
 	$obj->{cf_exodus} = $obj->env->exodus_lookup('.', {}, $obj->{cf_target});
 
 	return $obj;
@@ -52,7 +52,7 @@ sub cf_login {
 	# Check for cf-targets plugin
 	my ($out, $rc) = run('cf plugins | grep -q \'^cf-targets\'');
 	if ($rc == 0) {
-		run({interactive => 1}, 'cf', 'save-target', '-f', $cf_deployment_env);
+		run({interactive => 1}, 'cf', 'save-target', '-f', $obj->cf_deployment_env);
 	} else {
 		info("#Y{The cf-targets plugin does not seem to be installed} -- cannot save current target");
 	}
