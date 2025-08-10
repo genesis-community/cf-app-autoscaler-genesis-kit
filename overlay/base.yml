@@ -36,7 +36,7 @@ bosh-variables:
   metricscollector_client_key: (( vault meta.cf.exodus ":log_cache_key" ))
 
 exodus: # FIXME: Get these values from the manifest, not contructing them here
-  autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
+  autoscaler_api_domain:     (( concat "app-autoscaler." params.cf_system_domain ))
   autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
   service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
 
