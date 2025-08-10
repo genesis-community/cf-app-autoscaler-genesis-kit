@@ -12,14 +12,14 @@ sub init {
 	$obj->check_minimum_genesis_version('3.1.0');
 
 	# Get CF deployment info from primary exodus
-	my $cf_deployment_env = $self->exodus_data->{cf_deployment_env} # Getting key from structure
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $self->env->name);
-	my $cf_deployment_type = $self->exodus_data->{cf_deployment_type}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $self->env->name);
+	my $cf_deployment_env = $obj->exodus_data->{cf_deployment_env} # Getting key from structure
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $obj->env->name);
+	my $cf_deployment_type = $obj->exodus_data->{cf_deployment_type}
+		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $obj->env->name);
 
 	# Get all CF credentials from the CF deployment's exodus data
   $obj->{cf_target} = "${cf_deployment_env}/${cf_deployment_type}";
-	$obj->{cf_exodus} = $self->env->exodus_lookup('.', {}, $obj->{cf_target});
+	$obj->{cf_exodus} = $obj->env->exodus_lookup('.', {}, $obj->{cf_target});
 
 	return $obj;
 }
