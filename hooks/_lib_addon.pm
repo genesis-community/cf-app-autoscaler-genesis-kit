@@ -30,9 +30,9 @@ sub cf_login {
 
 	my $system_domain = $self->{cf_exodus}{system_domain}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'system_domain', $self->{cf_target});
-	my $username = $self->cf_exodus->{admin_username}
+	my $username = $self->{cf_exodus}{admin_username}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_username', $self->{cf_target});
-	my $password = $self->cf_exodus->{admin_password}
+	my $password = $self->{cf_exodus}{admin_password}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_password', $self->{cf_target});
 
 	my $api_url = "https://api.$system_domain";
