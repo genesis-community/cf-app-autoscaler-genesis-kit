@@ -52,7 +52,7 @@ sub cf_login {
 	# Check for cf-targets plugin
 	my ($out, $rc) = run('cf plugins | grep -q \'^cf-targets\'');
 	if ($rc == 0) {
-		run({interactive => 1}, 'cf', 'save-target', '-f', $obj->{cf_deployment_env});
+		run({interactive => 1}, 'cf', 'save-target', '-f', $self->{cf_deployment_env});
 	} else {
 		info("#Y{The cf-targets plugin does not seem to be installed} -- cannot save current target");
 	}
