@@ -30,9 +30,9 @@ sub cf_login {
 
 	my $system_domain = $self->{cf_exodus}{system_domain}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'system_domain', $self->{cf_target});
-	my $username = $self->{cf_exodus}{admin_username}
+	my $username = $self->{cf_exodus}->{admin_username}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_username', $self->{cf_target});
-	my $password = $self->{cf_exodus}{admin_password}
+	my $password = $self->{cf_exodus}->{admin_password}
 		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_password', $self->{cf_target});
 
 	my $api_url = "https://api.$system_domain";
@@ -65,15 +65,11 @@ sub get_service_broker_credentials {
 	my ($self) = @_;
 
 	$self->exodus_data(".", undef, "");
-	my $app_autoscaler_client = $self->{cf_exodus}{app_autoscaler_client};
-	my $app_autoscaler_secret = $self->{cf_exodus}{app_autoscaler_secret};
-	my $autoscaler_api_domain = $self->exodus_data("autoscaler_api_domain"); # exodus_data is cached, convenience function call method
+	my $service_broker_password = $self->exodus_data("service_broker_password");
+	my $service_broker_username = $self->exodus_data("service_broker_username");
+	my $servicebroker_public_domain = $self->exodus_data("servicebroker_public_domain");
 
-	bail(
-		"Required service broker credentials not found in exodus data: cf/app_autoscaler_client,app_autoscaler_secret and/or cf-app-autoscaler/autoscaler_api_domain"
-	) unless ( $app_autoscaler_secret && $app_autoscaler_client && $autoscaler_api_domain );
-
-	return ( $app_autoscaler_client, $app_autoscaler_secret, 'https://'.$autoscaler_api_domain );
+	return ( $service_broker_username, $service_broker_password, 'https://'.$servicebroker_public_domain );
 }
 
 1;
