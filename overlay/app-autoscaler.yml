@@ -91,20 +91,20 @@ addons:
     release: bpm
   name: bpm
 bosh-variables:
-  api_domain: apiserver.service.cf.internal
+  api_domain: autoscalerapiserver.service.cf.internal
   base_public_domain: app-autoscaler.((system_domain))
-  eventgenerator_domain: eventgenerator.service.cf.internal
-  eventgenerator_public_domain: eventgenerator.((system_domain))
-  metricsforwarder_mtls_public_domain: metricsforwarder-mtls.((system_domain))
-  metricsforwarder_public_domain: metricsforwarder.((system_domain))
-  operator_public_domain: operator.((system_domain))
+  eventgenerator_domain: autoscalereventgenerator.service.cf.internal
+  eventgenerator_public_domain: autoscalereventgenerator.((system_domain))
+  metricsforwarder_mtls_public_domain: autoscalermetricsforwarder-mtls.((system_domain))
+  metricsforwarder_public_domain: autoscalermetricsforwarder.((system_domain))
+  operator_public_domain: autoscaleroperator.((system_domain))
   postgres_domain: autoscalerpostgres.service.cf.internal
-  scalingengine_domain: scalingengine.service.cf.internal
-  scalingengine_public_domain: scalingengine.((system_domain))
+  scalingengine_domain: autoscalerscalingengine.service.cf.internal
+  scalingengine_public_domain: autoscalerscalingengine.((system_domain))
   scheduler_domain: autoscalerscheduler.service.cf.internal
-  scheduler_public_domain: scheduler.((system_domain))
-  servicebroker_domain: servicebroker.service.cf.internal
-  servicebroker_public_domain: servicebroker.((system_domain))
+  scheduler_public_domain: autoscalerscheduler.((system_domain))
+  servicebroker_domain: autoscalerservicebroker.service.cf.internal
+  servicebroker_public_domain: autoscalerservicebroker.((system_domain))
 features:
   use_dns_addresses: true
 instance_groups:
