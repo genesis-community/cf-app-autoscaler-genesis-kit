@@ -50,10 +50,10 @@ sub perform {
 
 	my $env_name = $self->env->name;
 
-	info("cf enable-service-access ${env_name}-cf-app-autoscaler -b app-autoscaler");
+	info("cf enable-service-access ${env_name}-autoscaler -b app-autoscaler");
 	run(
 		{onfailure => "Failed to enable service access for autoscaler"},
-		qw/cf enable-service-access /, "${env_name}-cf-app-autoscaler", "-b", "app-autoscaler"
+		qw/cf enable-service-access /, "${env_name}-autoscaler", "-b", "app-autoscaler"
 	);
 
 	info("\n#G{[OK]} Successfully created the service broker.");
