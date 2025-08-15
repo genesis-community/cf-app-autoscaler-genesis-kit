@@ -66,9 +66,9 @@ sub perform {
 
 	# Get CF deployment info from primary exodus
 	my $cf_deployment_env = $self->exodus_data->{cf_deployment_env}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $self->env->name);
+		or bail("Required #C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $self->env->name);
 	my $cf_deployment_type = $self->exodus_data->{cf_deployment_type}
-		or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $self->env->name);
+		or bail("Required #C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_type', $self->env->name);
 
 
 	# Check current target
@@ -81,11 +81,11 @@ sub perform {
 		my $cf_exodus = $self->env->exodus_lookup('.', {}, $cf_target);
 
 		my $system_domain = $cf_exodus->{system_domain}
-			or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'system_domain', $cf_target);
+			or bail("Required #C{%s} value not found in #M{%s} environment's exodus data", 'system_domain', $cf_target);
 		my $username = $cf_exodus->{admin_username}
-			or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_username', $cf_target);
+			or bail("Required #C{%s} value not found in #M{%s} environment's exodus data", 'admin_username', $cf_target);
 		my $password = $cf_exodus->{admin_password}
-			or bail("Required %C{%s} value not found in #M{%s} environment's exodus data", 'admin_password', $cf_target);
+			or bail("Required #C{%s} value not found in #M{%s} environment's exodus data", 'admin_password', $cf_target);
 
 		my $api_url = "https://api.$system_domain";
 
