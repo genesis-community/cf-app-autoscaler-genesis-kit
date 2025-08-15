@@ -183,7 +183,7 @@ sub perform {
 				adjustment => "-1"
 			},
 			{
-				metric_type => "cpu",
+				metric_type => $app_metric_type,
 				breach_duration_secs => 60,
 				threshold => int($app_metric_up),
 				operator => ">",
@@ -212,7 +212,19 @@ sub perform {
 	my $as_service_name = prompt_for_line('Type the autoscaler service name you would like to use', $first_as_service_name);
 
 	# Check if app is already bound to autoscaling service
-	my ($policy_output) = run("cf autoscaling-policy $app_name");
+	my ($policy_output) = run({interactive => 0 },"cf", "autoscaling-policy","$app_name");
+	if ($policy_output =~ /No AutoScaler api endpoint set/ ) {
+	  my $autoscaling_api_url_domain = $self->exodus_data("autoscaler_api_domain");
+	  my $autoscaling_api_url = "https://$autoscaling_api_url_domain";
+	  info("Setting Autoscaler API to %s", $autoscaling_api_url);
+
+	  my ($api_set_output) = run ({ interactive => 0}, "cf", "autoscaling-api", $autoscaling_api_url);
+          if ($api_set_output =~ /FAILED/) {
+	    bail ("Failed to set app-autoscaler domain:\n%s", $api_set_output);
+	  }
+	  ($policy_output) = run({interactive => 0 },"cf", "autoscaling-policy","$app_name");
+	}
+
 	if ($policy_output =~ /The application is not bound to Auto-Scaling service/) {
 		run($run_opts, 'cf', 'bind-service', $app_name, $as_service_name, '-c', $policy_filename);
 	} else {
