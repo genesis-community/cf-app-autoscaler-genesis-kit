@@ -9,7 +9,7 @@ BEGIN { push @INC, $ENV{GENESIS_LIB} ? $ENV{GENESIS_LIB} : $ENV{HOME} . '/.genes
 use parent qw(Genesis::Hook::Addon);
 use Genesis qw/info run bail mkdir_or_fail save_to_json_file/;
 use Genesis::Term qw/wrap colored_block terminal_width/;
-use Genesis::UI qw/prompt_for_boolean prompt_for_line prompt_for_choice/;
+use Genesis::UI qw/prompt_for_boolean prompt_for_line new_prompt_for_choice/;
 use JSON::PP qw/encode_json/;
 
 # Include common methods from mixin
@@ -106,7 +106,7 @@ sub perform {
 	}
 
 	# Check if already targeted to org/space
-	my ($new_target) = run($run_opts, 'cf', 'target');
+	my ($new_target) = run({%$run_opts,interactive => 0}, 'cf', 'target');
 	if ($new_target =~ /No org or space targeted/) {
 		($org_name, $space_name) = $self->_target_org_space();
 		($new_target) = run($run_opts, 'cf', 'target');
@@ -146,22 +146,23 @@ sub perform {
 	run($run_opts, 'cf', 'apps');
 	my $app_name = prompt_for_line('Type the application name you would like to configure autoscaling for');
 
-	my $app_min = prompt_for_line('Type the minimum number of instances running at all times', '2', qr/^\d+$/);
-	my $app_max = prompt_for_line('Type the maximum number of instances running at all times', '5', qr/^\d+$/);
+	my $app_min = prompt_for_line(undef, 'Type the minimum number of instances running at all times', '2', qr/^\d+$/);
+	my $app_max = prompt_for_line(undef, 'Type the maximum number of instances running at all times', '5', qr/^\d+$/);
 
-	my $app_metric_type = prompt_for_choice(
-		'Choose the metric type used for autoscaling',
-		[
+	my $app_metric_type = new_prompt_for_choice(
+		header => 'Choose the metric type used for autoscaling',
+		choices => [
 			{ label => 'CPU (%)',                     value => 'cpu' },
 			{ label => 'Memory Used (MB)',            value => 'memory_used' },
 			{ label => 'Memory Used (%)',             value => 'memory_util' },
 			{ label => 'Response Time',               value => 'response_time' },
 			{ label => 'Throughput (requests per second)', value => 'throughput' }
-		]
+		],
+		default => 'response_time',
 	);
 
-	my $app_metric_up = prompt_for_line('Type the threshold value at which your instances will scale up', '10', qr/^\d+$/);
-	my $app_metric_down = prompt_for_line('Type the threshold value at which your instances will scale down', '1', qr/^\d+$/);
+	my $app_metric_up =   prompt_for_line(undef, 'Type the threshold value at which your instances will scale up',  '10', qr/^\d+$/);
+	my $app_metric_down = prompt_for_line(undef, 'Type the threshold value at which your instances will scale down', '1', qr/^\d+$/);
 
 	# Create policies directory
 	my $policies_dir = "$ENV{GENESIS_ROOT}/policies";
@@ -202,7 +203,7 @@ sub perform {
 	save_to_json_file($policy_data, $policy_filename) if ($create_policy);
 
 	# Get first autoscaler service
-	my ($services_output) = run($run_opts, 'cf', 'services');
+	my ($services_output) = run({%$run_opts, interactive =>0}, 'cf', 'services');
 	my ($first_as_service_name) = $services_output =~ /^(\S+)\s+autoscaler/m;
 	$first_as_service_name //= '';
 
