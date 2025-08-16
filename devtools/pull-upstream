@@ -67,11 +67,20 @@ releases:
   url:     "$url"
   sha1:    "$sha1"
 EOF
+
+  # Convert upstream template to Genesis style
+  "$(dirname "$0")/convert-upstream-template"
+
 else
   cat >&2 <<EOF
 Could not programatically determine release details.  Please navigate to
 "https://bosh.io/releases/github.com/${boshio_org}/${package}?version=$version"
 and update overlay/releases.yml to target release $version.
+
+You will also need to manually run:
+  devtools/convert-upstream-template
+
+once you have updated overlay/releases.yml.
 EOF
 fi
 

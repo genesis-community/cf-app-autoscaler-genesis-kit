@@ -1,7 +1,3 @@
-# Update this with the version of the upstream app-autoscaler release that this overlay is based on.
-meta:
-  overlay_version: 14.5.0
-
 addons:
 - jobs:
   - name: bosh-dns-aliases
@@ -91,20 +87,16 @@ addons:
     release: bpm
   name: bpm
 bosh-variables:
-  api_domain: autoscalerapiserver.service.cf.internal
-  base_public_domain: app-autoscaler.((system_domain))
-  eventgenerator_domain: autoscalereventgenerator.service.cf.internal
-  eventgenerator_public_domain: autoscalereventgenerator.((system_domain))
-  metricsforwarder_mtls_public_domain: autoscalermetricsforwarder-mtls.((system_domain))
-  metricsforwarder_public_domain: autoscalermetricsforwarder.((system_domain))
-  operator_public_domain: autoscaleroperator.((system_domain))
-  postgres_domain: autoscalerpostgres.service.cf.internal
-  scalingengine_domain: autoscalerscalingengine.service.cf.internal
-  scalingengine_public_domain: autoscalerscalingengine.((system_domain))
-  scheduler_domain: autoscalerscheduler.service.cf.internal
-  scheduler_public_domain: autoscalerscheduler.((system_domain))
-  servicebroker_domain: autoscalerservicebroker.service.cf.internal
-  servicebroker_public_domain: autoscalerservicebroker.((system_domain))
+  api_domain: (( concat params.domain_prefix "apiserver.service.cf.internal" ))
+  base_public_domain: (( concat meta.public_subdomain ".((system_domain))" ))
+  eventgenerator_domain: (( concat params.domain_prefix "eventgenerator.service.cf.internal" ))
+  metricsforwarder_mtls_public_domain: (( concat params.domain_prefix "-metricsforwarder-mtls.((system_domain))" ))
+  metricsforwarder_public_domain: (( concat params.domain_prefix "metrics.((system_domain))" ))
+  postgres_domain: (( concat params.domain_prefix "autoscalerpostgres.service.cf.internal" ))
+  scalingengine_domain: (( concat params.domain_prefix "scalingengine.service.cf.internal" ))
+  scheduler_domain: (( concat params.domain_prefix "autoscalerscheduler.service.cf.internal" ))
+  servicebroker_domain: (( concat params.domain_prefix "servicebroker.service.cf.internal" ))
+  servicebroker_public_domain: (( concat params.domain_prefix "servicebroker.((system_domain))" ))
 features:
   use_dns_addresses: true
 instance_groups:
@@ -252,7 +244,7 @@ instance_groups:
           tags:
             component: autoscaler_scalingengine_health
           uris:
-          - ((scalingengine_public_domain))
+          - ((deployment_name))-scalingengine.((system_domain))
     release: routing
   name: scalingengine
   networks:
@@ -472,7 +464,7 @@ instance_groups:
           tags:
             component: autoscaler_scheduler_health
           uris:
-          - ((scheduler_public_domain))
+          - ((deployment_name))-scheduler.((system_domain))
     release: routing
   name: scheduler
   networks:
@@ -618,7 +610,7 @@ instance_groups:
           tags:
             component: autoscaler_operator_health
           uris:
-          - ((operator_public_domain))
+          - ((deployment_name))-operator.((system_domain))
     release: routing
   name: operator
   networks:
@@ -739,7 +731,7 @@ instance_groups:
           tags:
             component: autoscaler_eventgenerator_health
           uris:
-          - ((eventgenerator_public_domain))
+          - ((deployment_name))-eventgenerator.((system_domain))
     release: routing
   name: eventgenerator
   networks:
@@ -912,13 +904,16 @@ instance_groups:
           tags:
             component: autoscaler_metricsforwarder_health
           uris:
-          - ((metricsforwarder_public_domain))
+          - ((deployment_name))-metricsforwarder.((system_domain))
     release: routing
   name: metricsforwarder
   networks:
   - name: default
   stemcell: default
   vm_type: minimal
+meta:
+  overlay_version: 15.3.1
+  public_subdomain: (( params.domain_prefix || "app-autoscaler" ))
 name: ((deployment_name))
 releases:
 - name: app-autoscaler
@@ -1231,4 +1226,3 @@ variables:
     key_length: 4096
   type: certificate
   update_mode: converge
-
