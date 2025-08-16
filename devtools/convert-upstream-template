@@ -1,0 +1,240 @@
+#!/usr/bin/env perl
+use v5.20; use warnings;
+
+# Script to convert upstream app-autoscaler template from hardcoded deployment_name patterns
+# to Genesis-style bosh-variables abstraction (14.5.0 style)
+
+BEGIN {
+	push @INC, $ENV{GENESIS_LIB} ? $ENV{GENESIS_LIB} : $ENV{HOME}.'/.genesis/lib'
+}
+
+use Genesis;
+use File::Basename;
+use Getopt::Long;
+
+# Command-line options
+my ($version, $input_file, $output_file, $help);
+
+sub usage {
+	my $script = basename($0);
+	print <<EOF;
+Usage: $script [options]
+
+Converts upstream app-autoscaler template to Genesis-style with:
+- bosh-variables abstraction for domain patterns
+- Genesis meta references for CF deployment
+- Removal of invalid BOSH sections
+
+Options:
+  -v, --version VERSION   Version for meta.overlay_version (semver format, e.g., 15.3.1)
+                         If not provided, uses value from overlay/upstream_version.yml
+  -i, --input FILE       Input upstream template (default: upstream/templates/app-autoscaler.yml)
+  -o, --output FILE      Output Genesis overlay (default: overlay/app-autoscaler.yml)
+  -h, --help             Show this help
+
+Examples:
+  $script                                              # Default for all options
+  $script -v 15.3.1                                    # Use version 15.3.1, defaults for files
+  $script -v 15.3.1 -i upstream/templates/app-autoscaler.yml  # Specify input file
+  $script -i input.yml -o output.yml                   # Use fallback version from overlay/upstream_version.yml
+
+EOF
+	exit 1;
+}
+
+# Parse command-line options
+GetOptions(
+	'v|version=s'   => \$version,
+	'i|input=s'     => \$input_file,
+	'o|output=s'    => \$output_file,
+	'h|help'        => \$help,
+) or usage();
+
+usage() if $help;
+
+# Set defaults
+$input_file  ||= 'upstream/templates/app-autoscaler.yml';
+$output_file ||= 'overlay/app-autoscaler.yml';
+
+# Get version from overlay/upstream_version.yml if not provided
+unless ($version) {
+	my $version_file = 'overlay/upstream_version.yml';
+	if (-f $version_file) {
+		my $version_yaml = load_yaml_file($version_file);
+		if ($version_yaml && $version_yaml->{exodus} && $version_yaml->{exodus}->{'app-autoscaler-release-version'}) {
+			$version = $version_yaml->{exodus}->{'app-autoscaler-release-version'};
+			info("Using version from $version_file: $version");
+		} else {
+			bail("Could not extract version from $version_file");
+		}
+	} else {
+		bail("Version not provided and $version_file not found. Use -v option or create $version_file");
+	}
+}
+
+# Validate version format
+unless ($version =~ /^\d+\.\d+\.\d+$/) {
+	bail("Version '$version' is not valid semver format (e.g., 15.3.1)");
+}
+
+bail("Input file '$input_file' not found") unless -f $input_file;
+info("Converting $input_file to Genesis conventions...");
+
+# Load the YAML structure
+my $yaml = load_yaml_file($input_file);
+bail("Failed to load YAML from $input_file") unless $yaml;
+
+# Block 1: Extract domain mappings and remove invalid BOSH sections
+info("Extracting domain mappings and removing invalid BOSH sections...");
+my $internal_domains = delete $yaml->{domains};
+my $public_domains = delete $yaml->{public_domains};
+
+# Block 2: Transform CF deployment references
+info("Transforming CF deployment references...");
+transform_cf_references($yaml);
+
+# Block 3: Create bosh-variables section
+info("Creating bosh-variables section...");
+add_bosh_variables($yaml, $internal_domains, $public_domains);
+
+# Block 4: Replace domain patterns with variables
+info("Replacing domain patterns with bosh-variables...");
+transform_domain_references($yaml, $internal_domains, $public_domains);
+
+# Block 5: Add meta section
+info("Adding meta section...");
+$yaml->{meta} = {
+	overlay_version => $version,
+	public_subdomain => '(( params.domain_prefix || "app-autoscaler" ))'
+};
+
+# Save result
+info("Saving to $output_file...");
+save_to_yaml_file($yaml, $output_file);
+
+info("Conversion complete!");
+info("Changes made:");
+info("  - Removed invalid 'domains' and 'public_domains' sections");
+info("  - Added bosh-variables section with abstracted domain definitions");
+info("  - Replaced hardcoded deployment_name patterns with variables");
+info("  - Changed 'cf' deployment references to use meta.cf.deployment_name");
+info("  - Changed 'nats' to 'nats-tls' in route_registrar consumers");
+info("  - Added meta section with version info");
+
+# Transform CF deployment references
+sub transform_cf_references {
+	my ($data) = @_;
+
+	# Recursively find and transform CF references
+	if (ref($data) eq 'HASH') {
+		# Handle NATS consumes block transformation
+		if ($data->{consumes} && $data->{consumes}->{nats}) {
+			my $nats_block = delete $data->{consumes}->{nats};
+			$nats_block->{from} = 'nats-tls';
+			$data->{consumes}->{'nats-tls'} = $nats_block;
+		}
+		
+		for my $key (keys %$data) {
+			if ($key eq 'deployment' && $data->{$key} eq 'cf') {
+				$data->{$key} = '(( grab meta.cf.deployment_name ))';
+			} else {
+				transform_cf_references($data->{$key});
+			}
+		}
+	} elsif (ref($data) eq 'ARRAY') {
+		transform_cf_references($_) for @$data;
+	}
+}
+
+
+# Add bosh-variables section using extracted domain mappings
+sub add_bosh_variables {
+	my ($yaml, $internal_domains, $public_domains) = @_;
+
+	# Create bosh-variables section from extracted domains, converting to Genesis patterns
+	$yaml->{'bosh-variables'} = {};
+
+	# Transform internal domains to Genesis variable names and values
+	if ($internal_domains) {
+		for my $key (keys %$internal_domains) {
+			my $var_name = $key . '_domain';
+			my $value = $internal_domains->{$key};
+			# Convert deployment_name pattern to Genesis pattern with params.domain_prefix
+			$value =~ s/\(\(deployment_name\)\)\.//g;
+			$value =~ s/\.service\.cf\.internal$//g;
+			$yaml->{'bosh-variables'}->{$var_name} = "(( concat params.domain_prefix \"${value}.service.cf.internal\" ))";
+		}
+	}
+
+	# Transform public domains to Genesis variable names and values
+	if ($public_domains) {
+		for my $key (keys %$public_domains) {
+			my $var_name = $key . '_public_domain';
+			my $value = $public_domains->{$key};
+			# Convert deployment_name pattern to Genesis pattern with params.domain_prefix
+			# Handle patterns like: ((deployment_name))servicebroker.((system_domain))
+			if ($value =~ /^\(\(deployment_name\)\)(.+)$/) {
+				my $suffix = $1;
+				$yaml->{'bosh-variables'}->{$var_name} = "(( concat params.domain_prefix \"$suffix\" ))";
+			} else {
+				$yaml->{'bosh-variables'}->{$var_name} = $value;
+			}
+		}
+	}
+
+	# Add base_public_domain if not present (used in route_registrar)
+	unless ($yaml->{'bosh-variables'}->{base_public_domain}) {
+		$yaml->{'bosh-variables'}->{base_public_domain} = '(( concat meta.public_subdomain ".((system_domain))" ))';
+	}
+}
+
+# Transform hardcoded domain patterns to use bosh-variables
+sub transform_domain_references {
+	my ($data, $internal_domains, $public_domains) = @_;
+
+	if (ref($data) eq 'HASH') {
+		for my $key (keys %$data) {
+			transform_domain_references($data->{$key}, $internal_domains, $public_domains);
+		}
+	} elsif (ref($data) eq 'ARRAY') {
+		for my $item (@$data) {
+			transform_domain_references($item, $internal_domains, $public_domains);
+		}
+	} elsif (defined($data) && !ref($data)) {
+		# Transform string values
+		$_[0] = transform_domain_string($data, $internal_domains, $public_domains);
+	}
+}
+
+# Transform individual string values containing domain patterns
+sub transform_domain_string {
+	my ($str, $internal_domains, $public_domains) = @_;
+
+	return $str unless defined($str) && !ref($str);
+
+	# Transform internal domain patterns using extracted mappings
+	if ($internal_domains) {
+		for my $key (keys %$internal_domains) {
+			my $pattern = quotemeta($internal_domains->{$key});
+			my $var_name = $key . '_domain';
+			$str =~ s/$pattern/\(\($var_name\)\)/g;
+		}
+	}
+
+	# Transform public domain patterns using extracted mappings
+	if ($public_domains) {
+		for my $key (keys %$public_domains) {
+			my $pattern = quotemeta($public_domains->{$key});
+			my $var_name = $key . '_public_domain';
+			$str =~ s/$pattern/\(\($var_name\)\)/g;
+		}
+	}
+
+	# Handle base public domain pattern (deployment_name without prefix)
+	$str =~ s/\(\(deployment_name\)\)\.(\(\(system_domain\)\))/((base_public_domain))/g;
+
+	return $str;
+}
+
+
+# vim: ts=2 sw=2 sts=2 noet fdm=marker foldlevel=1 nu
