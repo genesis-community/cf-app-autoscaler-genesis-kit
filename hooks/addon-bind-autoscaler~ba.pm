@@ -27,21 +27,21 @@ sub perform {
 	$self->cf_login();
 
 	my ($sb_username, $sb_password, $sb_url) = $self->get_service_broker_credentials();
+	my ($broker_name, $service_name) = $self->exodus_data(qw/broker_name service_name/);
 
-	info("Creating and enabling service broker");
-	info("\ncf create-service-broker autoscaler $sb_username $sb_password $sb_url");
+	info("Creating and enabling service broker:");
+	info("\n[[  - >>running #G{cf create-service-broker $broker_name $sb_username $sb_password $sb_url}");
 
 	my ($out, $rc) = run(
-		qw/cf create-service-broker autoscaler/, $sb_username, $sb_password, $sb_url
+		qw/cf create-service-broker/, $broker_name, $sb_username, $sb_password, $sb_url
 	);
 	if ($rc) {
 		# Check if it's just because it already exists
 		if ($out && $out =~ /Name must be unique/) {
-			info("\nService broker already exists, updating it...");
-			info("\ncf update-service-broker autoscaler $sb_username $sb_password $sb_url");
+			info("[[  - >>service broker already exists, updating it...");
 			run(
 				{onfailure => "Failed to update service broker", interactive => 1},
-				qw/cf update-service-broker autoscaler/, $sb_username, $sb_password, $sb_url
+				qw/cf update-service-broker/, $broker_name, $sb_username, $sb_password, $sb_url
 			);
 		} else {
 			bail("Failed to create service broker: $out");
@@ -50,10 +50,9 @@ sub perform {
 
 	my $env_name = $self->env->name;
 
-	info("cf enable-service-access autoscaler -b autoscaler");
-	run(
+	run({interactive => 1},
 		{onfailure => "Failed to enable service access for autoscaler"},
-		qw/cf enable-service-access /, "autoscaler", "-b", "autoscaler"
+		qw/cf enable-service-access /, $service_name, "-b", $broker_name
 	);
 
 	info("\n#G{[OK]} Successfully created the service broker.");

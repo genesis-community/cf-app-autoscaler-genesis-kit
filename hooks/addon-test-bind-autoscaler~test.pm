@@ -33,17 +33,18 @@ sub perform {
 		{passfail => 1, interactive => 1},
 		'cf', 'create-service-broker', 'test-bind-autoscaler', $sb_username, $sb_password, $sb_url
 	);
-	
+
 	my $enable_success = 0;
+	my $service_name = $self->exodus_data("service_name");
 	if ($create_success) {
 		info("\n#G{[OK]} Successfully created test-bind-autoscaler service broker.");
-		
+
 		# Enable service access
 		$enable_success = run(
 			{passfail => 1, interactive => 1},
-			'cf', 'enable-service-access', 'autoscaler', '-b', 'test-bind-autoscaler'
+			'cf', 'enable-service-access', $service_name, '-b', 'test-bind-autoscaler'
 		);
-		
+
 		if ($enable_success) {
 			info("#G{[OK]} Successfully enabled service access for test-bind-autoscaler.");
 		} else {

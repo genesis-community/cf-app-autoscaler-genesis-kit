@@ -88,17 +88,20 @@ addons:
   - name: bpm
     release: bpm
   name: bpm
+
 bosh-variables:
-  api_domain: (( concat params.domain_prefix "apiserver.service.cf.internal" ))
-  base_public_domain: (( concat meta.public_subdomain ".((system_domain))" ))
-  eventgenerator_domain: (( concat params.domain_prefix "eventgenerator.service.cf.internal" ))
-  metricsforwarder_mtls_public_domain: (( concat params.domain_prefix "-metricsforwarder-mtls.((system_domain))" ))
-  metricsforwarder_public_domain: (( concat params.domain_prefix "metrics.((system_domain))" ))
-  postgres_domain: (( concat params.domain_prefix "autoscalerpostgres.service.cf.internal" ))
-  scalingengine_domain: (( concat params.domain_prefix "scalingengine.service.cf.internal" ))
-  scheduler_domain: (( concat params.domain_prefix "autoscalerscheduler.service.cf.internal" ))
-  servicebroker_domain: (( concat params.domain_prefix "servicebroker.service.cf.internal" ))
-  servicebroker_public_domain: (( concat params.domain_prefix "servicebroker.((system_domain))" ))
+  api_domain: (( concat meta.internal_domain_prefix "apiserver.service.cf.internal" ))
+  eventgenerator_domain: (( concat meta.internal_domain_prefix "eventgenerator.service.cf.internal" ))
+  postgres_domain: (( concat meta.internal_domain_prefix "autoscalerpostgres.service.cf.internal" ))
+  scalingengine_domain: (( concat meta.internal_domain_prefix "scalingengine.service.cf.internal" ))
+  scheduler_domain: (( concat meta.internal_domain_prefix "autoscalerscheduler.service.cf.internal" ))
+  servicebroker_domain: (( concat meta.internal_domain_prefix "servicebroker.service.cf.internal" ))
+
+  api_public_domain: (( concat meta.api_public_subdomain ".((system_domain))" ))
+  metricsforwarder_public_domain: (( concat meta.metrics_public_subdomain ".((system_domain))" ))
+  metricsforwarder_mtls_public_domain: (( concat meta.metrics_mtls_public_subdomain ".((system_domain))" ))
+  servicebroker_public_domain: (( concat meta.service_broker_public_subdomain ".((system_domain))" ))
+
 features:
   use_dns_addresses: true
 instance_groups:
@@ -276,7 +279,7 @@ instance_groups:
                     instances based on a policy you define.
                   id: autoscaler-guid
                   instances_retrievable: true
-                  name: autoscaler
+                  name: (( grab meta.service_name ))
                   plans:
                   - description: This is the free service plan for the Auto-Scaling service.
                     id: autoscaler-free-plan-id
@@ -372,7 +375,7 @@ instance_groups:
           tags:
             component: api_server
           uris:
-          - ((base_public_domain))
+          - ((api_public_domain))
         - name: autoscaler_service_broker
           port: 6102
           registration_interval: 20s

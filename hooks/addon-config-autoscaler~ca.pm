@@ -64,6 +64,9 @@ sub perform {
 		onfailure => "Failed to execute 'cf' command successfully",
 	};
 
+	# FIXME: we should be using cf_login() from the mixin, but it doesn't do
+	# the cf-targets stuff we need here
+
 	# Get CF deployment info from primary exodus
 	my $cf_deployment_env = $self->exodus_data->{cf_deployment_env}
 		or bail("Required #C{%s} value not found in #M{%s} environment's exodus data", 'cf_deployment_env', $self->env->name);
@@ -202,13 +205,15 @@ sub perform {
 
 	save_to_json_file($policy_data, $policy_filename) if ($create_policy);
 
+	my $service_name = $self->exodus_data("service_name");
+
 	# Get first autoscaler service
 	my ($services_output) = run({%$run_opts, interactive =>0}, 'cf', 'services');
-	my ($first_as_service_name) = $services_output =~ /^(\S+)\s+autoscaler/m;
+	my ($first_as_service_name) = $services_output =~ /^(\S+)\s+$service_name/m;
 	$first_as_service_name //= '';
 
 	_print_header("These are the services currently running in your Cloud Foundry Deployment");
-	run($run_opts, 'cf', 'services');
+	info($services_output);
 	my $as_service_name = prompt_for_line('Type the autoscaler service name you would like to use', $first_as_service_name);
 
 	# Check if app is already bound to autoscaling service

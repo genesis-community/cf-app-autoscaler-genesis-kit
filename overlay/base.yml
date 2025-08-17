@@ -6,6 +6,15 @@ meta:
     exodus:  (( concat $GENESIS_EXODUS_MOUNT params.cf_deployment_env "/" params.cf_deployment_type ))
     deployment_name: (( concat params.cf_deployment_env "-" params.cf_deployment_type ))
   true: true
+  api_public_subdomain: (( grab params.public_subdomain || "autoscaler" ))
+  metrics_public_subdomain: (( grab params.metrics_public_subdomain || "autoscalermetrics" ))
+  metrics_mtls_public_subdomain: (( grab params.metrics_mtls_public_subdomain || "autoscalermetrics-mtls" ))
+  service_broker_public_subdomain: (( grab params.service_broker_public_subdomain || "autoscalerservicebroker" ))
+
+  internal_domain_prefix: (( grab params.internal_domain_prefix || "" ))
+  broker_name: (( grab params.broker_name || "autoscaler" ))
+  service_name: (( grab params.service_name || "autoscaler" ))
+
 params:
   network:                 (( grab params.cf_core_network ))
   cf_deployment_env:       (( grab genesis.env )) # assumes same name as cf env
@@ -25,6 +34,8 @@ bosh-variables:
 
   skip_ssl_validation: (( grab params.skip_ssl_validation || meta.true ))
 
+  # Domain centric variables are defined in overlay/app-autoscaler.yml
+
   # CF Deployment values for autoscaler - kit v2.9.0-rc2 or later
   admin_username: (( vault meta.cf.exodus ":admin_username" ))
   admin_password: (( vault meta.cf.exodus ":admin_password" ))
@@ -36,13 +47,15 @@ bosh-variables:
   metricscollector_client_key: (( vault meta.cf.exodus ":log_cache_key" ))
 
 exodus: # FIXME: Get these values from the manifest, not contructing them here
-  autoscaler_api_domain:     (( concat "app-autoscaler." params.cf_system_domain ))
-  autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
-  service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
+  autoscaler_api_domain:     (( grab bosh-variables.api_public_domain ))
+  autoscaler_metrics_domain: (( grab bosh-variables.metricsforwarder_public_domain ))
+  autoscaler_metrics_mtls_domain: (( grab bosh-variables.metricsforwarder_mtls_public
+  service_broker_domain:     (( grab bosh-variables.servicebroker_public_domain ))
 
   service_broker_username: (( vault genesis.secrets_base "autoscaler_service_broker_username:password" ))
   service_broker_password: (( vault genesis.secrets_base "autoscaler_service_broker_password:password" ))
-  servicebroker_public_domain: (( concat "autoscalerservicebroker." params.cf_system_domain ))
+  "broker_name": (( grab meta.broker_name ))
+  "service_name": (( grab meta.service_name ))
 
   cf_deployment_env:  (( grab params.cf_deployment_env ))
   cf_deployment_type: (( grab params.cf_deployment_type ))

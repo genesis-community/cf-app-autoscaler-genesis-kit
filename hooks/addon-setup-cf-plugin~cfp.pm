@@ -79,7 +79,6 @@ sub perform {
 	info("\n#G{[OK]} Successfully $action CF-Community app-autoscaler-plugin.\n" .
 			"You can run #c{cf uninstall-plugin AutoScaler} to remove it when no longer desired.");
 
-
 	return $self->done();
 }
 

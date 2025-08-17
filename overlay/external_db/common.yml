@@ -10,3 +10,8 @@ bosh-variables:
     tls:
       ca:     ((autoscaler_database_tls_ca))
 
+variables:
+- (( delete "postgres_ca" ))
+- (( delete "postgres_server" ))
+- (( delete "postgres_client" ))
+

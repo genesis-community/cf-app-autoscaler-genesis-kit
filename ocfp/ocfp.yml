@@ -25,11 +25,6 @@ meta:
       metricsforwarder: (( concat genesis.env "." genesis.type ".vm-as-metricsforwarder" ))
       postgres:         (( concat genesis.env "." genesis.type ".vm-as-postgres"         ))
 
-exodus: # This should be taken from the manifest, not constructed here (might already be done in base)
-  autoscaler_api_domain:     (( concat "autoscaler." params.cf_system_domain ))
-  autoscaler_metrics_domain: (( concat "autoscalermetrics." params.cf_system_domain ))
-  service_broker_domain:     (( concat "autoscalerservicebroker." params.cf_system_domain ))
-
 params:
   network:  (( grab meta.ocfp.networks[0].name ))
 

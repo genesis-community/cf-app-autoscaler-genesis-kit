@@ -67,7 +67,7 @@ sub get_service_broker_credentials {
 	$self->exodus_data(".", undef, "");
 	my $service_broker_password = $self->exodus_data("service_broker_password");
 	my $service_broker_username = $self->exodus_data("service_broker_username");
-	my $servicebroker_public_domain = $self->exodus_data("servicebroker_public_domain");
+	my $servicebroker_public_domain = $self->exodus_data("service_broker_domain");
 
 	return ( $service_broker_username, $service_broker_password, 'https://'.$servicebroker_public_domain );
 }

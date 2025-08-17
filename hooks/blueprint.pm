@@ -58,10 +58,6 @@ sub validate_classic_features {
 
 	# Custom validation
 	my (@warnings, @errors) = ();
-	push(
-		# Valid feature, but check for required params
-		@errors, "Feature 'override-subdomain' requires params.subdomain_prefix to be defined"
-	) if $self->want_feature('override-subdomain') && !$self->env->lookup('params.subdomain_prefix');
 
 	$self->validate_features(
 		valid_features      => [
@@ -69,10 +65,10 @@ sub validate_classic_features {
 			'mysql',
 			'postgres',
 			'deployment-name-in-domains',
-			'override-subdomain'
 		],
 		deprecated_features => {
-			'cf-v1-support' => undef
+			'cf-v1-support' => undef,
+			'override-subdomain' => []
 		},
 		mutually_exclusive_features => {
 			'database' => [qw/mysql postgres/]
@@ -118,8 +114,6 @@ sub process_classic_features {
 	for my $feature ($self->features) {
 		if ($feature eq 'deployment-name-in-domains') {
 			$self->add_files("overlay/deployment_name_in_domains.yml");
-		} elsif ($feature eq 'override-subdomain') {
-			$self->add_files("overlay/change_subdomain.yml");
 		} elsif ($feature =~ /operations\/(.*)/) {
 			$self->add_files("upstream/operations/$1.yml");
 		} elsif (-f $self->env->path("ops/$feature.yml")) {
@@ -144,7 +138,6 @@ sub process_ocfp_features {
 	# Base OCFP configuration - these are automatically included
 	$self->add_files(
 		"ocfp/ocfp.yml",
-		"ocfp/broker.yml"
 	);
 
 	$self->add_files( "ocfp/trusted-certs.yml") if ($self->iaas eq "aws");
