@@ -1,4 +1,5 @@
 # CF App Autoscaler Genesis Kit Manual
+<!--- FIXME: Update this to correspond to the latest version of the kit. --->
 
 The **CF App Autoscaler Genesis Kit** allows you to create an App Autoscaler deployment to automatically scale applications in your existing Cloud Foundry based on predefined metrics and rules.
 
@@ -16,7 +17,6 @@ It is based on the upstream [cloudfoundry/app-autoscaler-release][cfaar], and su
 - [Features](#features)
   - [ocfp](#ocfp)
   - [external-db](#external-db)
-  - [subdomain_prefix](#subdomain_prefix)
   - [postgres](#postgres)
   - [mysql](#mysql)
   - [cf-v1-support](#cf-v1-support)
@@ -197,7 +197,6 @@ The following values can be specified in your environment file under `params:`:
 | `cf_system_domain` | System domain for your CF deployment | Provided by Exodus data from CF Genesis kit | `system.example.com` |
 | `skip_ssl_validation` | Set to false to enforce SSL validation | `true` | `false` |
 | `db_disk_type` | Persistent disk type for the local database VM | `10GB` | `50GB` |
-| `subdomain_prefix` | Prefix for autoscaler subdomains | `autoscaler` | `aas` |
 
 ### Example environment file with basic parameters:
 
