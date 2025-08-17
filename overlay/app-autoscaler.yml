@@ -1,3 +1,5 @@
+params:
+  domain_prefix: ""
 addons:
 - jobs:
   - name: bosh-dns-aliases
@@ -274,10 +276,9 @@ instance_groups:
                     instances based on a policy you define.
                   id: autoscaler-guid
                   instances_retrievable: true
-                  name: ((deployment_name))
+                  name: autoscaler
                   plans:
-                  - description: This is the free service plan for the Auto-Scaling
-                      service.
+                  - description: This is the free service plan for the Auto-Scaling service.
                     id: autoscaler-free-plan-id
                     name: autoscaler-free-plan
                   tags:
@@ -913,7 +914,7 @@ instance_groups:
   vm_type: minimal
 meta:
   overlay_version: 15.3.1
-  public_subdomain: (( params.domain_prefix || "app-autoscaler" ))
+  public_subdomain: (( grab params.public_subdomain || "autoscaler" ))
 name: ((deployment_name))
 releases:
 - name: app-autoscaler
