@@ -9,8 +9,8 @@ bosh-variables:
     sslmode:  (( vault meta.vault "/db/autoscaler:sslmode" ))
     tls:
       ca:          (( vault meta.vault "/db/autoscaler:ca"          ))
-      #certificate: (( vault meta.vault "/db/autoscaler:certificate" ))
-      #private_key: (( vault meta.vault "/db/autoscaler:private_key" ))
+      certificate: (( vault meta.vault "/db/autoscaler:certificate" ))
+      private_key: (( vault meta.vault "/db/autoscaler:private_key" ))
 
 variables:
   - (( delete "database_password" ))
