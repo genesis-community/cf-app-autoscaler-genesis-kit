@@ -49,7 +49,7 @@ bosh-variables:
 exodus: # FIXME: Get these values from the manifest, not contructing them here
   autoscaler_api_domain:     (( grab bosh-variables.api_public_domain ))
   autoscaler_metrics_domain: (( grab bosh-variables.metricsforwarder_public_domain ))
-  autoscaler_metrics_mtls_domain: (( grab bosh-variables.metricsforwarder_mtls_public
+  autoscaler_metrics_mtls_domain: (( grab bosh-variables.metricsforwarder_mtls_public_domain ))
   service_broker_domain:     (( grab bosh-variables.servicebroker_public_domain ))
 
   service_broker_username: (( vault genesis.secrets_base "autoscaler_service_broker_username:password" ))
