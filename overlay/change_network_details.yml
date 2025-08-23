@@ -94,7 +94,7 @@ instance_groups:
           broker:
             broker_credentials:
             - (( replace ))
-            - broker_username: ((autoscaler_service_broker_username))
+            - broker_username: autoscaler_service_broker_user
               broker_password: ((autoscaler_service_broker_password))
 
 
@@ -127,7 +127,5 @@ instance_groups:
       cloud_controller: { from: cloud_controller, deployment: (( grab meta.cf.deployment_name )) }
 
 variables:
-- name: autoscaler_service_broker_username
-  type: password
 - name: autoscaler_service_broker_password
   type: password

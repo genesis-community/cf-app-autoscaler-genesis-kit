@@ -50,8 +50,9 @@ sub perform {
 
 	my $env_name = $self->env->name;
 
-	run({interactive => 1},
-		{onfailure => "Failed to enable service access for autoscaler"},
+	info("Enabling service access for autoscaler...");
+	run(
+		{onfailure => "Failed to enable service access for autoscaler", interactive => 1},
 		qw/cf enable-service-access /, $service_name, "-b", $broker_name
 	);
 

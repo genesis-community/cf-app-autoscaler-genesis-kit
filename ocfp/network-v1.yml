@@ -3,4 +3,4 @@ meta:
   ocfp:
     networks:
       - (( replace ))
-      - name: (( concat genesis.env ".cf" ".net-ocf" ))
+      - name: (( concat genesis.env "-ocf" ))

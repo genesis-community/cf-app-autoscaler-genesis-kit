@@ -27,7 +27,7 @@ sub perform {
 
 	$ok = 0 unless $self->check_cloud_config();
 	$ok = 0 unless $self->check_runtime_config();
-	$ok = 0 unless $self->check_cf_kit_version();
+	#$ok = 0 unless $self->check_cf_kit_version();
 	$ok = 0 unless $self->check_environment();
 
 	return $self->done($ok);

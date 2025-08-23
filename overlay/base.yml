@@ -52,8 +52,8 @@ exodus: # FIXME: Get these values from the manifest, not contructing them here
   autoscaler_metrics_mtls_domain: (( grab bosh-variables.metricsforwarder_mtls_public_domain ))
   service_broker_domain:     (( grab bosh-variables.servicebroker_public_domain ))
 
-  service_broker_username: (( vault genesis.secrets_base "autoscaler_service_broker_username:password" ))
-  service_broker_password: (( vault genesis.secrets_base "autoscaler_service_broker_password:password" ))
+  service_broker_username: autoscaler_service_broker_user
+  service_broker_password: ((autoscaler_service_broker_password))
   "broker_name": (( grab meta.broker_name ))
   "service_name": (( grab meta.service_name ))
 
