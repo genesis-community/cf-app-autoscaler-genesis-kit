@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-package Genesis::Hook::Blueprint::CFAppAutoscaler v3.0.4;
+package Genesis::Hook::Blueprint::CFAppAutoscaler v5.0.0;
 
 use v5.20;
 use warnings;

@@ -1,4 +1,4 @@
-package Genesis::Hook::CloudConfig::Autoscaler v2.6.0;
+package Genesis::Hook::CloudConfig::CFAppAutoscaler v5.0.0;
 
 use strict;
 use warnings;

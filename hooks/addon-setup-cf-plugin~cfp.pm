@@ -1,4 +1,4 @@
-package Genesis::Hook::Addon::CFAppAutoscaler::SetupCFPlugin;
+package Genesis::Hook::Addon::CFAppAutoscaler::SetupCFPlugin v5.0.0;
 
 use v5.20;
 use warnings;

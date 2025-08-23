@@ -1,4 +1,4 @@
-package Genesis::Hook::Check::AppAutoscaler;
+package Genesis::Hook::Check::CFAppAutoscaler v5.0.0;
 
 use v5.20;
 use warnings;
