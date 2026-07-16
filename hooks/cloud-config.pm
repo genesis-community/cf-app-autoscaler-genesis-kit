@@ -44,6 +44,9 @@ sub perform {
 							'net_id' => $self->network_reference('id'),
 							'security_groups' => $self->get_network_security_groups(),
 						},
+						'pve' => {
+							'bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						},
 					},
 				},
 			)
@@ -88,6 +91,12 @@ sub perform {
 							'http_tokens' => 'required'
 						},
 					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_postgres_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_postgres_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_postgres_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+					},
 				}
 			),
 			$self->vm_type_definition('as-apiserver',
@@ -128,6 +137,12 @@ sub perform {
 						'metadata_options' => {
 							'http_tokens' => 'required'
 						},
+					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_apiserver_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_apiserver_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_apiserver_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
 					},
 				}
 			),
@@ -170,6 +185,12 @@ sub perform {
 							'http_tokens' => 'required'
 						},
 					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scalingengine_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scalingengine_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scalingengine_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+					},
 				}
 			),
 			$self->vm_type_definition('as-scheduler',
@@ -210,6 +231,12 @@ sub perform {
 						'metadata_options' => {
 							'http_tokens' => 'required'
 						},
+					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scheduler_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scheduler_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scheduler_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
 					},
 				}
 			),
@@ -252,6 +279,12 @@ sub perform {
 							'http_tokens' => 'required'
 						},
 					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_operator_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_operator_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_operator_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+					},
 				}
 			),
 			$self->vm_type_definition('as-eventgenerator',
@@ -292,6 +325,12 @@ sub perform {
 						'metadata_options' => {
 							'http_tokens' => 'required'
 						},
+					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_eventgenerator_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_eventgenerator_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_eventgenerator_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
 					},
 				}
 			),
@@ -334,6 +373,12 @@ sub perform {
 							'http_tokens' => 'required'
 						},
 					},
+					pve => {
+						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_metricsforwarder_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
+						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_metricsforwarder_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
+						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_metricsforwarder_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
+						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+					},
 				}
 			),
 		],
@@ -353,6 +398,10 @@ sub perform {
 					aws => {
 						'type' => 'gp3',
 						'encrypted' => $self->TRUE,
+					},
+					pve => {
+						'storage'     => scalar($self->env->lookup('bosh-configs.cpi.pve_disk_storage', 'zfs-1')),
+						'disk_format' => scalar($self->env->lookup('bosh-configs.cpi.pve_disk_format', 'raw')),
 					},
 				},
 			),

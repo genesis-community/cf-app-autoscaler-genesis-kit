@@ -1,0 +1,41 @@
+---
+# PVE-specific OCFP overlay for the App Autoscaler. Loaded by hooks/blueprint.pm
+# only when iaas == pve.
+#
+# 1. Dotted OCFP network names (<env>.autoscaler.net-autoscaler) mangle BOSH-DNS
+#    long-form link addresses, breaking the inter-component links between the 7
+#    autoscaler jobs (apiserver/scalingengine/eventgenerator/operator/scheduler/
+#    metricsforwarder + postgres). Resolve links to IPs instead.
+- type: replace
+  path: /features?
+  value:
+    use_dns_addresses: false
+    use_short_dns_addresses: false
+    use_link_dns_names: false
+
+# 2. The shared PVE bridge (lvnet001) has no cross-director IPAM. Multi-AZ would
+#    spread dynamic IPs into ocfp-0 (CF) and ocfp-2 (compilation-pinned); pin
+#    every instance group to z2 (ocfp-1), which has room and only a single static
+#    neighbor (mgmt doomsday) on the shared subnet. go-patch (not a meta array
+#    override) so the single-AZ list reliably replaces the multi-AZ default.
+- type: replace
+  path: /instance_groups/name=apiserver/azs
+  value: [(( concat genesis.env "-z2" ))]
+- type: replace
+  path: /instance_groups/name=scalingengine/azs
+  value: [(( concat genesis.env "-z2" ))]
+- type: replace
+  path: /instance_groups/name=scheduler/azs
+  value: [(( concat genesis.env "-z2" ))]
+- type: replace
+  path: /instance_groups/name=operator/azs
+  value: [(( concat genesis.env "-z2" ))]
+- type: replace
+  path: /instance_groups/name=eventgenerator/azs
+  value: [(( concat genesis.env "-z2" ))]
+- type: replace
+  path: /instance_groups/name=metricsforwarder/azs
+  value: [(( concat genesis.env "-z2" ))]
+- type: replace
+  path: /instance_groups/name=postgres/azs
+  value: [(( concat genesis.env "-z2" ))]

@@ -142,6 +142,11 @@ sub process_ocfp_features {
 
 	$self->add_files( "ocfp/trusted-certs.yml") if ($self->iaas eq "aws");
 
+	# PVE shared-bridge specifics: pin all components to a single AZ and resolve
+	# inter-component links to IPs (dotted OCFP network names break bosh-dns
+	# long-form link addresses across the 7 interlinked autoscaler jobs).
+	$self->add_files("ocfp/pve.yml") if ($self->iaas eq "pve");
+
 	if ($self->env->ocfp_config_lookup('net.topology', 'v2') eq 'v1') {
     	$self->add_files("ocfp/network-v1.yml");
     }
