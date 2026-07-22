@@ -63,7 +63,7 @@ exodus: # FIXME: Get these values from the manifest, not contructing them here
 stemcells:
 - (( replace ))
 - alias: default
-  os: (( grab params.stemcell_os || "ubuntu-jammy" ))
+  os: (( grab params.stemcell_os || "ubuntu-noble" ))
   version: (( grab params.stemcell_version || "latest" ))
 
 instance_groups:

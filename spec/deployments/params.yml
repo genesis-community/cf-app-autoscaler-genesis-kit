@@ -14,7 +14,7 @@ params:
   cf_system_domain:    cf.lab.example.com
   skip_ssl_validation: true
   db_disk_type:        20GB
-  stemcell_os:         ubuntu-jammy
+  stemcell_os:         ubuntu-noble
 
 bosh-variables:
   database:
