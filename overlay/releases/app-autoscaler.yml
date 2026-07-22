@@ -9,3 +9,8 @@ releases:
   version: "0.343.0"
   url:     "https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.343.0"
   sha1:    "sha256:1409f3a0e56d89683f50c2d6c0fcb38d1a297c3710b3c067fb75182e7a7df356"
+
+- name:    "bpm"
+  version: "1.4.26"
+  url:     "https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.4.26"
+  sha1:    "sha256:40af85114d2a8a67812bf65212076581ea42cefcf67ee6b8d78d778ed1ca2b85"
