@@ -237,9 +237,9 @@ sub add_base_manifest_files {
 	#$self->add_files("overlay/update_domains.yml")
 	#  if ($self->want_feature('internal-db'));
 
-	# TODO: for internal-db, we need to compare and resolve the base.yml vs overlay/add-postgres-variables.yml
-	#       for external-db... perhaps we don't need these?
-	$self->add_files("overlay/add-postgres-variables.yml") unless $self->want_feature('internal-db');
+	# postgres_ca/postgres_server/postgres_client variables are defined in
+	# overlay/base.yml; overlay/add-postgres-variables.yml duplicated them
+	# and is no longer included.
 
 	$self->add_files(
 		"overlay/ten-year-ca-expiry.yml",
