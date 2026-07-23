@@ -1,0 +1,9 @@
+---
+# Trust the organization CA, which signs the CF router certs, so the
+# CF API clients can verify TLS without skip_ssl_validation.
+meta:
+  ocfp:
+    certs:
+      trusted:
+      - (( append ))
+      - (( vault genesis.secrets_mount "certs/org:ca" ))

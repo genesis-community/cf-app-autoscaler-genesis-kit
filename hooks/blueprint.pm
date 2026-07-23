@@ -140,7 +140,16 @@ sub process_ocfp_features {
 		"ocfp/ocfp.yml",
 	);
 
-	$self->add_files( "ocfp/trusted-certs.yml") if ($self->iaas eq "aws");
+	# Trust CAs from the vault so the CF API clients can verify TLS
+	# instead of relying on skip_ssl_validation.  The org CA signs the
+	# CF router certs and the dbs CA covers external databases; each
+	# trust file is included only when its CA exists in the vault.
+	my @trust_files;
+	push(@trust_files, 'ocfp/trust-org-ca.yml')
+		if $self->env->vault->has($self->env->secrets_mount . '/certs/org:ca');
+	push(@trust_files, 'ocfp/trust-dbs-ca.yml')
+		if $self->env->vault->has($self->env->secrets_mount . '/certs/dbs:ca');
+	$self->add_files('ocfp/trusted-certs.yml', @trust_files) if @trust_files;
 
 	# PVE shared-bridge specifics: pin all components to a single AZ and resolve
 	# inter-component links to IPs (dotted OCFP network names break bosh-dns

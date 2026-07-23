@@ -1,0 +1,8 @@
+---
+# Trust the external databases CA.
+meta:
+  ocfp:
+    certs:
+      trusted:
+      - (( append ))
+      - (( vault genesis.secrets_mount "certs/dbs:ca" ))

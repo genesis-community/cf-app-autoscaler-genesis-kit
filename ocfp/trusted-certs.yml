@@ -1,9 +1,47 @@
-
 ---
+# OS-level CA trust for the CF-API-facing components (scalingengine,
+# apiserver, operator).  app-autoscaler-release has no cf.ca_cert
+# property, so CAs are installed into the OS trust store via the
+# os-conf ca_certs job and the Go CF clients pick them up when
+# skip_ssl_validation is off.
+#
+# The trusted list is populated by ocfp/trust-*-ca.yml files, which
+# blueprint.pm includes only when the corresponding CA exists in the
+# vault.  This file is only included when at least one CA was found.
 meta:
+  false: false
   ocfp:
     certs:
-      trusted:
-        - (( vault genesis.secrets_mount "certs/org:ca" )) # Organization CA, if exists
-        - (( vault genesis.secrets_mount "certs/dbs:ca" )) # External Databases CA
+      trusted: []
 
+bosh-variables:
+  cf_trusted_cas: (( join "" meta.ocfp.certs.trusted ))
+  # With CAs trusted at the OS level, verify TLS by default;
+  # params.skip_ssl_validation still overrides.
+  skip_ssl_validation: (( grab params.skip_ssl_validation || meta.false ))
+
+releases:
+- name: os-conf
+  version: 23.0.0
+  url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=23.0.0
+  sha1: d20772d8ce6e781ceb13cac7df5950bfa4330ba1
+
+instance_groups:
+- name: scalingengine
+  jobs:
+  - name: ca_certs
+    release: os-conf
+    properties:
+      certs: ((cf_trusted_cas))
+- name: apiserver
+  jobs:
+  - name: ca_certs
+    release: os-conf
+    properties:
+      certs: ((cf_trusted_cas))
+- name: operator
+  jobs:
+  - name: ca_certs
+    release: os-conf
+    properties:
+      certs: ((cf_trusted_cas))
