@@ -3,6 +3,8 @@
   core_network: test-core-network
   app_autoscaler_client:  app-autoscaler-client
   app_autoscaler_secret:  app-autoscaler-secret
+  admin_username: cf-admin
+  admin_password: cf-admin-password
   kit_version: 2.5.2
   nats_client_cert: <!{credhub}:nats_client_cert.certificate!>
   nats_client_key: <!{credhub}:nats_client_cert.private_key!>

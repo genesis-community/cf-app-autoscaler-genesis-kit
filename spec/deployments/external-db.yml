@@ -1,5 +1,7 @@
 ---
 kit:
+  name: dev
+  version: latest
   features:
     - external-db 
 
@@ -11,4 +13,11 @@ params:
 
 bosh-variables:
   database:
-    host:  external.mysql.mycorp.com
+    host:     external.mysql.mycorp.com
+    port:     3306
+    scheme:   mysql
+    name:     autoscaler
+    username: autoscaler
+    password: external-db-password
+    sslmode:  verify_identity
+    tls.ca:   <!database.tls.ca!>

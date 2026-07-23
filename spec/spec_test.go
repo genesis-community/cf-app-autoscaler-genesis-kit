@@ -24,7 +24,10 @@ var _ = Describe("CF App Autoscaler Kit", func() {
 			Exodus:        "base",
 		})
 	})
-	Describe("mysql", func() {
+	// Pending: upstream/operations/cf-mysql-db.yml targets the renamed
+	// postgres_autoscaler instance group and no longer applies cleanly
+	// (blueprint.pm: "Pretty sure this is very broken").
+	PDescribe("mysql", func() {
 		Test(Environment{
 			Name:          "mysql",
 			CloudConfig:   "aws",

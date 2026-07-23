@@ -10,7 +10,7 @@ addons:
           instance_group: postgres
           network: cf-core-network
           query: '*'
-      - domain: autoscaler.service.cf.internal
+      - domain: apiserver.service.cf.internal
         targets:
         - deployment: params-cf-app-autoscaler
           domain: bosh
@@ -86,26 +86,25 @@ addons:
   - name: bpm
     release: bpm
   name: bpm
-domains:
-  api: params-cf-app-autoscaler.apiserver.service.cf.internal
-  eventgenerator: params-cf-app-autoscaler.eventgenerator.service.cf.internal
-  postgres: params-cf-app-autoscaler.autoscalerpostgres.service.cf.internal
-  scalingengine: params-cf-app-autoscaler.scalingengine.service.cf.internal
-  scheduler: params-cf-app-autoscaler.autoscalerscheduler.service.cf.internal
-  servicebroker: params-cf-app-autoscaler.servicebroker.service.cf.internal
 exodus:
-  app-autoscaler-release-date: 2024-Jul-17 12:05:53 UTC
-  app-autoscaler-release-version: 14.1.0
+  app-autoscaler-release-date: 2025-Aug-15 23:39:57 UTC
+  app-autoscaler-release-version: 15.3.1
   autoscaler_api_domain: autoscaler.cf.lab.example.com
   autoscaler_metrics_domain: autoscalermetrics.cf.lab.example.com
+  autoscaler_metrics_mtls_domain: autoscalermetrics-mtls.cf.lab.example.com
   bosh: params
+  broker_name: autoscaler
   cf_deployment_env: base-test
   cf_deployment_type: cf
   features: external-db,mysql
+  iaas: null
   is_director: false
+  scale: null
   service_broker_domain: autoscalerservicebroker.cf.lab.example.com
   service_broker_password: <!{credhub}:autoscaler_service_broker_password!>
   service_broker_username: autoscaler_service_broker_user
+  service_name: autoscaler
+  services: null
   use_create_env: false
 features:
   use_dns_addresses: true
@@ -207,7 +206,7 @@ instance_groups:
           tags:
             component: autoscaler_scalingengine_health
           uris:
-          - app-autoscaler-scalingengine.cf.lab.example.com
+          - params-cf-app-autoscaler-scalingengine.cf.lab.example.com
     release: routing
   name: scalingengine
   networks:
@@ -235,14 +234,14 @@ instance_groups:
                     instances based on a policy you define.
                   id: autoscaler-guid
                   instances_retrievable: true
-                  name: app-autoscaler
+                  name: autoscaler
                   plans:
                   - description: This is the free service plan for the Auto-Scaling
                       service.
                     id: autoscaler-free-plan-id
                     name: autoscaler-free-plan
                   tags:
-                  - app-autoscaler
+                  - autoscaler
               dashboard_redirect_uri: ""
               port: 6102
           event_generator:
@@ -251,8 +250,8 @@ instance_groups:
             client_key: <!{credhub}:eventgenerator_client_cert.private_key!>
             host: eventgenerator.service.cf.internal
           metrics_forwarder:
-            host: autoscalermetrics.cf.lab.example.com
-            mtls_host: autoscaler-metricsforwarder-mtls.cf.lab.example.com
+            host: autoscalermetrics.((system_domain))
+            mtls_host: autoscalermetrics-mtls.((system_domain))
           public_api:
             server:
               port: 6101
@@ -329,14 +328,14 @@ instance_groups:
           tags:
             component: api_server
           uris:
-          - autoscaler.cf.lab.example.com
+          - autoscaler.((system_domain))
         - name: autoscaler_service_broker
           port: 6102
           registration_interval: 20s
           tags:
             component: autoscaler_service_broker
           uris:
-          - autoscalerservicebroker.cf.lab.example.com
+          - autoscalerservicebroker.((system_domain))
     release: routing
   name: apiserver
   networks:
@@ -415,7 +414,7 @@ instance_groups:
           tags:
             component: autoscaler_scheduler_health
           uris:
-          - app-autoscaler-scheduler.cf.lab.example.com
+          - params-cf-app-autoscaler-scheduler.cf.lab.example.com
     release: routing
   name: scheduler
   networks:
@@ -546,7 +545,7 @@ instance_groups:
           tags:
             component: autoscaler_operator_health
           uris:
-          - app-autoscaler-operator.cf.lab.example.com
+          - params-cf-app-autoscaler-operator.cf.lab.example.com
     release: routing
   name: operator
   networks:
@@ -658,7 +657,7 @@ instance_groups:
           tags:
             component: autoscaler_eventgenerator_health
           uris:
-          - app-autoscaler-eventgenerator.cf.lab.example.com
+          - params-cf-app-autoscaler-eventgenerator.cf.lab.example.com
     release: routing
   name: eventgenerator
   networks:
@@ -672,6 +671,24 @@ instance_groups:
   - name: metricsforwarder
     properties:
       autoscaler:
+        binding_db:
+          address: external-mysql-host.lab.example.com
+          databases:
+          - name: cfas
+            tag: default
+          db_scheme: mysql
+          port: 3377
+          roles:
+          - name: as
+            password: $up3r$ecr!t
+            tag: default
+          sslmode: allow
+          tls:
+            ca: ((autoscaler_database_tls_ca))
+        binding_db_connection_config:
+          connection_max_lifetime: 60s
+          max_idle_connections: 10
+          max_open_connections: 100
         metricsforwarder:
           health:
             password: <!{credhub}:autoscaler_metricsforwarder_health_password!>
@@ -684,9 +701,6 @@ instance_groups:
               ca_cert: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.ca!>
               cert: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.certificate!>
               key: <!{credhub}:metricsforwarder_autoscaler_metricsforwarder_loggregator_tls.private_key!>
-          metricshandler:
-            tls:
-              ca_cert: <!{credhub}:diego_instance_identity_ca.certificate!>
           server:
             port: 6201
         policy_db:
@@ -751,9 +765,12 @@ instance_groups:
     name: loggr-syslog-binding-cache
     properties:
       aggregate_drains:
-      - ca: <!{credhub}:log_cache_syslog_tls_ca.certificate!>
-        cert: <!{credhub}:syslog_agent_log_cache_tls.certificate!>
-        key: <!{credhub}:syslog_agent_log_cache_tls.private_key!>
+      - ca:
+          ca: <!{credhub}:log_cache_syslog_tls_ca.ca!>
+          certificate: <!{credhub}:log_cache_syslog_tls_ca.certificate!>
+          private_key: <!{credhub}:log_cache_syslog_tls_ca.private_key!>
+        cert: <!{credhub}:log_cache_client_cert.certificate!>
+        key: <!{credhub}:log_cache_client_cert.private_key!>
         url: syslog-tls://log-cache.service.cf.internal:6067?include-metrics-deprecated=true&ssl-strict-internal=true
       api:
         polling_interval: 876000h
@@ -793,21 +810,21 @@ instance_groups:
           tags:
             component: autoscaler_metrics_forwarder
           uris:
-          - autoscalermetrics.cf.lab.example.com
+          - autoscalermetrics.((system_domain))
         - name: autoscaler_metrics_forwarder_mtls
           port: 6201
           registration_interval: 20s
           tags:
-            component: autoscaler_metrics_forwarder_mtls
+            component: autoscaler_metrics_forwarder
           uris:
-          - autoscaler-metricsforwarder-mtls.cf.lab.example.com
+          - autoscalermetrics-mtls.((system_domain))
         - name: autoscaler_metricsforwarder_health
           port: 6201
           registration_interval: 20s
           tags:
             component: autoscaler_metricsforwarder_health
           uris:
-          - app-autoscaler-metricsforwarder.cf.lab.example.com
+          - params-cf-app-autoscaler-metricsforwarder.cf.lab.example.com
     release: routing
   name: metricsforwarder
   networks:
@@ -815,31 +832,31 @@ instance_groups:
   stemcell: default
   vm_type: minimal
 name: params-cf-app-autoscaler
-public_domains:
-  metricsforwarder: params-cf-app-autoscalermetrics.cf.lab.example.com
-  metricsforwarder_mtls: params-cf-app-autoscaler-metricsforwarder-mtls.cf.lab.example.com
-  servicebroker: params-cf-app-autoscalerservicebroker.cf.lab.example.com
 releases:
 - name: app-autoscaler
-  sha1: 3e94d167d7dd74c2eac15a52f8a33301a79caf95
-  url: https://github.com/cloudfoundry/app-autoscaler-release/releases/download/v14.4.0/app-autoscaler-acceptance-tests-v14.4.0.tgz
-  version: 14.4.0
+  sha1: sha256:8875d80e0c9ed6a1c81f530dc6d0e448c559b4448299b8dcb66267f8d86ca4be
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=15.3.1
+  version: 15.3.1
+- name: postgres
+  sha1: sha256:75ceb40c970c54a922768d499bee9102d7a2ae2f88e269cefecba2f1c195e70b
+  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=48
+  version: "48"
 - name: bosh-dns-aliases
   sha1: 55b3dced813ff9ed92a05cda02156e4b5604b273
   url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-aliases-release?v=0.0.4
   version: 0.0.4
 - name: routing
-  sha1: 6dd63d1653bf333ea64fca061a3a16d9be2e750f
-  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.275.0
-  version: 0.275.0
+  sha1: sha256:1409f3a0e56d89683f50c2d6c0fcb38d1a297c3710b3c067fb75182e7a7df356
+  url: https://bosh.io/d/github.com/cloudfoundry/routing-release?v=0.343.0
+  version: 0.343.0
 - name: loggregator-agent
-  sha1: 623e45f6c19a68d01c313a9a1a504dabc39ac1cf
-  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=7.2.1
-  version: 7.2.1
+  sha1: sha256:4b7d5dd3eb2c4ed5d0a9f7957d5044c3da294a083ffdf395b5ddee2ff2360780
+  url: https://bosh.io/d/github.com/cloudfoundry/loggregator-agent-release?v=7.7.3
+  version: 7.7.3
 - name: bpm
-  sha1: 36299a55c00d28cfe54bbb4772ca617f52d76adb
-  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.2.1
-  version: 1.2.1
+  sha1: sha256:40af85114d2a8a67812bf65212076581ea42cefcf67ee6b8d78d778ed1ca2b85
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.4.26
+  version: 1.4.26
 stemcells:
 - alias: default
   os: ubuntu-noble
