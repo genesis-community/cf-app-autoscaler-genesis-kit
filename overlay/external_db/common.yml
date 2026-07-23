@@ -5,7 +5,7 @@ bosh-variables:
     scheme:   (( param "Specify the type of database, expect one of mysql or postgres" ))
     name:     autoscaler
     username: autoscaler
-    password: (( param "Specify the autoscaler database password. ))
+    password: (( param "Specify the autoscaler database password" ))
     sslmode:  (( param "Specify SSL validation mode to use, expect one of disable, allow, prefer, require, verify-ca, verify-full (postgres), verify_identity (mysql)" ))
     tls:
       ca:     ((autoscaler_database_tls_ca))
