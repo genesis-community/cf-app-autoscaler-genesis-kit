@@ -1,9 +1,9 @@
 ---
 releases:
 - name:    "app-autoscaler"
-  version: "15.3.1"
-  url:     "https://bosh.io/d/github.com/cloudfoundry-incubator/app-autoscaler-release?v=15.3.1"
-  sha1:    "sha256:8875d80e0c9ed6a1c81f530dc6d0e448c559b4448299b8dcb66267f8d86ca4be"
+  version: "15.13.0"
+  url:     "https://storage.googleapis.com/app-autoscaler-releases/releases/app-autoscaler-v15.13.0.tgz"
+  sha1:    "sha256:da7a72e64b69e421e773f0f488099a35b85a2ec97bea2654157bd515b38bca01"
 
 - name:    "routing"
   version: "0.343.0"
