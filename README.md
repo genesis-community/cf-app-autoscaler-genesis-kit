@@ -45,10 +45,22 @@ As the App Autoscaler is tightly coupled to Cloud Foundry, this kit requires a C
 
 | App Autoscaler Kit Version | Compatible CF Genesis Kit Versions | App Autoscaler Release Version |
 |---------------------------|-----------------------------------|-------------------------------|
+| 5.1.x                     | 2.0.0+                           | 15.13.0 (terminal — see note) |
+| 5.0.x                     | 2.0.0+                           | 15.3.1                        |
 | 4.1.x                     | 2.0.0+                           | 15.3.1                        |
 | 4.0.x                     | 2.0.0+                           | 15.2.0                        |
 | 3.x.x                     | 1.x.x, 2.0.0+                    | 14.x.x                        |
 | 2.x.x                     | 1.x.x                            | 3.x.x                         |
+
+> **⚠ v15.13.0 is the terminal App Autoscaler BOSH release — kit 5.1.x is the final BOSH-path bump.**
+> Upstream archived [`cloudfoundry/app-autoscaler-release`](https://github.com/cloudfoundry/app-autoscaler-release)
+> after v15.13.0 and moved to Multi-Target App (MTAR) delivery in
+> [`cloudfoundry/app-autoscaler`](https://github.com/cloudfoundry/app-autoscaler) (v15.14.0+, `.mtar`, no
+> BOSH release). No BOSH release will follow v15.13.0, so there is no v15.14.x pin to chase; the forward
+> path to a supported runtime is an MTAR migration, not another release pin. v15.13.0 bundles Spring Boot
+> 3.5.10 (OSS-EOL 2026-06-30) by design — the 3.5.14-fixed CVEs are not reachable in this deployment
+> topology. The kit version and the pinned release are coupled: deploy kit 5.1.x only against release
+> 15.13.0.
 
 ## Quick Start
 
