@@ -1,5 +1,5 @@
 name:    cf-app-autoscaler
-version: 5.0.0
+version: 5.1.0
 author:  Dennis Bell <dennis.j.bell@gmail.com>
          Ioannis Tsouvalas <tsouvalasi@atic.gr>
          Wayne E. Seguin <wayneeseguin@gmail.com>
