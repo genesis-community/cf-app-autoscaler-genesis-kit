@@ -3,7 +3,7 @@ kit:
   name: dev
   version: latest
   features:
-    - mysql 
+    - mysql
 
 genesis:
   env: mysql
@@ -17,4 +17,4 @@ bosh-variables:
     certificate: <!mysql_server_certificate.certificate!>
     key: <!mysql_server_certificate.key!>
   autoscaler_database_password: "<!somepassword!>"
-    
+

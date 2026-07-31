@@ -1,3 +1,35 @@
+/secret/exodus/base/bosh:
+  url: "https://bosh.lab.example.com:25555"
+  admin_username: admin
+  admin_password: admin-password
+  ca_cert: "mycert"
+  kit_name: bosh
+  credhub_ca_cert: "credhubcacert"
+  vault_base: /secret/base/bosh
+/secret/exodus/external-db/bosh:
+  url: "https://bosh.lab.example.com:25555"
+  admin_username: admin
+  admin_password: admin-password
+  ca_cert: "mycert"
+  kit_name: bosh
+  credhub_ca_cert: "credhubcacert"
+  vault_base: /secret/external-db/bosh
+/secret/exodus/mysql/bosh:
+  url: "https://bosh.lab.example.com:25555"
+  admin_username: admin
+  admin_password: admin-password
+  ca_cert: "mycert"
+  kit_name: bosh
+  credhub_ca_cert: "credhubcacert"
+  vault_base: /secret/mysql/bosh
+/secret/exodus/params/bosh:
+  url: "https://bosh.lab.example.com:25555"
+  admin_username: admin
+  admin_password: admin-password
+  ca_cert: "mycert"
+  kit_name: bosh
+  credhub_ca_cert: "credhubcacert"
+  vault_base: /secret/params/bosh
 /secret/exodus/base-test/cf:
   system_domain: sys.test.cf.domain
   core_network: test-core-network

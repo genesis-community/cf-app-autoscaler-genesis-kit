@@ -3,7 +3,7 @@ kit:
   name: dev
   version: latest
   features:
-    - external-db 
+    - external-db
 
 genesis:
   env: external-db
