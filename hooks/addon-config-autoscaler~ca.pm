@@ -1,4 +1,4 @@
-package Genesis::Hook::Addon::CFAppAutoscaler::ConfigAutoscaler v5.0.0;
+package Genesis::Hook::Addon::CFAppAutoscaler::ConfigAutoscaler v5.1.0;
 
 use v5.20;
 use warnings;
