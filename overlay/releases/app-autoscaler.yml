@@ -1,9 +1,9 @@
 ---
 releases:
 - name:    "app-autoscaler"
-  version: "15.13.0"
-  url:     "https://storage.googleapis.com/app-autoscaler-releases/releases/app-autoscaler-v15.13.0.tgz"
-  sha1:    "sha256:da7a72e64b69e421e773f0f488099a35b85a2ec97bea2654157bd515b38bca01"
+  version: "15.13.1"
+  url:     "https://github.com/fivetwenty-io/app-autoscaler-release/releases/download/v15.13.1/app-autoscaler-v15.13.1.tgz"
+  sha1:    "sha256:276e18f989c225f5c2c1cdcd0d3472952255e610b9d01f0d17798865ceaea748"
 
 - name:    "routing"
   version: "0.343.0"
