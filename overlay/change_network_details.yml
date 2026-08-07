@@ -54,13 +54,7 @@ addons:
         - query: '_'
           deployment: (( grab meta.cf.deployment_name ))
           network: (( grab params.cf_core_network ))
-      - domain: logcache
-        targets:
-        - (( merge on query ))
-        - query: '*'
-          deployment: (( grab meta.cf.deployment_name ))
-          network: (( grab params.cf_core_network ))
-      - domain: log-cache.service.cf.internal
+      - domain: ((logcache_domain))
         targets:
         - (( merge on query ))
         - query: '*'

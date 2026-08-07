@@ -66,13 +66,6 @@ addons:
           instance_group: nats
           network: test-core-network
           query: _
-      - domain: logcache
-        targets:
-        - deployment: base-test-cf
-          domain: bosh
-          instance_group: log-cache
-          network: test-core-network
-          query: '*'
       - domain: log-cache.service.cf.internal
         targets:
         - deployment: base-test-cf
@@ -592,8 +585,9 @@ instance_groups:
             ca_cert: <!{credhub}:log_cache_ca.certificate!>
             client_cert: <!{credhub}:log_cache_client_cert.certificate!>
             client_key: <!{credhub}:log_cache_client_cert.private_key!>
-            host: logcache
+            host: log-cache.service.cf.internal
             port: 8080
+            server_name: log_cache
           scaling_engine:
             ca_cert: <!{credhub}:scalingengine_client_cert.ca!>
             client_cert: <!{credhub}:scalingengine_client_cert.certificate!>
@@ -834,9 +828,9 @@ instance_groups:
 name: external-db-cf-app-autoscaler
 releases:
 - name: app-autoscaler
-  sha1: sha256:da7a72e64b69e421e773f0f488099a35b85a2ec97bea2654157bd515b38bca01
-  url: https://storage.googleapis.com/app-autoscaler-releases/releases/app-autoscaler-v15.13.0.tgz
-  version: 15.13.0
+  sha1: sha256:276e18f989c225f5c2c1cdcd0d3472952255e610b9d01f0d17798865ceaea748
+  url: https://github.com/fivetwenty-io/app-autoscaler-release/releases/download/v15.13.1/app-autoscaler-v15.13.1.tgz
+  version: 15.13.1
 - name: postgres
   sha1: sha256:75ceb40c970c54a922768d499bee9102d7a2ae2f88e269cefecba2f1c195e70b
   url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=48
