@@ -10,7 +10,7 @@ use parent qw(Genesis::Hook::CloudConfig);
 
 use Genesis::Hook::CloudConfig::Helpers qw/gigabytes megabytes/;
 
-use Genesis qw//;
+use Genesis qw/ bail/;
 use JSON::PP;
 
 sub init {
@@ -45,7 +45,7 @@ sub perform {
 							'security_groups' => $self->get_network_security_groups(),
 						},
 						'pve' => {
-							'bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+							'bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 						},
 					},
 				},
@@ -95,7 +95,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_postgres_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_postgres_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_postgres_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -142,7 +142,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_apiserver_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_apiserver_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_apiserver_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -189,7 +189,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scalingengine_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scalingengine_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scalingengine_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -236,7 +236,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scheduler_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scheduler_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_scheduler_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -283,7 +283,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_operator_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_operator_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_operator_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -330,7 +330,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_eventgenerator_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_eventgenerator_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_eventgenerator_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -377,7 +377,7 @@ sub perform {
 						'cpu'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_metricsforwarder_cpu', $self->for_scale({ dev => 2, prod => 4 }, 2))),
 						'ram'            => scalar($self->env->lookup('bosh-configs.cpi.pve_as_metricsforwarder_ram', $self->for_scale({ dev => 4096, prod => 8192 }, 4096))),
 						'disk'           => scalar($self->env->lookup('bosh-configs.cpi.pve_as_metricsforwarder_disk', $self->for_scale({ dev => 32768, prod => 65536 }, 32768))),
-						'network_bridge' => scalar($self->env->lookup('bosh-configs.cpi.pve_network_bridge', 'lvnet001')),
+						'network_bridge' => $self->_pve_cpi_setting('pve_network_bridge', 'network_bridge', 'vmbr0'),
 					},
 				}
 			),
@@ -400,7 +400,7 @@ sub perform {
 						'encrypted' => $self->TRUE,
 					},
 					pve => {
-						'storage'     => scalar($self->env->lookup('bosh-configs.cpi.pve_disk_storage', 'zfs-1')),
+						'storage'     => $self->_pve_cpi_setting('pve_disk_storage', 'disk_storage', 'local-lvm'),
 						'disk_format' => scalar($self->env->lookup('bosh-configs.cpi.pve_disk_format', 'raw')),
 					},
 				},
@@ -410,5 +410,23 @@ sub perform {
 
 	$self->done($config);
 }
+
+
+# _pve_cpi_setting - resolve a PVE CPI setting from the env file, then the OCFP vault config, then a default {{{
+sub _pve_cpi_setting {
+	my ($self, $env_key, $vault_key, $default) = @_;
+	my $value = scalar($self->env->lookup("bosh-configs.cpi.$env_key", undef));
+	$value //= scalar($self->env->ocfp_config_lookup("cpi.pve.$vault_key", undef));
+	$value //= $default;
+	bail(
+		"No PVE %s configured for %s: set #c{bosh-configs.cpi.%s} in the ".
+		"environment file, or run #g{ocfp vault populate} so the OCFP config ".
+		"provides #c{cpi/pve:%s}.",
+		$vault_key, $self->env->name, $env_key, $vault_key
+	) unless defined($value) && length($value);
+	return $value;
+}
+
+# }}}
 
 1;
