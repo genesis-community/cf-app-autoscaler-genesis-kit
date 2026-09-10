@@ -64,7 +64,6 @@ sub cf_login {
 sub get_service_broker_credentials {
 	my ($self) = @_;
 
-	$self->exodus_data(".", undef, "");
 	my $service_broker_password = $self->exodus_data("service_broker_password");
 	my $service_broker_username = $self->exodus_data("service_broker_username");
 	my $servicebroker_public_domain = $self->exodus_data("service_broker_domain");
