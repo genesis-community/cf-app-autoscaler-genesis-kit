@@ -27,6 +27,9 @@ meta:
 
 params:
   network:  (( grab meta.ocfp.networks[0].name ))
+  # Single AZ for every instance group on PVE (see ocfp/pve.yml). Override with the
+  # zone whose ocfp subnet has room for the seven-address autoscaler allocation.
+  pve_az:   z2
 
 # Instance group OCFP overrides
 instance_groups:
