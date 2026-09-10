@@ -30,7 +30,7 @@ sub perform {
 	my ($broker_name, $service_name) = $self->exodus_data(qw/broker_name service_name/);
 
 	info("Creating and enabling service broker:");
-	info("\n[[  - >>running #G{cf create-service-broker $broker_name $sb_username $sb_password $sb_url}");
+	info("\n[[  - >>running #G{cf create-service-broker $broker_name $sb_username <password> $sb_url}");
 
 	my ($out, $rc) = run(
 		qw/cf create-service-broker/, $broker_name, $sb_username, $sb_password, $sb_url
