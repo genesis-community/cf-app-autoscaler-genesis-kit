@@ -1,32 +1,108 @@
 /secret/exodus/base/bosh:
-  url: "https://bosh.lab.example.com:25555"
+  url: "https://127.0.0.1:1"
   admin_username: admin
   admin_password: admin-password
-  ca_cert: "mycert"
+  ca_cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIDBTCCAe2gAwIBAgIUYjKS8WOFuUbD34nZV+D1/AG98oYwDQYJKoZIhvcNAQEL
+    BQAwEjEQMA4GA1UEAwwHbW9jay1jYTAeFw0yNjA3MTYxNTU1NDRaFw0zNjA3MTMx
+    NTU1NDRaMBIxEDAOBgNVBAMMB21vY2stY2EwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+    DwAwggEKAoIBAQDImTmvl1GGmnQNOt0/WW8HZxTzprM+iEQahNdQMiENA60+1g6T
+    iXxxdOrBG3DxL4J2cHJJ5OjsmBCK/L0jjeTQQWYJsGqKVLTEMmvH4+MXa35lm56D
+    bQOnmrvbodCr0a/cNTG+vBgj7L9Qz2usAWOdcylMDoO+Z4/p/hac8eJk+aP1sTF6
+    YdseDfVyt4VJ8AflNjvfg+eTfa5VJh5HgOBFiE2PQN3XjfQytksC67Myb63eehBI
+    n2+2XO/G6HkFsWAffHrr36KcNPH9YlJ9tusan0QBXi+L/K1cPNw0pFQx/iOkA4mN
+    rOESIUhTFhYCRLkD6WDeQZ92hJejTfWY4oRfAgMBAAGjUzBRMB0GA1UdDgQWBBRt
+    wAXaiSiHkGbvd9f/bACxDpU69TAfBgNVHSMEGDAWgBRtwAXaiSiHkGbvd9f/bACx
+    DpU69TAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQA1SNT3VNQp
+    bcZlIm4oZWEesz4EdcHQWZIstNiyEPFr+ReZI4bFISe26c1pCGRyQcQ6v4j7HUZA
+    vfxAlhLFNjamB7lodHptnjFNxrBL6vISCAgem0s+RFoaAkWT4UZdj8rUWpnZBhwA
+    IExI+txQje5XEXSc1qJGDGdr6VXcl6XAUBnjrkP8smA1+/NnSivLxJsdpgEPBQ8S
+    DdgZPJVjsfBnXJbvoYY40/V40lBtA98+5iiti5bB/7/mU/Z+ozO/ULRBWfk77hgI
+    w+gg0qmQGI2Tp7qHddfuYXxV+Wj7G05qPC6ZmMUkAyP4Ym0KrCjThbISpVkkw3j5
+    Bm0vl3ysfvki
+    -----END CERTIFICATE-----
   kit_name: bosh
   credhub_ca_cert: "credhubcacert"
   vault_base: /secret/base/bosh
 /secret/exodus/external-db/bosh:
-  url: "https://bosh.lab.example.com:25555"
+  url: "https://127.0.0.1:1"
   admin_username: admin
   admin_password: admin-password
-  ca_cert: "mycert"
+  ca_cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIDBTCCAe2gAwIBAgIUYjKS8WOFuUbD34nZV+D1/AG98oYwDQYJKoZIhvcNAQEL
+    BQAwEjEQMA4GA1UEAwwHbW9jay1jYTAeFw0yNjA3MTYxNTU1NDRaFw0zNjA3MTMx
+    NTU1NDRaMBIxEDAOBgNVBAMMB21vY2stY2EwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+    DwAwggEKAoIBAQDImTmvl1GGmnQNOt0/WW8HZxTzprM+iEQahNdQMiENA60+1g6T
+    iXxxdOrBG3DxL4J2cHJJ5OjsmBCK/L0jjeTQQWYJsGqKVLTEMmvH4+MXa35lm56D
+    bQOnmrvbodCr0a/cNTG+vBgj7L9Qz2usAWOdcylMDoO+Z4/p/hac8eJk+aP1sTF6
+    YdseDfVyt4VJ8AflNjvfg+eTfa5VJh5HgOBFiE2PQN3XjfQytksC67Myb63eehBI
+    n2+2XO/G6HkFsWAffHrr36KcNPH9YlJ9tusan0QBXi+L/K1cPNw0pFQx/iOkA4mN
+    rOESIUhTFhYCRLkD6WDeQZ92hJejTfWY4oRfAgMBAAGjUzBRMB0GA1UdDgQWBBRt
+    wAXaiSiHkGbvd9f/bACxDpU69TAfBgNVHSMEGDAWgBRtwAXaiSiHkGbvd9f/bACx
+    DpU69TAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQA1SNT3VNQp
+    bcZlIm4oZWEesz4EdcHQWZIstNiyEPFr+ReZI4bFISe26c1pCGRyQcQ6v4j7HUZA
+    vfxAlhLFNjamB7lodHptnjFNxrBL6vISCAgem0s+RFoaAkWT4UZdj8rUWpnZBhwA
+    IExI+txQje5XEXSc1qJGDGdr6VXcl6XAUBnjrkP8smA1+/NnSivLxJsdpgEPBQ8S
+    DdgZPJVjsfBnXJbvoYY40/V40lBtA98+5iiti5bB/7/mU/Z+ozO/ULRBWfk77hgI
+    w+gg0qmQGI2Tp7qHddfuYXxV+Wj7G05qPC6ZmMUkAyP4Ym0KrCjThbISpVkkw3j5
+    Bm0vl3ysfvki
+    -----END CERTIFICATE-----
   kit_name: bosh
   credhub_ca_cert: "credhubcacert"
   vault_base: /secret/external-db/bosh
 /secret/exodus/mysql/bosh:
-  url: "https://bosh.lab.example.com:25555"
+  url: "https://127.0.0.1:1"
   admin_username: admin
   admin_password: admin-password
-  ca_cert: "mycert"
+  ca_cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIDBTCCAe2gAwIBAgIUYjKS8WOFuUbD34nZV+D1/AG98oYwDQYJKoZIhvcNAQEL
+    BQAwEjEQMA4GA1UEAwwHbW9jay1jYTAeFw0yNjA3MTYxNTU1NDRaFw0zNjA3MTMx
+    NTU1NDRaMBIxEDAOBgNVBAMMB21vY2stY2EwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+    DwAwggEKAoIBAQDImTmvl1GGmnQNOt0/WW8HZxTzprM+iEQahNdQMiENA60+1g6T
+    iXxxdOrBG3DxL4J2cHJJ5OjsmBCK/L0jjeTQQWYJsGqKVLTEMmvH4+MXa35lm56D
+    bQOnmrvbodCr0a/cNTG+vBgj7L9Qz2usAWOdcylMDoO+Z4/p/hac8eJk+aP1sTF6
+    YdseDfVyt4VJ8AflNjvfg+eTfa5VJh5HgOBFiE2PQN3XjfQytksC67Myb63eehBI
+    n2+2XO/G6HkFsWAffHrr36KcNPH9YlJ9tusan0QBXi+L/K1cPNw0pFQx/iOkA4mN
+    rOESIUhTFhYCRLkD6WDeQZ92hJejTfWY4oRfAgMBAAGjUzBRMB0GA1UdDgQWBBRt
+    wAXaiSiHkGbvd9f/bACxDpU69TAfBgNVHSMEGDAWgBRtwAXaiSiHkGbvd9f/bACx
+    DpU69TAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQA1SNT3VNQp
+    bcZlIm4oZWEesz4EdcHQWZIstNiyEPFr+ReZI4bFISe26c1pCGRyQcQ6v4j7HUZA
+    vfxAlhLFNjamB7lodHptnjFNxrBL6vISCAgem0s+RFoaAkWT4UZdj8rUWpnZBhwA
+    IExI+txQje5XEXSc1qJGDGdr6VXcl6XAUBnjrkP8smA1+/NnSivLxJsdpgEPBQ8S
+    DdgZPJVjsfBnXJbvoYY40/V40lBtA98+5iiti5bB/7/mU/Z+ozO/ULRBWfk77hgI
+    w+gg0qmQGI2Tp7qHddfuYXxV+Wj7G05qPC6ZmMUkAyP4Ym0KrCjThbISpVkkw3j5
+    Bm0vl3ysfvki
+    -----END CERTIFICATE-----
   kit_name: bosh
   credhub_ca_cert: "credhubcacert"
   vault_base: /secret/mysql/bosh
 /secret/exodus/params/bosh:
-  url: "https://bosh.lab.example.com:25555"
+  url: "https://127.0.0.1:1"
   admin_username: admin
   admin_password: admin-password
-  ca_cert: "mycert"
+  ca_cert: |
+    -----BEGIN CERTIFICATE-----
+    MIIDBTCCAe2gAwIBAgIUYjKS8WOFuUbD34nZV+D1/AG98oYwDQYJKoZIhvcNAQEL
+    BQAwEjEQMA4GA1UEAwwHbW9jay1jYTAeFw0yNjA3MTYxNTU1NDRaFw0zNjA3MTMx
+    NTU1NDRaMBIxEDAOBgNVBAMMB21vY2stY2EwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+    DwAwggEKAoIBAQDImTmvl1GGmnQNOt0/WW8HZxTzprM+iEQahNdQMiENA60+1g6T
+    iXxxdOrBG3DxL4J2cHJJ5OjsmBCK/L0jjeTQQWYJsGqKVLTEMmvH4+MXa35lm56D
+    bQOnmrvbodCr0a/cNTG+vBgj7L9Qz2usAWOdcylMDoO+Z4/p/hac8eJk+aP1sTF6
+    YdseDfVyt4VJ8AflNjvfg+eTfa5VJh5HgOBFiE2PQN3XjfQytksC67Myb63eehBI
+    n2+2XO/G6HkFsWAffHrr36KcNPH9YlJ9tusan0QBXi+L/K1cPNw0pFQx/iOkA4mN
+    rOESIUhTFhYCRLkD6WDeQZ92hJejTfWY4oRfAgMBAAGjUzBRMB0GA1UdDgQWBBRt
+    wAXaiSiHkGbvd9f/bACxDpU69TAfBgNVHSMEGDAWgBRtwAXaiSiHkGbvd9f/bACx
+    DpU69TAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQA1SNT3VNQp
+    bcZlIm4oZWEesz4EdcHQWZIstNiyEPFr+ReZI4bFISe26c1pCGRyQcQ6v4j7HUZA
+    vfxAlhLFNjamB7lodHptnjFNxrBL6vISCAgem0s+RFoaAkWT4UZdj8rUWpnZBhwA
+    IExI+txQje5XEXSc1qJGDGdr6VXcl6XAUBnjrkP8smA1+/NnSivLxJsdpgEPBQ8S
+    DdgZPJVjsfBnXJbvoYY40/V40lBtA98+5iiti5bB/7/mU/Z+ozO/ULRBWfk77hgI
+    w+gg0qmQGI2Tp7qHddfuYXxV+Wj7G05qPC6ZmMUkAyP4Ym0KrCjThbISpVkkw3j5
+    Bm0vl3ysfvki
+    -----END CERTIFICATE-----
   kit_name: bosh
   credhub_ca_cert: "credhubcacert"
   vault_base: /secret/params/bosh
