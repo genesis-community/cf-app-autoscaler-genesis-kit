@@ -390,6 +390,34 @@ The feature moves bpm to 1.4.41, because the 1.4.26 release the kit normally pin
 
 Resolute ships without runit, so the `chpst` command is missing. A job whose start script drops privileges with `chpst` hangs on resolute, and we have to switch it to `setpriv` or bpm before its release can run there. The app-autoscaler, postgres, and routing releases the kit uses do not call `chpst`, but we should check any job we add to the deployment before we move it to resolute.
 
+### Postgres collation after the stemcell move
+
+Moving from ubuntu-noble to ubuntu-resolute takes glibc from 2.39 to 2.43, and a postgres server that keeps its data directory notices the change. Each database records the collation version it was created with, so after the move the postgres log fills with warnings such as `database "autoscaler" has a collation version mismatch`. Text indexes built under the old glibc may order strings differently under the new one, so we rebuild them once and then record the new version. We only need this when an existing deployment moves from noble to resolute with its data kept. A deployment built new on resolute has no mismatch.
+
+We run the fix once for every database on the server, including `postgres` and `template1`, which hold no application data but warn all the same. Open a shell on the `postgres` instance with `bosh ssh`.
+
+```
+bosh -d <deployment> ssh postgres
+```
+
+Then become root with `sudo -i` and run the following. The server trusts the `vcap` user over the local socket in `/tmp`, so no password is needed. If the binary path differs, `ls -d /var/vcap/packages/postgres-*` shows the right one.
+
+```
+PSQL="sudo -u vcap /var/vcap/packages/postgres-15/bin/psql -h /tmp -p 5432 -U vcap -X"
+for db in autoscaler postgres template1; do
+  $PSQL -v ON_ERROR_STOP=1 -d $db -c "REINDEX DATABASE \"$db\";"
+  $PSQL -v ON_ERROR_STOP=1 -d $db -c "ALTER DATABASE \"$db\" REFRESH COLLATION VERSION;"
+done
+```
+
+Both statements print the mismatch warning themselves until the refresh completes, which is expected. The reindex is not concurrent and holds locks while it runs, but it is brief on a database of this size. We can confirm the result by comparing the two versions, and every row should show 2.43 on both sides.
+
+```
+$PSQL -d postgres -c "select datname, datcollversion, pg_database_collation_actual_version(oid) as actual from pg_database where datname<>'template0' order by 1"
+```
+
+Nothing needs a restart or a redeploy.
+
 ## Upstream Features
 
 In addition to the bundled features, you can include ops files from the upstream [cf-app-autoscaler][cfaar] release:
