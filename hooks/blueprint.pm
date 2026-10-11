@@ -65,6 +65,7 @@ sub validate_classic_features {
 			'mysql',
 			'postgres',
 			'deployment-name-in-domains',
+			'resolute',
 		],
 		deprecated_features => {
 			'cf-v1-support' => undef,
@@ -84,7 +85,7 @@ sub validate_ocfp_features {
 	my ($self) = @_;
 
 	$self->validate_features(
-		valid_features => ['ocfp', 'internal-db']
+		valid_features => ['ocfp', 'internal-db', 'resolute']
 		# No mutually exclusive features needed for OCFP mode
 		# internal-db is a toggle, not mutually exclusive with anything
 	);
@@ -121,6 +122,7 @@ sub process_classic_features {
 		}
 		# noop_feature and other features handled by categorization
 	}
+	$self->add_resolute_files();
 	return $self->done();
 }
 
@@ -172,12 +174,50 @@ sub process_ocfp_features {
 		# Basic features are automatically included in OCFP - no need to process
 		# noop_feature and ocfp_feature already handled
 	}
+	$self->add_resolute_files();
 	return $self->done();
 }
 
 # }}}
 
 ### Helper methods for perform, validate_* and process_* methods
+
+# add_resolute_files - Apply or refuse the ubuntu-resolute stemcell settings {{{
+# The default stemcell stays ubuntu-noble.  When the resolute feature is on, the
+# files are added after every other fragment so that they win.  The feature owns
+# params.stemcell_os, so any other value is refused, and so is ubuntu-resolute
+# without the feature.
+sub add_resolute_files {
+	my ($self) = @_;
+
+	if ($self->want_feature('resolute')) {
+		my $stemcell_os = $self->env->lookup('params.stemcell_os', 'ubuntu-resolute');
+		bail(
+			"The #c{resolute} feature sets the stemcell os to ubuntu-resolute, but " .
+			"the environment sets #c{params.stemcell_os} to #R{%s}.  " .
+			"Remove that parameter.", $stemcell_os
+		) if $stemcell_os ne 'ubuntu-resolute';
+
+		# Compiled releases are built against a specific stemcell, so none of
+		# them can run on resolute.
+		my @compiled = grep { /compiled/ } $self->features;
+		bail(
+			"The #c{resolute} feature cannot be combined with compiled-release " .
+			"features (%s), because compiled releases are built for a different " .
+			"stemcell.", join(', ', @compiled)
+		) if @compiled;
+
+		$self->add_files('overlay/resolute.yml');
+	} elsif ($self->env->lookup('params.stemcell_os', 'ubuntu-noble') eq 'ubuntu-resolute') {
+		bail(
+			"The environment sets #c{params.stemcell_os} to ubuntu-resolute " .
+			"without the #c{resolute} feature.  Enable the feature and remove " .
+			"that parameter."
+		);
+	}
+}
+
+# }}}
 
 # get_cf_integration_data - Validate CF integration and retrieve exodus data {{{
 sub get_cf_integration_data {

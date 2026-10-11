@@ -20,6 +20,8 @@ It is based on the upstream [cloudfoundry/app-autoscaler-release][cfaar], and su
   - [postgres](#postgres)
   - [mysql](#mysql)
   - [cf-v1-support](#cf-v1-support)
+  - [resolute](#resolute)
+- [Ubuntu Resolute Stemcells](#ubuntu-resolute-stemcells)
 - [Upstream Features](#upstream-features)
 - [Custom Features](#custom-features)
 - [Post-Deployment Configuration](#post-deployment-configuration)
@@ -362,6 +364,31 @@ kit:
 ### `cf-v1-support`
 
 Allows this kit to be applied to the v1.x series of CF Genesis Kit. See [Migration from CF Genesis Kit v1.x.x](#migration-from-cf-genesis-kit-v1xx) for details.
+
+### `resolute`
+
+**Experimental.** Deploys on the ubuntu-resolute stemcell instead of ubuntu-noble. See [Ubuntu Resolute Stemcells](#ubuntu-resolute-stemcells).
+
+## Ubuntu Resolute Stemcells
+
+The kit deploys on ubuntu-noble stemcells unless we ask for something else. Adding the `resolute` feature moves every instance group onto ubuntu-resolute, and it works the same with or without `ocfp`.
+
+```yaml
+kit:
+  features:
+  - resolute
+
+params:
+  stemcell_version: "0.184"
+```
+
+The feature is experimental, so we recommend trying it on a canary deployment before we point anything real at it. It sets the stemcell `os` to `ubuntu-resolute`, and `stemcell_version` still selects the version, which defaults to `latest`. We pin it to a resolute version such as `"0.184"`, so that a newer noble upload is never picked up by accident. Because the feature owns the stemcell os, an environment that sets `params.stemcell_os` to anything else is refused, and so is an environment that sets `params.stemcell_os` to `ubuntu-resolute` without turning the feature on. The kit has no compiled-release feature, but the feature also refuses any feature name containing `compiled`, since a compiled release is built for one specific stemcell.
+
+Before the first deploy we need to do two things on the director. We upload the resolute stemcell to the director that deploys the autoscaler, since both the compilation VMs and the instances need it. We also make sure the director's runtime config carries bosh-dns 1.39.31 or later, because earlier bosh-dns releases do not run on resolute. The kit's bosh-dns-aliases and bpm addons have no stemcell include lists, so they apply to resolute VMs without any change.
+
+The feature moves bpm to 1.4.41, because the 1.4.26 release the kit normally pins bundles a tini package that resolute's CMake refuses to compile. It also moves the postgres release to 57.0.0, because the 54.0.0 release compiles its postgres-16 package on resolute without producing a `bin` directory, so postgres never starts. The postgres job properties the kit sets are unchanged between release 48 and 57.0.0. What does change is that the release's pre-start now chooses the PostgreSQL major version and carries out the data upgrade from the version that wrote the existing data. The release 48 we normally use runs PostgreSQL 15, and release 57.0.0 would default to 18, so the feature sets `databases.version` to 15 on the postgres job. Keeping the same major version leaves the data directory where it is, and no pg_upgrade runs during the stemcell change. Moving to a newer major version later is a separate step that runs that upgrade, so we take a backup first.
+
+Resolute ships without runit, so the `chpst` command is missing. A job whose start script drops privileges with `chpst` hangs on resolute, and we have to switch it to `setpriv` or bpm before its release can run there. The app-autoscaler, postgres, and routing releases the kit uses do not call `chpst`, but we should check any job we add to the deployment before we move it to resolute.
 
 ## Upstream Features
 

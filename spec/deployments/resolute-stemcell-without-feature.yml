@@ -1,0 +1,11 @@
+---
+kit:
+  name: dev
+  version: latest
+  features: []
+genesis:
+  env: resolute-stemcell-without-feature
+
+params:
+  cf_deployment_env: base-test
+  stemcell_os: ubuntu-resolute

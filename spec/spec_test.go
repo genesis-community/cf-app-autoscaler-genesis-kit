@@ -6,6 +6,7 @@ import (
 
 	. "github.com/genesis-community/testkit/v2/testing"
 	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = BeforeSuite(func() {
@@ -52,6 +53,50 @@ var _ = Describe("CF App Autoscaler Kit", func() {
 			RuntimeConfig: "dns",
 			CPI:           "aws",
 			Exodus:        "base",
+		})
+	})
+
+	Describe("resolute", func() {
+		Test(Environment{
+			Name:          "resolute",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+		})
+		// The ocfp fixture is named resolute-ocf so that Genesis derives the
+		// OCFP vault path resolute/ocf, the way it does for a deployed
+		// environment such as ocfp-lab-wayneeseguin-ocf.
+		Test(Environment{
+			Name:          "resolute-ocf",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+		})
+		Test(Environment{
+			Name:          "resolute-wrong-stemcell-os",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+			OutputMatchers: OutputMatchers{
+				GenesisAddSecrets: ContainSubstring("stemcell os to"),
+				GenesisCheck:      ContainSubstring("stemcell os to"),
+				GenesisManifest:   ContainSubstring("stemcell os to"),
+			},
+		})
+		Test(Environment{
+			Name:          "resolute-stemcell-without-feature",
+			CloudConfig:   "aws",
+			RuntimeConfig: "dns",
+			CPI:           "aws",
+			Exodus:        "base",
+			OutputMatchers: OutputMatchers{
+				GenesisAddSecrets: ContainSubstring("Enable the feature and remove that parameter"),
+				GenesisCheck:      ContainSubstring("Enable the feature and remove that parameter"),
+				GenesisManifest:   ContainSubstring("Enable the feature and remove that parameter"),
+			},
 		})
 	})
 })

@@ -1,0 +1,12 @@
+---
+kit:
+  name: dev
+  version: latest
+  features:
+  - resolute
+genesis:
+  env: resolute-wrong-stemcell-os
+
+params:
+  cf_deployment_env: base-test
+  stemcell_os: ubuntu-noble

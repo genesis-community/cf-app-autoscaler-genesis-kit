@@ -1,0 +1,12 @@
+---
+kit:
+  name: dev
+  version: latest
+  features:
+  - resolute
+genesis:
+  env: resolute
+
+params:
+  cf_deployment_env: base-test
+  stemcell_version: "0.184"

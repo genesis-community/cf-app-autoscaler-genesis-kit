@@ -1,0 +1,41 @@
+---
+# Ubuntu resolute stemcell.
+#
+# Loaded last by the resolute feature so that it wins over the ubuntu-noble
+# default in overlay/base.yml.  The stemcell version still comes from
+# params.stemcell_version.
+#
+# The addons in overlay/app-autoscaler.yml (bosh-dns-aliases and bpm) carry no
+# stemcell include lists, so they apply to resolute VMs without changes.
+
+params:
+  stemcell_os: ubuntu-resolute
+
+# bpm releases before 1.4.41 bundle a tini whose CMake minimum is older than
+# resolute's CMake accepts, so their packages fail to compile there.  Spruce
+# merges this entry over the pin in overlay/releases/app-autoscaler.yml by name.
+releases:
+- name:    bpm
+  version: 1.4.41
+  url:     https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.4.41
+  sha1:    sha256:7b445508d63d2171d892ba33f836087e1e519b9782f44c5fa5290323616ca8e6
+
+# postgres-release 54.0.0 compiles its postgres-16 package on resolute without
+# producing bin/, so postgres never starts.  57.0.0 runs on resolute.  The kit
+# pins 48 in upstream/operations/add-releases.yml.  The job properties the kit
+# sets are unchanged in 57.0.0, but the release's pre-start now picks the
+# PostgreSQL major version and performs the data upgrade.  Release 48 runs
+# PostgreSQL 15, so the instance group below pins 15 and the data directory
+# stays put and pg_upgrade does not run during the stemcell change.
+- name:    postgres
+  version: 57.0.0
+  url:     https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=57.0.0
+  sha1:    sha256:fc5f73f57a6b9e7208e4293a7fb7faf11e4fb8fc8bb79db80d0d97e41ab1ee2a
+
+instance_groups:
+- name: postgres
+  jobs:
+  - name: postgres
+    properties:
+      databases:
+        version: 15
